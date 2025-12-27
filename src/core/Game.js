@@ -1,19 +1,22 @@
 import { Loop } from "./Loop.js";
 import { Time } from "./Time.js";
 import { Keyboard } from "../input/Keyboard.js";
+import { Config } from "./Config.js";
 
 export class Game {
-  constructor() {
-    Keyboard.init(); // init keyboard
+  constructor(options = {}) {
+    this.config = new Config(options);
+
+    Keyboard.init();
+
     this.loop = new Loop({
       update: (dt) => {
         Time.update(dt, performance.now());
-        Keyboard.update(); // reset per-frame key states
+        Keyboard.update();
         this.update(dt);
       },
-      render: () => {
-        this.render();
-      }
+      render: () => this.render(),
+      fps: this.config.fps
     });
   }
 
