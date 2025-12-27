@@ -2,17 +2,25 @@ import { Loop } from "./Loop.js";
 import { Time } from "./Time.js";
 
 export class Game {
-  constructor({ update, render }) {
+  constructor() {
     this.loop = new Loop({
       update: (dt) => {
         Time.update(dt, performance.now());
-        if (update) update(dt);
+        this.update(dt);
       },
-      render
+      render: () => {
+        this.render();
+      }
     });
   }
 
+  // lifecycle hooks
+  init() {}
+  update(dt) {}
+  render() {}
+
   start() {
+    this.init();
     this.loop.start();
   }
 

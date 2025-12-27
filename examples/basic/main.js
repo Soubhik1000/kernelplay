@@ -1,21 +1,23 @@
 import { Game, Canvas } from "../../src/index.js";
 
-const canvas = new Canvas(600, 400);
-const ctx = canvas.ctx;
-
-let x = 0;
-
-const game = new Game({
-  update: (dt) => {
-    x += 200 * dt; // move 200px per second
-    if (x > 600) x = 0;
-  },
-
-  render: () => {
-    ctx.clearRect(0, 0, 600, 400);
-    ctx.fillStyle = "black";
-    ctx.fillRect(x, 150, 50, 50);
+class DemoGame extends Game {
+  init() {
+    this.canvas = new Canvas(600, 400);
+    this.ctx = this.canvas.ctx;
+    this.x = 0;
   }
-});
 
+  update(dt) {
+    // this.x += 200 * dt;
+    // if (this.x > 600) this.x = 0;
+  }
+
+  render() {
+    this.ctx.clearRect(0, 0, 600, 400);
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(this.x, 150, 50, 50);
+  }
+}
+
+const game = new DemoGame();
 game.start();
