@@ -1,5 +1,5 @@
 import { Game, Keyboard, Scene, Entity } from "../../src/index.js";
-import { BoxRenderComponent, PositionComponent } from "../../src/index.js";
+import { BoxRenderComponent, PositionComponent, VelocityComponent, GravityComponent } from "../../src/index.js";
 
 // ---------------------------
 // Menu Scene
@@ -39,6 +39,8 @@ class Level1Scene extends Scene {
 
     const box1 = new Entity("Box1");
     box1.addComponent("position", new PositionComponent(200, 150));
+    box1.addComponent("velocity", new VelocityComponent(0, 0));
+    box1.addComponent("gravity", new GravityComponent());
     box1.addComponent("renderer", new BoxRenderComponent());
     box1.getComponent().renderer.color = 'black';
 
