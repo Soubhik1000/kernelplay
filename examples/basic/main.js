@@ -1,4 +1,5 @@
-import { Game, Keyboard, Scene } from "../../src/index.js";
+import { Game, Keyboard, Scene, Entity } from "../../src/index.js";
+import { BoxRenderComponent, PositionComponent } from "../../src/index.js";
 
 // ---------------------------
 // Menu Scene
@@ -26,26 +27,38 @@ class MenuScene extends Scene {
 // ---------------------------
 // Level 1 Scene
 // ---------------------------
+
 class Level1Scene extends Scene {
   init() {
-    this.ctx = this.game.ctx; // use Game's single canvas
-    this.x = 100;
+    this.ctx = this.game.ctx;
+
+    const box = new Entity("Box");
+    box.addComponent("position", new PositionComponent(100, 150));
+    box.addComponent("renderer", new BoxRenderComponent());
+    // box.getComponent('renderer').color = "black";
+
+    const box1 = new Entity("Box1");
+    box1.addComponent("position", new PositionComponent(200, 150));
+    box1.addComponent("renderer", new BoxRenderComponent());
+    box1.getComponent().renderer.color = 'black';
+
+    this.addEntity(box);
+    this.box = box;
+
+    this.addEntity(box1);
+    this.box1 = box1;
   }
 
   update(dt) {
-    if (Keyboard.isPressed("ArrowRight")) this.x += 200 * dt;
-    if (Keyboard.isPressed("ArrowLeft")) this.x -= 200 * dt;
-
-    // wrap around horizontally
-    if (this.x > this.game.config.width) this.x = 0;
-    if (this.x < 0) this.x = this.game.config.width;
+    const pos = this.box.getComponent("position");
+    if (Keyboard.isPressed("ArrowRight")) pos.x += 200 * dt;
+    if (Keyboard.isPressed("ArrowLeft")) pos.x -= 200 * dt;
   }
 
   render() {
     const { width, height } = this.game.config;
     this.ctx.clearRect(0, 0, width, height);
-    this.ctx.fillStyle = "red";
-    this.ctx.fillRect(this.x, height / 2, 50, 50);
+    super.render(); // render all entities
   }
 }
 
