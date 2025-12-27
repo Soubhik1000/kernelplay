@@ -1,11 +1,14 @@
 import { Loop } from "./Loop.js";
 import { Time } from "./Time.js";
+import { Keyboard } from "../input/Keyboard.js";
 
 export class Game {
   constructor() {
+    Keyboard.init(); // init keyboard
     this.loop = new Loop({
       update: (dt) => {
         Time.update(dt, performance.now());
+        Keyboard.update(); // reset per-frame key states
         this.update(dt);
       },
       render: () => {
@@ -14,7 +17,6 @@ export class Game {
     });
   }
 
-  // lifecycle hooks
   init() {}
   update(dt) {}
   render() {}

@@ -1,4 +1,4 @@
-import { Game, Canvas } from "../../src/index.js";
+import { Game, Canvas, Keyboard } from "../../src/index.js";
 
 class DemoGame extends Game {
   init() {
@@ -10,6 +10,13 @@ class DemoGame extends Game {
   update(dt) {
     // this.x += 200 * dt;
     // if (this.x > 600) this.x = 0;
+
+    if (Keyboard.isPressed("ArrowRight")) this.x += 200 * dt;
+    if (Keyboard.isPressed("ArrowLeft")) this.x -= 200 * dt;
+
+    // wrap around
+    if (this.x > 600) this.x = 0;
+    if (this.x < 0) this.x = 600;
   }
 
   render() {
