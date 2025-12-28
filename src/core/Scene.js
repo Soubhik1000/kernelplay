@@ -59,8 +59,18 @@ export class Scene {
           }
 
           // Collision callbacks
-          if (a.onCollision) a.onCollision(b);
-          if (b.onCollision) b.onCollision(a);
+          // if (a.onCollision) a.onCollision(b);
+          // if (b.onCollision) b.onCollision(a);
+          
+          // Notify scripts on entity A
+          for (const comp of Object.values(a.components)) {
+            if (comp.onCollision) comp.onCollision(b);
+          }
+
+          // Notify scripts on entity B
+          for (const comp of Object.values(b.components)) {
+            if (comp.onCollision) comp.onCollision(a);
+          }
         }
       }
     }

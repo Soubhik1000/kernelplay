@@ -1,5 +1,6 @@
 import { Game, Keyboard, Scene, Entity } from "../../src/index.js";
 import { BoxRenderComponent, PositionComponent, VelocityComponent, GravityComponent, ColliderComponent } from "../../src/index.js";
+import { PlayerController } from "./scripts/PlayerController.js";
 
 // ---------------------------
 // Menu Scene
@@ -37,6 +38,9 @@ class Level1Scene extends Scene {
     box.addComponent("velocity", new VelocityComponent(0, 0));
     box.addComponent("collider", new ColliderComponent(50, 50));
     box.addComponent("renderer", new BoxRenderComponent());
+
+    box.addComponent("playerController", new PlayerController());
+
     // box.getComponent('renderer').color = "black";
 
     const box1 = new Entity("Box1");
@@ -66,15 +70,15 @@ class Level1Scene extends Scene {
     // if (Keyboard.isPressed("ArrowRight")) pos.x += 200 * dt;
     // if (Keyboard.isPressed("ArrowLeft")) pos.x -= 200 * dt;
 
-    const vel = this.box.getComponent("velocity");
+    // const vel = this.box.getComponent("velocity");
 
-    vel.vx = 0;
-    vel.vy = 0;
+    // vel.vx = 0;
+    // vel.vy = 0;
 
-    if (Keyboard.isPressed("ArrowRight")) vel.vx = 200;
-    if (Keyboard.isPressed("ArrowLeft")) vel.vx = -200;
-    if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
-    if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
+    // if (Keyboard.isPressed("ArrowRight")) vel.vx = 200;
+    // if (Keyboard.isPressed("ArrowLeft")) vel.vx = -200;
+    // if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
+    // if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
   }
 
   render() {
