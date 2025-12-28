@@ -12,3 +12,4 @@ export { BoxRenderComponent } from "./core/components/BoxRenderComponent.js";
 export { VelocityComponent } from "./core/components/VelocityComponent.js";
 export { AccelerationComponent } from "./core/components/AccelerationComponent.js";
 export { GravityComponent } from "./core/components/GravityComponent.js";
+export { ColliderComponent } from "./core/components/ColliderComponent.js";
