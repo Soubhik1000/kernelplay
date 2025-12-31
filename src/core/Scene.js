@@ -7,6 +7,7 @@ export class Scene {
   }
 
   addEntity(entity) {
+    entity.scene = this;   // 🔥 inject scene
     this.entities.push(entity);
     return entity;
   }
@@ -29,49 +30,61 @@ export class Scene {
         if (!ca || !cb) continue;
 
         if (AABB(ca.bounds, cb.bounds)) {
+          const isTriggerCollision = ca.isTrigger || cb.isTrigger;
+
           const posA = a.getComponent("position");
           const posB = b.getComponent("position");
 
-          // Safety check
           if (!posA || !posB) continue;
 
-          const overlapX =
-            Math.min(ca.bounds.x + ca.bounds.width, cb.bounds.x + cb.bounds.width) -
-            Math.max(ca.bounds.x, cb.bounds.x);
+          // 🔥 NORMAL COLLISION (PHYSICS)
+          if (!isTriggerCollision) {
+            const overlapX =
+              Math.min(
+                ca.bounds.x + ca.bounds.width,
+                cb.bounds.x + cb.bounds.width
+              ) - Math.max(ca.bounds.x, cb.bounds.x);
 
-          const overlapY =
-            Math.min(ca.bounds.y + ca.bounds.height, cb.bounds.y + cb.bounds.height) -
-            Math.max(ca.bounds.y, cb.bounds.y);
+            const overlapY =
+              Math.min(
+                ca.bounds.y + ca.bounds.height,
+                cb.bounds.y + cb.bounds.height
+              ) - Math.max(ca.bounds.y, cb.bounds.y);
 
-          // Resolve on smaller axis
-          if (overlapX < overlapY) {
-            if (posA.x < posB.x) posA.x -= overlapX;
-            else posA.x += overlapX;
+            // Resolve on smaller axis
+            if (overlapX < overlapY) {
+              if (posA.x < posB.x) posA.x -= overlapX;
+              else posA.x += overlapX;
 
-            const velA = a.getComponent("velocity");
-            if (velA) velA.vx = 0;
-          } else {
-            if (posA.y < posB.y) posA.y -= overlapY;
-            else posA.y += overlapY;
+              const velA = a.getComponent("velocity");
+              if (velA) velA.vx = 0;
+            } else {
+              if (posA.y < posB.y) posA.y -= overlapY;
+              else posA.y += overlapY;
 
-            const velA = a.getComponent("velocity");
-            if (velA) velA.vy = 0;
+              const velA = a.getComponent("velocity");
+              if (velA) velA.vy = 0;
+            }
           }
 
-          // Collision callbacks
-          // if (a.onCollision) a.onCollision(b);
-          // if (b.onCollision) b.onCollision(a);
-          
-          // Notify scripts on entity A
+          // 🔥 EVENT NOTIFICATION
           for (const comp of Object.values(a.components)) {
-            if (comp.onCollision) comp.onCollision(b);
+            if (isTriggerCollision && comp.onTriggerEnter) {
+              comp.onTriggerEnter(b);
+            } else if (!isTriggerCollision && comp.onCollision) {
+              comp.onCollision(b);
+            }
           }
 
-          // Notify scripts on entity B
           for (const comp of Object.values(b.components)) {
-            if (comp.onCollision) comp.onCollision(a);
+            if (isTriggerCollision && comp.onTriggerEnter) {
+              comp.onTriggerEnter(a);
+            } else if (!isTriggerCollision && comp.onCollision) {
+              comp.onCollision(a);
+            }
           }
         }
+
       }
     }
   }
