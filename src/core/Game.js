@@ -10,23 +10,34 @@ export class Game {
     this.config = new Config(options);
     Keyboard.init();
 
-    // Create one canvas for the entire game
+    // 🔥 Single canvas for entire game
     this.canvas = new Canvas(this.config);
     this.ctx = this.canvas.ctx;
 
-    this.sceneManager = new SceneManager();
+    // 🔥 Inject Game into SceneManager
+    this.sceneManager = new SceneManager(this);
 
     this.loop = new Loop({
       update: (dt) => {
         Time.update(dt, performance.now());
         Keyboard.update();
+
         this.update(dt);
-        this.sceneManager.update(dt); // update current scene
+        this.sceneManager.update(dt);
       },
+
       render: () => {
         this.render();
-        this.sceneManager.render(); // render current scene
+
+        // 🔥 Centralized render
+        const { width, height } = this.config;
+        this.ctx.clearRect(0, 0, width, height);
+
+        if (this.sceneManager.currentScene) {
+          this.sceneManager.currentScene.render();
+        }
       },
+
       fps: this.config.fps
     });
   }

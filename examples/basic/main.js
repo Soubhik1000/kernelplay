@@ -96,23 +96,23 @@ import { Level1 } from "./scenes/Level1.js";
 class MyGame extends Game {
   init() {
     // Create and register scenes
-    const menu = new MenuScene("Menu");
-    menu.game = this;
+    // const menu = new MenuScene("Menu");
+    // menu.game = this;
 
-    const level1 = new Level1("Level1");
-    level1.game = this;
+    // const level1 = new Level1("Level1");
+    // level1.game = this;
 
-    this.sceneManager.addScene(menu);
-    this.sceneManager.addScene(level1);
+    // this.sceneManager.addScene(menu);
+    // this.sceneManager.addScene(level1);
 
-    // Start with menu
-    this.sceneManager.startScene("Menu");
-
-
-    // this.sceneManager.addScene(new MenuScene("Menu"));
-    // this.sceneManager.addScene(new Level1Scene("Level1"));
-
+    // // Start with menu
     // this.sceneManager.startScene("Menu");
+
+
+    this.sceneManager.addScene(new MenuScene("Menu"));
+    this.sceneManager.addScene(new Level1("Level1"));
+
+    this.sceneManager.startScene("Menu");
   }
 }
 
