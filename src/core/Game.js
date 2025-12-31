@@ -1,6 +1,7 @@
 import { Loop } from "./Loop.js";
 import { Time } from "./Time.js";
 import { Keyboard } from "../input/Keyboard.js";
+import { Mouse } from "../input/Mouse.js";
 import { Config } from "./Config.js";
 import { SceneManager } from "./SceneManager.js";
 import { Canvas } from "../graphics/Canvas.js";
@@ -14,16 +15,20 @@ export class Game {
     this.canvas = new Canvas(this.config);
     this.ctx = this.canvas.ctx;
 
+    Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
+
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);
 
     this.loop = new Loop({
       update: (dt) => {
         Time.update(dt, performance.now());
-        Keyboard.update();
-
+        
         this.update(dt);
         this.sceneManager.update(dt);
+        
+        Keyboard.update();
+        Mouse.update();
       },
 
       render: () => {

@@ -1,5 +1,5 @@
 // import { ScriptComponent } from "../../../src/core/components/ScriptComponent.js";
-import { ScriptComponent, Keyboard } from "../../../src/index.js";
+import { ScriptComponent, Keyboard, Mouse } from "../../../src/index.js";
 import { Wall } from "../prefabs/Wall.js";
 
 export class PlayerController extends ScriptComponent {
@@ -20,11 +20,18 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
         if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
 
-        if (Keyboard.isPressed("x")) {
+        if (Keyboard.wasPressed("x")) {
             console.log("add");
             let position = this.entity.getComponent().position;
             this.entity.scene.addEntity(new Wall(position.x, position.y, true));
         }
+
+        if(Mouse.isPressed(0)){
+            // console.log(Mouse.x, Mouse.y);
+            this.entity.getComponent().position.x = Mouse.x;
+            this.entity.getComponent().position.y = Mouse.y;
+        }
+
     }
 
     onCollision(other) {
