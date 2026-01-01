@@ -100,3 +100,31 @@ npm_
 BF0Bxk9fA4TURpQgtB4KePkM015b1j3Mc5vu
 npm_
 zdiwVBpkYnbOEKIlOjErpo21OaHw3u2hSffo
+
+
+
+import {
+    Entity,
+    PositionComponent,
+    VelocityComponent,
+    ColliderComponent,
+    BoxRenderComponent,
+} from "kernelplay-js";
+
+import { PlayerController } from "../scripts/PlayerController.js";
+import { Layers } from "kernelplay-js";
+
+export class Player extends Entity {
+    constructor(x, y) {
+        super("Player");
+
+        this.layer = Layers.Player;
+        this.tag = "player"
+
+        this.addComponent("position", new PositionComponent(x, y));
+        this.addComponent("velocity", new VelocityComponent());
+        this.addComponent("collider", new ColliderComponent(40, 40));
+        this.addComponent("renderer", new BoxRenderComponent(40, 40, "blue"));
+        this.addComponent("playerController", new PlayerController());
+    }
+}
