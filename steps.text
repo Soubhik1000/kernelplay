@@ -22,6 +22,8 @@ scene.instantiate()
 
 scene.destroy(entity)
 
+------------------------------------------- done ---------------------------------------------
+
 Object Pooling
 
 Reuse bullets, enemies

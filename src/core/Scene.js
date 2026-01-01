@@ -9,6 +9,7 @@ export class Scene {
   addEntity(entity) {
     entity.scene = this;   // 🔥 inject scene
     this.entities.push(entity);
+    entity._start();
     return entity;
   }
 
@@ -87,6 +88,14 @@ export class Scene {
 
       }
     }
+
+    for (const entity of this.entities) {
+      entity.lateUpdate(dt);
+    }
+
+    // 🔥 CLEANUP
+    this.entities = this.entities.filter(e => !e._destroyed);
+
   }
 
   render() {

@@ -6,7 +6,11 @@ import { Layers } from "../../../src/index.js";
 export class PlayerController extends ScriptComponent {
 
     start() {
-        console.log('player');
+        console.log('start player');
+    }
+
+    onStart(){
+        console.log('onStart player');
     }
 
     update(dt) {
@@ -21,10 +25,15 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
         if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
 
-        if (Keyboard.wasPressed("x")) {
+        if (Keyboard.wasPressed("a")) {
             console.log("add");
             let position = this.entity.getComponent().position;
-            this.entity.scene.addEntity(new Wall(position.x, position.y, true));
+            // this.entity.scene.addEntity(new Wall(position.x, position.y, true));
+            this.instantiate(Wall, position.x, position.y, true)
+        }
+
+        if (Keyboard.wasPressed('x')) {
+            this.entity.destroy();
         }
 
         // if(Mouse.isPressed(0)){
@@ -66,6 +75,15 @@ export class PlayerController extends ScriptComponent {
             // console.log("Hit (Player layer only):", hit?.entity?.tag);
         }
 
+    }
+
+    // lateUpdate(dt){
+    //     console.log('l player');
+    // }
+
+    onDestroy(){
+        console.log("Player Destroy");
+        
     }
 
     onCollision(other) {
