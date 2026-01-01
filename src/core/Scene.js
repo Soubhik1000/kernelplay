@@ -94,4 +94,53 @@ export class Scene {
       entity.render(this.ctx);
     }
   }
+
+  raycast(x, y, options = {}) {
+    const {
+      layerMask = null,
+      tag = null,
+      triggerOnly = false,
+      ignore = null
+    } = options;
+
+    // Topmost first (last added / last rendered)
+    for (let i = this.entities.length - 1; i >= 0; i--) {
+      const entity = this.entities[i];
+
+      if (ignore && entity === ignore) continue;
+
+      if (tag && entity.tag !== tag) continue;
+
+      if (layerMask !== null && (entity.layer & layerMask) === 0) continue;
+
+      const collider = entity.getComponent("collider");
+      if (!collider) continue;
+
+      if (triggerOnly && !collider.isTrigger) continue;
+
+      if (collider.containsPoint(x, y)) {
+        return {
+          entity,
+          collider
+        };
+      }
+    }
+
+    return null;
+  }
+
+  pick(x, y, options) {
+    const hit = this.raycast(x, y, options);
+    return hit ? hit.entity : null;
+  }
+
+  findByTag(tag) {
+    return this.entities.find(e => e.tag === tag) || null;
+  }
+
+  findAllByTag(tag) {
+    return this.entities.filter(e => e.tag === tag);
+  }
+
+
 }

@@ -1,8 +1,11 @@
 export class Entity {
-  constructor(name = "Entity") {
+  constructor(name = "Entity", tag = "Untagged") {
     this.name = name;
     this.components = {};
     this.active = true;
+
+    this.tag = tag;
+    this.layer = 0; // Default layer
   }
 
   addComponent(name, component) {
@@ -34,5 +37,13 @@ export class Entity {
     for (const comp of Object.values(this.components)) {
       if (comp.render) comp.render(ctx);
     }
+  }
+
+  hasTag(tag) {
+    return this.tag === tag;
+  }
+
+  isLayer(layer) {
+    return this.layer === layer;
   }
 }

@@ -7,7 +7,7 @@ import {
 
 export function Wall(x = 100, y = 100, isTrigger=false) {
     let size = {x: 40, y: 100};
-    const wall = new Entity("Wall");
+    const wall = new Entity("Wall", 'wall');
 
     wall.addComponent("position", new PositionComponent(x, y));
     wall.addComponent("collider", new ColliderComponent(size.x, size.y, isTrigger));

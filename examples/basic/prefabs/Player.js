@@ -7,9 +7,11 @@ import {
     ColliderComponent
 } from "../../../src/index.js";
 import { PlayerController } from "../scripts/PlayerController.js";
+import { Layers } from "../../../src/core/constants/Layers.js";
 
 export function Player(x = 100, y = 100) {
     const player = new Entity("Player");
+    player.layer = Layers.Player;
 
     player.addComponent("position", new PositionComponent(x, y));
     player.addComponent("velocity", new VelocityComponent());

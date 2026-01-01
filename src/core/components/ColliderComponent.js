@@ -17,4 +17,15 @@ export class ColliderComponent extends Component {
       height: this.height
     };
   }
+
+  containsPoint(x, y) {
+    const b = this.bounds;
+    return (
+      x >= b.x &&
+      x <= b.x + b.width &&
+      y >= b.y &&
+      y <= b.y + b.height
+    );
+  }
+
 }
