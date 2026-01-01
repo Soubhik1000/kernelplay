@@ -1,7 +1,7 @@
 // import { ScriptComponent } from "../../../src/core/components/ScriptComponent.js";
 import { ScriptComponent, Keyboard, Mouse } from "../../../src/index.js";
 import { Wall } from "../prefabs/Wall.js";
-import { Layers } from "../../../src/core/constants/Layers.js";
+import { Layers } from "../../../src/index.js";
 
 export class PlayerController extends ScriptComponent {
 

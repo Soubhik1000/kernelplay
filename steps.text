@@ -1,0 +1,97 @@
+🔵 PHASE 2 — Gameplay Power (MOST IMPORTANT NEXT)
+
+These features unlock real games
+
+Script Lifecycle
+
+onStart()
+
+onDestroy()
+
+onEnable() / onDisable()
+
+Prefabs
+
+Factory functions
+
+Reusable game objects
+
+Instantiate / Destroy
+
+scene.instantiate()
+
+scene.destroy(entity)
+
+Object Pooling
+
+Reuse bullets, enemies
+
+Physics Layers
+
+Collision matrix (layer vs layer)
+
+Camera System
+
+Camera position
+
+World ↔ screen conversion
+
+UI Layer
+
+Separate UI scene or layer
+
+UI raycast
+
+Mouse Events
+
+OnMouseEnter
+
+OnMouseExit
+
+OnClick
+
+➡️ After this, your engine can support real games
+
+🟣 PHASE 3 — Engine Polish (PRO LEVEL)
+
+Animation System
+
+Sprite sheets
+
+Frame animation
+
+Time Scaling
+
+Time.timeScale
+
+Debug Tools
+
+Collider visualization
+
+FPS counter
+
+Audio System
+
+Sound
+
+Music
+
+Save / Load
+
+JSON state
+
+State Machine
+
+AI behavior
+
+🔴 PHASE 4 — Advanced / Optional
+
+Tilemap System
+
+Particles
+
+Networking
+
+Scripting Hot Reload
+
+Editor (Web-based Inspector)
