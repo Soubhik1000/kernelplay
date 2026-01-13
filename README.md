@@ -35,11 +35,15 @@ npm install kernelplay-js --save
 
 ```js
 import { Game, Scene, Entity } from "kernelplay-js";
+import { PositionComponent, BoxRenderComponent } from "kernelplay-js";
 
 class MyScene extends Scene {
   init() {
     const box = new Entity();
     // add components here
+    box.addComponent("position", new PositionComponent(300, 200));
+    box.addComponent("renderer", new BoxRenderComponent(40, 40, "red"));
+
     this.addEntity(box);
   }
 }
@@ -108,6 +112,10 @@ entity.layer = Layers.Player;
 ```
 
 ---
+
+## Links
+- GitHub: https://github.com/username/repo
+- npm: https://www.npmjs.com/package/your-package
 
 ## 🧪 Status
 
