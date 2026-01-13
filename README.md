@@ -114,8 +114,8 @@ entity.layer = Layers.Player;
 ---
 
 ## Links
-- GitHub: https://github.com/username/repo
-- npm: https://www.npmjs.com/package/your-package
+- GitHub: https://github.com/Soubhik1000/kernelplay
+- npm: https://www.npmjs.com/package/kernelplay-js
 
 ## 🧪 Status
 
