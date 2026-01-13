@@ -127,8 +127,6 @@ entity.layer = Layers.Player;
 
 ## 🗺 Roadmap
 
-* Script lifecycle (`onStart`, `onDestroy`)
-* Prefab system
 * Camera & world coordinates
 * Physics layer collision matrix
 * UI system
