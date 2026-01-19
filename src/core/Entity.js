@@ -67,10 +67,10 @@ export class Entity {
   }
 
 
-  render(ctx) {
+  render(obj) {
     if (!this.active) return;
     for (const comp of Object.values(this.components)) {
-      if (comp.render) comp.render(ctx);
+      if (comp.render) comp.render(obj);
     }
   }
 

@@ -7,7 +7,7 @@ export class Level1 extends Scene {
     const player = Player(100, 100);
     const wall = new Wall(400, 200);
     
-    wall.getComponent('renderer').color = 'red';
+    wall.getComponent('renderer').color = '#ff0000';
     player.getComponent("playerController").wall = wall;
 
     this.addEntity(player);

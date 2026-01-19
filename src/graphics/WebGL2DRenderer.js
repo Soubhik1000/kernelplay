@@ -59,21 +59,23 @@ export class WebGL2DRenderer extends Renderer {
 
         // 🔥 For now, render simple rectangles
         for (const entity of scene.entities) {
-            const pos = entity.getComponent("position");
-            const renderer = entity.getComponent("renderer");
+            // const pos = entity.getComponent("position");
+            // const renderer = entity.getComponent("renderer");
 
-            if (!pos || !renderer) continue;
+            // if (!pos || !renderer) continue;
 
-            const { r, g, b } = this.hexToRGB(renderer.color);
+            // const { r, g, b } = this.hexToRGB(renderer.color);
 
-            gl.uniform3f(this.colorLocation, r, g, b);
+            // this.gl.uniform3f(this.colorLocation, r, g, b);
 
-            this._drawRect(
-                pos.x,
-                pos.y,
-                renderer.width,
-                renderer.height
-            );
+            // this._drawRect(
+            //     pos.x,
+            //     pos.y,
+            //     renderer.width,
+            //     renderer.height
+            // );
+
+            entity.render(this);
         }
     }
 
