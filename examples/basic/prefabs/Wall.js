@@ -11,7 +11,7 @@ export function Wall(x = 100, y = 100, isTrigger=false) {
 
     wall.addComponent("position", new PositionComponent(x, y));
     wall.addComponent("collider", new ColliderComponent(size.x, size.y, isTrigger));
-    wall.addComponent("renderer", new BoxRenderComponent(size.x, size.y, "black"));
+    wall.addComponent("renderer", new BoxRenderComponent(size.x, size.y, "#000000"));
 
     return wall;
 }

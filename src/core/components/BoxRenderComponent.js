@@ -1,7 +1,7 @@
 import { Component } from "../Component.js";
 
 export class BoxRenderComponent extends Component {
-  constructor(width = 50, height = 50, color = "red") {
+  constructor(width = 50, height = 50, color = "#FF0000") {
     super();
     this.width = width;
     this.height = height;

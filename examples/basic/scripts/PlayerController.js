@@ -54,12 +54,12 @@ export class PlayerController extends ScriptComponent {
         }
 
         if (Mouse.wasPressed(0)) {
-            // const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
+            const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
 
-            const hit = this.entity.scene.pick(Mouse.x, Mouse.y);
+            // const hit = this.entity.scene.pick(Mouse.x, Mouse.y);
             if (hit) {
-                // console.log("Clicked:", hit.entity.name);
-                console.log("Clicked:", hit.name, hit.tag);
+                console.log("Clicked:", hit.entity.name);
+                // console.log("Clicked:", hit.name, hit.tag);
             }
 
             // const mask = Layers.Player | Layers.Ground;

@@ -16,7 +16,7 @@ export function Player(x = 100, y = 100) {
     player.addComponent("position", new PositionComponent(x, y));
     player.addComponent("velocity", new VelocityComponent());
     player.addComponent("collider", new ColliderComponent(40, 40));
-    player.addComponent("renderer", new BoxRenderComponent(40, 40, "blue"));
+    player.addComponent("renderer", new BoxRenderComponent(40, 40, "#FF0000"));
     player.addComponent("playerController", new PlayerController());
 
     return player;
