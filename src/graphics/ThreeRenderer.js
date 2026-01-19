@@ -16,7 +16,7 @@ export class ThreeRenderer extends Renderer {
     );
 
     this.renderer = new THREE.WebGLRenderer({
-      canvas: game.canvas.el,
+      canvas: game.canvas.canvas,
       antialias: true
     });
 
@@ -32,7 +32,7 @@ export class ThreeRenderer extends Renderer {
     this.camera.position.set(0, 0, 5);
 
     // 🔥 basic lighting
-    const light = new THREE.DirectionalLight(0xffffff, 1);
+    const light = new THREE.DirectionalLight(0xffffff, 2);
     light.position.set(1, 1, 1);
     this.scene3D.add(light);
 
