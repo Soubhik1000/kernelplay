@@ -1,6 +1,7 @@
 import { Game } from "../../src/index.js";
 import { MenuScene } from "./scenes/MenuScene.js";
 import { Level1 } from "./scenes/Level1.js";
+import { WebGL2DRenderer } from "../../src/graphics/WebGL2DRenderer.js";
 
 // ---------------------------
 // Main Game
@@ -10,7 +11,9 @@ class MyGame extends Game {
     this.sceneManager.addScene(new MenuScene("Menu"));
     this.sceneManager.addScene(new Level1("Level1"));
 
-    this.sceneManager.startScene("Menu");
+    this.sceneManager.startScene("Level1");
+    // this.sceneManager.startScene("Menu");
+
   }
 }
 
@@ -18,6 +21,7 @@ class MyGame extends Game {
 // Start the game
 // ---------------------------
 const game = new MyGame({
+  renderer: new WebGL2DRenderer(),
   width: 600,
   height: 400,
   fps: 60,

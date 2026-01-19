@@ -42,9 +42,12 @@ export class SceneManager {
     }
   }
 
-  // render() {
-  //   if (this.currentScene && this.currentScene.render) {
-  //     this.currentScene.render();
-  //   }
+  render(renderer) {
+    if (this.currentScene && this.currentScene.render) {
+      this.currentScene.render(renderer);
+    }
+  }
+  // render(renderer) {
+  //   renderer.render(this);
   // }
 }

@@ -98,10 +98,14 @@ export class Scene {
 
   }
 
-  render() {
-    for (const entity of this.entities) {
-      entity.render(this.ctx);
-    }
+  // render() {
+  //   for (const entity of this.entities) {
+  //     entity.render(this.ctx);
+  //   }
+  // }
+
+  render(renderer) {
+    renderer.render(this);
   }
 
   raycast(x, y, options = {}) {

@@ -5,6 +5,7 @@ import { Mouse } from "../input/Mouse.js";
 import { Config } from "./Config.js";
 import { SceneManager } from "./SceneManager.js";
 import { Canvas } from "../graphics/Canvas.js";
+import { CanvasRenderer } from "../graphics/CanvasRenderer.js";
 
 export class Game {
   constructor(options = {}) {
@@ -16,6 +17,10 @@ export class Game {
     this.ctx = this.canvas.ctx;
 
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
+
+    // 🔥 default renderer
+    this.renderer = options.renderer || new CanvasRenderer();
+    this.renderer.init(this);
 
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);
@@ -32,22 +37,28 @@ export class Game {
       },
 
       render: () => {
-        this.render();
+        // this.render();
 
-        // 🔥 Centralized render
-        const { width, height } = this.config;
-        this.ctx.clearRect(0, 0, width, height);
+        // // 🔥 Centralized render
+        // const { width, height } = this.config;
+        // this.ctx.clearRect(0, 0, width, height);
 
-        if (this.sceneManager.currentScene) {
-          this.sceneManager.currentScene.render();
-        }
+        // if (this.sceneManager.currentScene) {
+        //   this.sceneManager.currentScene.render();
+        // }
+
+        this.sceneManager.render(this.renderer);
       },
 
       fps: this.config.fps
     });
   }
 
-  init() {}
+  init() {
+    // console.log("init");
+    
+    this.renderer.init(this);
+  }
   update(dt) {}
   render() {}
 

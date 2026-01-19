@@ -5,10 +5,10 @@ export class Canvas {
     this.canvas.height = config.height;
     document.body.appendChild(this.canvas);
 
-    this.ctx = this.canvas.getContext("2d");
+    // this.ctx = this.canvas.getContext("2d");
 
-    // Fill background on init
-    this.ctx.fillStyle = config.backgroundColor;
-    this.ctx.fillRect(0, 0, config.width, config.height);
+    // // Fill background on init
+    // this.ctx.fillStyle = config.backgroundColor;
+    // this.ctx.fillRect(0, 0, config.width, config.height);
   }
 }
