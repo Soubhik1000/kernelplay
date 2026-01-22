@@ -1,4 +1,5 @@
 import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
+import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
 
 export class Scene {
   constructor(name = "Scene") {
@@ -257,9 +258,47 @@ export class Scene {
   }
 
   pick(x, y, options) {
+    // Prefer 3D if renderer is Three.js
+    // console.log(this.game.renderer.type);
+    if (this.game.renderer.type === "three") {
+      return this.pick3D(x, y);
+    }
+
+    // Fallback to 2D
+    return this.pick2D(x, y, options);
+  }
+
+  pick2D(x, y, options) {
     const hit = this.raycast(x, y, options);
     return hit ? hit.entity : null;
   }
+
+  pick3D(x, y) {
+    const renderer = this.game.renderer.renderer;
+    // if (!renderer?.raycaster) return null;
+    console.log("test");
+    console.log(this.game.renderer.renderer);
+
+    const rect = renderer.domElement.getBoundingClientRect();
+
+    const ndc = {
+      x: (x / rect.width) * 2 - 1,
+      y: -(y / rect.height) * 2 + 1
+    };
+
+    renderer.raycaster.setFromCamera(ndc, renderer.camera);
+
+    const intersects = renderer.raycaster.intersectObjects(
+      renderer.scene.children,
+      true
+    );
+
+    if (intersects.length === 0) return null;
+
+    const object = intersects[0].object;
+    return { entity: object.userData.entity };
+  }
+
 
   findByTag(tag) {
     return this.entities.find(e => e.tag === tag) || null;

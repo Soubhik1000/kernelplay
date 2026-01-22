@@ -5,6 +5,7 @@ export class ThreeRenderer extends Renderer {
   init(game) {
     super.init(game);
 
+    this.type = "three"
     // 🔥 THREE core
     this.scene3D = new THREE.Scene();
 
