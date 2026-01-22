@@ -8,7 +8,7 @@ export class Component {
   onAttach() {}
   onStart() {}
   update(dt) {} // called every frame
-  render(ctx) {} // called every frame
+  render(obj) {} // called every frame
   lateUpdate(dt) {}
   onDestroy() {}
 }

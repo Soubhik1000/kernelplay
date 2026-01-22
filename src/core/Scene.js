@@ -1,4 +1,4 @@
-import { AABB } from "../core/physics/Collision.js";
+import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
 
 export class Scene {
   constructor(name = "Scene") {
@@ -20,74 +20,188 @@ export class Scene {
     }
 
     // Collision check + response
+    // for (let i = 0; i < this.entities.length; i++) {
+    //   for (let j = i + 1; j < this.entities.length; j++) {
+    //     const a = this.entities[i];
+    //     const b = this.entities[j];
+
+    //     const ca = a.getComponent("collider");
+    //     const cb = b.getComponent("collider");
+
+    //     const c3a = a.getComponent("collider3D");
+    //     const c3b = b.getComponent("collider3D");
+
+    //     if (!ca || !cb || !c3a || !c3b) continue;
+
+    //     if (AABB(ca.bounds, cb.bounds)) {
+    //       const isTriggerCollision = ca.isTrigger || cb.isTrigger;
+
+    //       const posA = a.getComponent("position");
+    //       const posB = b.getComponent("position");
+
+    //       if (!posA || !posB) continue;
+
+    //       // 🔥 NORMAL COLLISION (PHYSICS)
+    //       if (!isTriggerCollision) {
+    //         const overlapX =
+    //           Math.min(
+    //             ca.bounds.x + ca.bounds.width,
+    //             cb.bounds.x + cb.bounds.width
+    //           ) - Math.max(ca.bounds.x, cb.bounds.x);
+
+    //         const overlapY =
+    //           Math.min(
+    //             ca.bounds.y + ca.bounds.height,
+    //             cb.bounds.y + cb.bounds.height
+    //           ) - Math.max(ca.bounds.y, cb.bounds.y);
+
+    //         // Resolve on smaller axis
+    //         if (overlapX < overlapY) {
+    //           if (posA.x < posB.x) posA.x -= overlapX;
+    //           else posA.x += overlapX;
+
+    //           const velA = a.getComponent("velocity");
+    //           if (velA) velA.vx = 0;
+    //         } else {
+    //           if (posA.y < posB.y) posA.y -= overlapY;
+    //           else posA.y += overlapY;
+
+    //           const velA = a.getComponent("velocity");
+    //           if (velA) velA.vy = 0;
+    //         }
+    //       }
+
+    //       // 🔥 EVENT NOTIFICATION
+    //       for (const comp of Object.values(a.components)) {
+    //         if (isTriggerCollision && comp.onTriggerEnter) {
+    //           comp.onTriggerEnter(b);
+    //         } else if (!isTriggerCollision && comp.onCollision) {
+    //           comp.onCollision(b);
+    //         }
+    //       }
+
+    //       for (const comp of Object.values(b.components)) {
+    //         if (isTriggerCollision && comp.onTriggerEnter) {
+    //           comp.onTriggerEnter(a);
+    //         } else if (!isTriggerCollision && comp.onCollision) {
+    //           comp.onCollision(a);
+    //         }
+    //       }
+    //     }
+
+    //     if (c3a && c3b && AABB3D(c3a.bounds, c3b.bounds)) {
+    //       if (!c3a.isTrigger && !c3b.isTrigger) {
+    //         const posA = a.getComponent("position");
+    //         const velA = a.getComponent("velocity");
+    //         resolveAABB3D(c3a.bounds, c3b.bounds, posA, velA);
+    //       }
+
+    //       // 🔥 EVENT NOTIFICATION
+    //       for (const comp of Object.values(a.components)) {
+    //         if (isTriggerCollision && comp.onTriggerEnter) {
+    //           comp.onTriggerEnter(b);
+    //         } else if (!isTriggerCollision && comp.onCollision) {
+    //           comp.onCollision(b);
+    //         }
+    //       }
+
+    //       for (const comp of Object.values(b.components)) {
+    //         if (isTriggerCollision && comp.onTriggerEnter) {
+    //           comp.onTriggerEnter(a);
+    //         } else if (!isTriggerCollision && comp.onCollision) {
+    //           comp.onCollision(a);
+    //         }
+    //       }
+    //     }
+
+    //   }
+    // }
+
     for (let i = 0; i < this.entities.length; i++) {
       for (let j = i + 1; j < this.entities.length; j++) {
         const a = this.entities[i];
         const b = this.entities[j];
 
-        const ca = a.getComponent("collider");
-        const cb = b.getComponent("collider");
+        const c2a = a.getComponent("collider");
+        const c2b = b.getComponent("collider");
 
-        if (!ca || !cb) continue;
+        const c3a = a.getComponent("collider3D");
+        const c3b = b.getComponent("collider3D");
 
-        if (AABB(ca.bounds, cb.bounds)) {
-          const isTriggerCollision = ca.isTrigger || cb.isTrigger;
+        const posA = a.getComponent("position");
+        const posB = b.getComponent("position");
 
-          const posA = a.getComponent("position");
-          const posB = b.getComponent("position");
+        if (!posA || !posB) continue;
 
-          if (!posA || !posB) continue;
+        /* =======================
+           🔹 2D COLLISION
+        ======================= */
+        if (c2a && c2b && AABB(c2a.bounds, c2b.bounds)) {
+          const isTrigger = c2a.isTrigger || c2b.isTrigger;
 
-          // 🔥 NORMAL COLLISION (PHYSICS)
-          if (!isTriggerCollision) {
+          if (!isTrigger) {
             const overlapX =
               Math.min(
-                ca.bounds.x + ca.bounds.width,
-                cb.bounds.x + cb.bounds.width
-              ) - Math.max(ca.bounds.x, cb.bounds.x);
+                c2a.bounds.x + c2a.bounds.width,
+                c2b.bounds.x + c2b.bounds.width
+              ) - Math.max(c2a.bounds.x, c2b.bounds.x);
 
             const overlapY =
               Math.min(
-                ca.bounds.y + ca.bounds.height,
-                cb.bounds.y + cb.bounds.height
-              ) - Math.max(ca.bounds.y, cb.bounds.y);
+                c2a.bounds.y + c2a.bounds.height,
+                c2b.bounds.y + c2b.bounds.height
+              ) - Math.max(c2a.bounds.y, c2b.bounds.y);
 
-            // Resolve on smaller axis
             if (overlapX < overlapY) {
-              if (posA.x < posB.x) posA.x -= overlapX;
-              else posA.x += overlapX;
-
-              const velA = a.getComponent("velocity");
-              if (velA) velA.vx = 0;
+              posA.x += posA.x < posB.x ? -overlapX : overlapX;
             } else {
-              if (posA.y < posB.y) posA.y -= overlapY;
-              else posA.y += overlapY;
-
-              const velA = a.getComponent("velocity");
-              if (velA) velA.vy = 0;
+              posA.y += posA.y < posB.y ? -overlapY : overlapY;
             }
           }
 
-          // 🔥 EVENT NOTIFICATION
-          for (const comp of Object.values(a.components)) {
-            if (isTriggerCollision && comp.onTriggerEnter) {
-              comp.onTriggerEnter(b);
-            } else if (!isTriggerCollision && comp.onCollision) {
-              comp.onCollision(b);
-            }
-          }
-
-          for (const comp of Object.values(b.components)) {
-            if (isTriggerCollision && comp.onTriggerEnter) {
-              comp.onTriggerEnter(a);
-            } else if (!isTriggerCollision && comp.onCollision) {
-              comp.onCollision(a);
-            }
-          }
+          this._dispatchCollisionEvents(a, b, isTrigger);
         }
 
+        /* =======================
+           🔹 3D COLLISION
+        ======================= */
+        if (c3a && c3b && AABB3D(c3a.bounds, c3b.bounds)) {
+          const isTrigger = c3a.isTrigger || c3b.isTrigger;
+
+          if (!isTrigger) {
+            const overlapX =
+              Math.min(
+                c3a.bounds.x + c3a.bounds.width,
+                c3b.bounds.x + c3b.bounds.width
+              ) - Math.max(c3a.bounds.x, c3b.bounds.x);
+
+            const overlapY =
+              Math.min(
+                c3a.bounds.y + c3a.bounds.height,
+                c3b.bounds.y + c3b.bounds.height
+              ) - Math.max(c3a.bounds.y, c3b.bounds.y);
+
+            const overlapZ =
+              Math.min(
+                c3a.bounds.z + c3a.bounds.depth,
+                c3b.bounds.z + c3b.bounds.depth
+              ) - Math.max(c3a.bounds.z, c3b.bounds.z);
+
+            // Resolve on smallest axis
+            if (overlapX <= overlapY && overlapX <= overlapZ) {
+              posA.x += posA.x < posB.x ? -overlapX : overlapX;
+            } else if (overlapY <= overlapZ) {
+              posA.y += posA.y < posB.y ? -overlapY : overlapY;
+            } else {
+              posA.z += posA.z < posB.z ? -overlapZ : overlapZ;
+            }
+          }
+
+          this._dispatchCollisionEvents(a, b, isTrigger);
+        }
       }
     }
+
 
     for (const entity of this.entities) {
       entity.lateUpdate(dt);
@@ -154,6 +268,20 @@ export class Scene {
   findAllByTag(tag) {
     return this.entities.filter(e => e.tag === tag);
   }
+
+
+  _dispatchCollisionEvents(a, b, isTrigger) {
+    for (const comp of Object.values(a.components)) {
+      if (isTrigger && comp.onTriggerEnter) comp.onTriggerEnter(b);
+      else if (!isTrigger && comp.onCollision) comp.onCollision(b);
+    }
+
+    for (const comp of Object.values(b.components)) {
+      if (isTrigger && comp.onTriggerEnter) comp.onTriggerEnter(a);
+      else if (!isTrigger && comp.onCollision) comp.onCollision(a);
+    }
+  }
+
 
 
 }

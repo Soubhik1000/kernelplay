@@ -24,6 +24,13 @@ scene.destroy(entity)
 
 ------------------------------------------- done ---------------------------------------------
 
+Ground detection (isGrounded in 3D)
+2️⃣ Gravity + step height
+3️⃣ 3D Raycast (mouse picking)
+4️⃣ Collision layers / masks
+5️⃣ CapsuleCollider for players
+6️⃣ Physics timestep separation
+
 Object Pooling
 
 Reuse bullets, enemies
