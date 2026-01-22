@@ -5,7 +5,7 @@ import { MeshComponent } from "../../../src/core/components/WebGL_3D/MeshCompone
 import { CubeScript } from "../scripts/CubeScript.js";
 
 export function Cube1(x, y, z = 0) {
-  const e = new Entity("Cube");
+  const e = new Entity("Cube1");
 
   e.addComponent("position", new PositionComponent3D(x, y, z));
 
@@ -15,7 +15,7 @@ export function Cube1(x, y, z = 0) {
   );
 
   e.addComponent("mesh", new MeshComponent(mesh));
-  e.addComponent("collider", new ColliderComponent(x, y));
+  e.addComponent("collider", new ColliderComponent(1, 1, true));
 
   return e;
 }

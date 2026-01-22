@@ -1,5 +1,6 @@
 import { ScriptComponent, Keyboard } from "../../../src/index.js";
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/controls/OrbitControls.js';
+import { Cube1 } from "../prefabs/Cube1.js";
 
 export class CubeScript extends ScriptComponent{
     onStart(){
@@ -21,5 +22,23 @@ export class CubeScript extends ScriptComponent{
         if (Keyboard.isPressed("ArrowLeft")) pos.x += -10 * dt;
         if (Keyboard.isPressed("ArrowUp")) pos.y += 10 * dt;
         if (Keyboard.isPressed("ArrowDown")) pos.y += -10 * dt;
+        if (Keyboard.isPressed("w")) pos.z += -10 * dt;
+        if (Keyboard.isPressed("s")) pos.z += 10 * dt;
+
+        if (Keyboard.wasPressed('x')) {
+            this.entity.destroy();
+        }
+
+        if (Keyboard.wasPressed('a')){
+            this.instantiate(Cube1, pos.x, pos.y, pos.z)
+        }
+    }
+
+    onCollision(object){
+        console.log(object.name);
+    }
+
+    onTriggerEnter(other) {
+        console.log("Player onTriggerEnter:", other.name);
     }
 }

@@ -15,7 +15,7 @@ export function Cube(x, y, z = 0) {
   );
 
   e.addComponent("mesh", new MeshComponent(mesh));
-  e.addComponent("collider", new ColliderComponent(x, y));
+  e.addComponent("collider", new ColliderComponent(1, 1));
   e.addComponent("CubeScript", new CubeScript());
 
   return e;
