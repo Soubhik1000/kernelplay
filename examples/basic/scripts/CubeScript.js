@@ -5,7 +5,7 @@ import { Layers } from "../../../src/index.js";
 
 export class CubeScript extends ScriptComponent {
     onStart() {
-        console.log(this.entity.scene.game.renderer);
+        // console.log(this.entity.scene.game.renderer);
         const renderer = this.entity.scene.game.renderer;
 
         // OrbitControls
@@ -35,16 +35,16 @@ export class CubeScript extends ScriptComponent {
         }
 
         if (Mouse.wasPressed(0)) {
-            // const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
+            const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
 
-            const hit = this.entity.scene.raycast(Mouse.x, Mouse.y,{
-                layerMask: Layers.Player
-            });
+            // const hit = this.entity.scene.raycast(Mouse.x, Mouse.y,{
+            //     layerMask: Layers.Player
+            // });
 
             // const hit = this.entity.scene.pick(Mouse.x, Mouse.y);
             if (hit) {
                 // raycast
-                console.log("Clicked:", hit.entity.name);
+                console.log("Clicked:", hit.entity.name, hit.distance, hit.point);
 
                 // pick
                 // console.log("Clicked:", hit.name, hit.tag);

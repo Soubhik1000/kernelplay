@@ -1,5 +1,6 @@
 import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
 import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
+import { RaycastHit } from "./physics/RaycastHit.js";
 
 export class Scene {
   constructor(name = "Scene") {
@@ -262,7 +263,8 @@ export class Scene {
       layerMask = null,
       tag = null,
       triggerOnly = false,
-      ignore = null
+      ignore = null,
+      maxDistance = Infinity
     } = options;
 
     const renderer = this.game.renderer;
@@ -277,15 +279,18 @@ export class Scene {
 
     renderer.raycaster.setFromCamera(ndc, renderer.camera);
 
-    const intersects = renderer.raycaster.intersectObjects(
+    const hits = renderer.raycaster.intersectObjects(
       renderer.scene3D.children,
       true
     );
 
-    if (intersects.length === 0) return null;
+    if (hits.length === 0) return null;
 
-    const object = intersects[0].object;
-    const entity = object.userData.entity
+    const h = hits[0];
+    if (h.distance > maxDistance) return null;
+
+    const entity = h.object.userData?.entity;
+    if (!entity) return null;
 
     if (ignore && entity === ignore) return null;
 
@@ -295,7 +300,16 @@ export class Scene {
 
     if (triggerOnly && !collider.isTrigger) return null;
 
-    return { entity: entity };
+    return new RaycastHit({
+      entity,
+      point: { x: h.point.x, y: h.point.y, z: h.point.z },
+      normal: {
+        x: h.face.normal.x,
+        y: h.face.normal.y,
+        z: h.face.normal.z
+      },
+      distance: h.distance
+    });
   }
 
   raycast(x, y, options = {}) {
@@ -330,7 +344,7 @@ export class Scene {
 
   pick3D(x, y, options) {
     const hit = this.raycast3D(x, y, options);
-    return hit ? hit.entity : null; 
+    return hit ? hit.entity : null;
   }
 
   // pick3D(x, y) {

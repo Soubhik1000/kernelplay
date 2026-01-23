@@ -4,7 +4,7 @@ export class WebGL2DRenderer extends Renderer {
     init(game) {
         super.init(game);
 
-        console.log(this);
+        // console.log(this);
 
         // 🔥 Get WebGL context
         this.gl =
