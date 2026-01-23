@@ -8,7 +8,7 @@ export class VelocityComponent extends Component {
   }
 
   update(dt) {
-    const pos = this.entity.getComponent("position");
+    const pos = this.entity.getComponent("transform").position;
     if (!pos) return;
     pos.x += this.vx * dt;
     pos.y += this.vy * dt;

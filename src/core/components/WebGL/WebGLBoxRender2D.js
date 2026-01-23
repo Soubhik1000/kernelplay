@@ -9,7 +9,7 @@ export class WebGLBoxRender2D extends Component {
   }
 
   render(WebGL) {
-    const pos = this.entity.getComponent("position");
+    const pos = this.entity.getComponent("transform").position;
     const { r, g, b } = WebGL.hexToRGB(this.color);
     WebGL.gl.uniform3f(WebGL.colorLocation, r, g, b);
 

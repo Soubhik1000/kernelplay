@@ -10,7 +10,7 @@ export class BoxCollider3D extends Component {
   }
 
   get bounds() {
-    const pos = this.entity.getComponent("position");
+    const pos = this.entity.getComponent("transform").position;
     return {
       x: pos.x,
       y: pos.y,

@@ -15,6 +15,8 @@ export class PlayerController extends ScriptComponent {
 
     update(dt) {
         const vel = this.entity.getComponent("velocity");
+        const transform = this.entity.getComponent("transform");
+        const renderer = this.entity.getComponent("renderer");
         if (!vel) return;
 
         vel.vx = 0;
@@ -25,9 +27,17 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
         if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
 
+        if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
+        if (Keyboard.isPressed("e")) transform.rotation.z += 2 * dt;
+
+        if (Keyboard.isPressed("g")){
+            console.log(renderer);
+            
+        }
+
         if (Keyboard.wasPressed("a")) {
             console.log("add");
-            let position = this.entity.getComponent().position;
+            let position = this.entity.getComponent("transform").position;
             // this.entity.scene.addEntity(new Wall(position.x, position.y, true));
             this.instantiate(Wall, position.x, position.y, true)
         }

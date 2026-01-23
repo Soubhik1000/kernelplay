@@ -130,8 +130,8 @@ export class Scene {
         const c3a = a.getComponent("collider3D");
         const c3b = b.getComponent("collider3D");
 
-        const posA = a.getComponent("position");
-        const posB = b.getComponent("position");
+        const posA = a.getComponent("transform").position;
+        const posB = b.getComponent("transform").position;
 
         if (!posA || !posB) continue;
 

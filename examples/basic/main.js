@@ -23,7 +23,7 @@ class MyGame extends Game {
 // ---------------------------
 const game = new MyGame({
   // renderer: new WebGL2DRenderer(),
-  // renderer: new ThreeRenderer(),
+  renderer: new ThreeRenderer(),
   width: 600,
   height: 400,
   fps: 60,

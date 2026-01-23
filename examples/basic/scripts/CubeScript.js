@@ -17,7 +17,8 @@ export class CubeScript extends ScriptComponent {
     }
 
     update(dt) {
-        const pos = this.entity.getComponent("position");
+        const pos = this.entity.getComponent("transform").position;
+        const transform = this.entity.getComponent("transform");
 
         if (Keyboard.isPressed("ArrowRight")) pos.x += 10 * dt;
         if (Keyboard.isPressed("ArrowLeft")) pos.x += -10 * dt;
@@ -25,6 +26,9 @@ export class CubeScript extends ScriptComponent {
         if (Keyboard.isPressed("ArrowDown")) pos.y += -10 * dt;
         if (Keyboard.isPressed("w")) pos.z += -10 * dt;
         if (Keyboard.isPressed("s")) pos.z += 10 * dt;
+
+        if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
+        if (Keyboard.isPressed("e")) transform.rotation.z += 2 * dt;
 
         if (Keyboard.wasPressed('x')) {
             this.entity.destroy();

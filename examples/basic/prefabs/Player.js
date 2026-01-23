@@ -17,14 +17,15 @@ export function Player(x = 100, y = 100) {
     player.layer = Layers.Player;
 
     // player.addComponent("position", new PositionComponent(x, y));
-    player.addComponent("position", new TransformComponent({
-        position: {x, y}
+    player.addComponent("transform", new TransformComponent({
+        position: {x, y},
+        scale: {x: 1, y: 1}
     }));
     player.addComponent("velocity", new VelocityComponent());
-    player.addComponent("collider", new ColliderComponent(40, 40));
+    player.addComponent("collider", new ColliderComponent());
 
-    player.addComponent("renderer", new BoxRenderComponent(40, 40, "#FF0000"));
-    // player.addComponent("renderer", new WebGLBoxRender2D(40, 40, "#FF0000"));
+    // player.addComponent("renderer", new BoxRenderComponent("#FF0000"));
+    player.addComponent("renderer", new WebGLBoxRender2D(40, 40, "#FF0000"));
 
     player.addComponent("playerController", new PlayerController());
 

@@ -45,15 +45,33 @@ export class ThreeRenderer extends Renderer {
   render(scene) {
     // Sync ECS → Three objects
     for (const entity of scene.entities) {
-      const pos = entity.getComponent("position");
+      const t = entity.getComponent("transform");
       const mesh = entity.getComponent("mesh");
 
-      if (!pos || !mesh) continue;
+      if (!t || !mesh) return;
+
+      // mesh.object.position.set(
+      //   pos.x,
+      //   pos.y,
+      //   pos.z || 0
+      // );
 
       mesh.object.position.set(
-        pos.x,
-        pos.y,
-        pos.z || 0
+        t.position.x,
+        t.position.y,
+        t.position.z || 0
+      );
+
+      mesh.object.rotation.set(
+        t.rotation.x,
+        t.rotation.y,
+        t.rotation.z
+      );
+
+      mesh.object.scale.set(
+        t.scale.x,
+        t.scale.y,
+        t.scale.z
       );
     }
 
