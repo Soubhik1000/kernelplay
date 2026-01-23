@@ -72,7 +72,7 @@ export class PlayerController extends ScriptComponent {
             //     layerMask: mask
             // });
 
-            // console.log("Hit (Player layer only):", hit?.entity?.tag);
+            // console.log("Hit (Player layer only):", hit?.entity?.name);
         }
 
     }

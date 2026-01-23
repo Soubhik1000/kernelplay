@@ -7,6 +7,7 @@ export class MeshComponent extends Component {
   }
 
   onStart() {
+    this.object.userData.entity = this.entity;
     this.entity.scene.game.renderer.scene3D.add(this.object);
   }
 

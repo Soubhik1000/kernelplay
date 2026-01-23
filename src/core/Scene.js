@@ -223,7 +223,7 @@ export class Scene {
     renderer.render(this);
   }
 
-  raycast(x, y, options = {}) {
+  raycast2D(x, y, options = {}) {
     const {
       layerMask = null,
       tag = null,
@@ -257,29 +257,18 @@ export class Scene {
     return null;
   }
 
-  pick(x, y, options) {
-    // Prefer 3D if renderer is Three.js
-    // console.log(this.game.renderer.type);
-    if (this.game.renderer.type === "three") {
-      return this.pick3D(x, y);
-    }
+  raycast3D(x, y, options = {}) {
+    const {
+      layerMask = null,
+      tag = null,
+      triggerOnly = false,
+      ignore = null
+    } = options;
 
-    // Fallback to 2D
-    return this.pick2D(x, y, options);
-  }
+    const renderer = this.game.renderer;
+    if (!renderer?.raycaster) return null;
 
-  pick2D(x, y, options) {
-    const hit = this.raycast(x, y, options);
-    return hit ? hit.entity : null;
-  }
-
-  pick3D(x, y) {
-    const renderer = this.game.renderer.renderer;
-    // if (!renderer?.raycaster) return null;
-    console.log("test");
-    console.log(this.game.renderer.renderer);
-
-    const rect = renderer.domElement.getBoundingClientRect();
+    const rect = renderer.renderer.domElement.getBoundingClientRect();
 
     const ndc = {
       x: (x / rect.width) * 2 - 1,
@@ -289,15 +278,85 @@ export class Scene {
     renderer.raycaster.setFromCamera(ndc, renderer.camera);
 
     const intersects = renderer.raycaster.intersectObjects(
-      renderer.scene.children,
+      renderer.scene3D.children,
       true
     );
 
     if (intersects.length === 0) return null;
 
     const object = intersects[0].object;
-    return { entity: object.userData.entity };
+    const entity = object.userData.entity
+
+    if (ignore && entity === ignore) return null;
+
+    if (tag && entity.tag !== tag) return null;
+
+    if (layerMask !== null && (entity.layer & layerMask) === 0) return null;
+
+    if (triggerOnly && !collider.isTrigger) return null;
+
+    return { entity: entity };
   }
+
+  raycast(x, y, options = {}) {
+    if (this.game.renderer?.type === "three") {
+      return this.raycast3D(x, y, options);
+    }
+
+    // Fallback to 2D
+    return this.raycast2D(x, y, options);
+  }
+
+  pick(x, y, options) {
+    // Prefer 3D if renderer is Three.js
+    // console.log(this.game.renderer.type);
+    // const renderer = this.game.renderer;
+    // console.log(renderer);
+    // console.log(renderer?.raycaster);
+    // console.log(renderer?.type === "three");
+
+    if (this.game.renderer?.type === "three") {
+      return this.pick3D(x, y);
+    }
+
+    // Fallback to 2D
+    return this.pick2D(x, y, options);
+  }
+
+  pick2D(x, y, options) {
+    const hit = this.raycast2D(x, y, options);
+    return hit ? hit.entity : null;
+  }
+
+  pick3D(x, y, options) {
+    const hit = this.raycast3D(x, y, options);
+    return hit ? hit.entity : null; 
+  }
+
+  // pick3D(x, y) {
+  //   const renderer = this.game.renderer;
+  //   if (!renderer?.raycaster) return null;
+
+  //   const rect = renderer.renderer.domElement.getBoundingClientRect();
+
+  //   const ndc = {
+  //     x: (x / rect.width) * 2 - 1,
+  //     y: -(y / rect.height) * 2 + 1
+  //   };
+
+  //   renderer.raycaster.setFromCamera(ndc, renderer.camera);
+
+  //   const intersects = renderer.raycaster.intersectObjects(
+  //     renderer.scene3D.children,
+  //     true
+  //   );
+
+  //   if (intersects.length === 0) return null;
+
+  //   const object = intersects[0].object;
+  //   return { entity: object.userData.entity };
+  // }
+
 
 
   findByTag(tag) {

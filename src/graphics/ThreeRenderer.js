@@ -8,6 +8,7 @@ export class ThreeRenderer extends Renderer {
     this.type = "three"
     // 🔥 THREE core
     this.scene3D = new THREE.Scene();
+    this.raycaster = new THREE.Raycaster(); // 🔥 REQUIRED
 
     this.camera = new THREE.PerspectiveCamera(
       75,

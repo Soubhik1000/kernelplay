@@ -4,9 +4,11 @@ import { PositionComponent3D } from "../../../src/core/components/WebGL_3D/Posit
 import { MeshComponent } from "../../../src/core/components/WebGL_3D/MeshComponent.js";
 import { CubeScript } from "../scripts/CubeScript.js";
 import { BoxCollider3D } from "../../../src/core/components/WebGL_3D/BoxCollider3D.js";
+import { Layers } from "../../../src/index.js";
 
 export function Cube(x, y, z = 0) {
   const e = new Entity("Cube");
+  e.layer = Layers.Player;
 
   e.addComponent("position", new PositionComponent3D(x, y, z));
 
