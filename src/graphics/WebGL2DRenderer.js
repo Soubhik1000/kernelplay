@@ -1,183 +1,182 @@
 import { Renderer } from "./Renderer.js";
 
 export class WebGL2DRenderer extends Renderer {
-    init(game) {
-        super.init(game);
+  init(game) {
+    super.init(game);
 
-        // console.log(this);
+    this.game = game;
 
-        // 🔥 Get WebGL context
-        this.gl =
-            game.canvas.canvas.getContext("webgl") ||
-            game.canvas.canvas.getContext("experimental-webgl");
+    // 🔥 WebGL context
+    this.gl =
+      game.canvas.canvas.getContext("webgl") ||
+      game.canvas.canvas.getContext("experimental-webgl");
 
-        if (!this.gl) {
-            throw new Error("WebGL not supported");
-        }
-
-        const gl = this.gl;
-
-        // Setup viewport
-        gl.viewport(0, 0, game.config.width, game.config.height);
-
-        // Clear color (black)
-        // gl.clearColor(0, 0, 0, 1);
-        const color = this.hexToRgb(game.config.backgroundColor)
-        gl.clearColor(color.r, color.g, color.b, 1);
-
-        // 🔥 Basic shader program
-        this.program = this._createProgram(gl);
-        gl.useProgram(this.program);
-
-        // Position buffer
-        this.positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-
-        const positionLocation = gl.getAttribLocation(
-            this.program,
-            "a_position"
-        );
-        this.colorLocation = gl.getUniformLocation(
-            this.program,
-            "u_color"
-        );
-
-        gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(
-            positionLocation,
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
+    if (!this.gl) {
+      throw new Error("WebGL not supported");
     }
 
-    render(scene) {
-        const gl = this.gl;
-        gl.clear(gl.COLOR_BUFFER_BIT);
+    const gl = this.gl;
 
-        // 🔥 For now, render simple rectangles
-        for (const entity of scene.entities) {
-            // const pos = entity.getComponent("position");
-            // const renderer = entity.getComponent("renderer");
+    // Viewport
+    gl.viewport(0, 0, game.config.width, game.config.height);
 
-            // if (!pos || !renderer) continue;
+    // Background color
+    const bg = this.hexToRGB(game.config.backgroundColor);
+    gl.clearColor(bg.r, bg.g, bg.b, 1);
 
-            // const { r, g, b } = this.hexToRGB(renderer.color);
+    // Program
+    this.program = this._createProgram(gl);
+    gl.useProgram(this.program);
 
-            // this.gl.uniform3f(this.colorLocation, r, g, b);
+    // Locations
+    this.positionLocation = gl.getAttribLocation(this.program, "a_position");
+    this.colorLocation = gl.getUniformLocation(this.program, "u_color");
+    this.modelLocation = gl.getUniformLocation(this.program, "u_model");
 
-            // this._drawRect(
-            //     pos.x,
-            //     pos.y,
-            //     renderer.width,
-            //     renderer.height
-            // );
+    // 🔥 Unit quad buffer (centered)
+    this.positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
-            entity.render(this);
-        }
+    const vertices = new Float32Array([
+      -0.5, -0.5,
+       0.5, -0.5,
+      -0.5,  0.5,
+      -0.5,  0.5,
+       0.5, -0.5,
+       0.5,  0.5
+    ]);
+
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this.positionLocation);
+    gl.vertexAttribPointer(
+      this.positionLocation,
+      2,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    );
+  }
+
+  render(scene) {
+    const gl = this.gl;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    for (const entity of scene.entities) {
+      entity.render(this);
     }
+  }
 
-    _drawRect(x, y, w, h) {
-        // console.log(this);
+  // 🔥 Draw single entity
+  drawBox(entity) {
+    const gl = this.gl;
 
-        const gl = this.gl;
-        const cw = this.game.config.width;
-        const ch = this.game.config.height;
+    const t = entity.getComponent("transform");
+    const r = entity.getComponent("renderer");
+    if (!t || !r) return;
 
-        // Convert pixels → clip space
-        const x1 = (x / cw) * 2 - 1;
-        const y1 = 1 - (y / ch) * 2;
-        const x2 = ((x + w) / cw) * 2 - 1;
-        const y2 = 1 - ((y + h) / ch) * 2;
+    const model = this._createModelMatrix(
+      t.position.x,
+      t.position.y,
+      r.width * t.scale.x,
+      r.height * t.scale.y,
+      t.rotation.z
+    );
 
-        const vertices = new Float32Array([
-            x1, y1,
-            x2, y1,
-            x1, y2,
-            x1, y2,
-            x2, y1,
-            x2, y2
-        ]);
+    const color = this.hexToRGB(r.color);
 
-        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-    }
+    gl.uniform3f(this.colorLocation, color.r, color.g, color.b);
+    gl.uniformMatrix4fv(this.modelLocation, false, model);
 
-    _createProgram(gl) {
-        const vs = this._compileShader(
-            gl,
-            gl.VERTEX_SHADER,
-            `
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+
+  // 🔥 Model matrix (pixel → clip space)
+  _createModelMatrix(x, y, w, h, rot) {
+    const cw = this.game.config.width;
+    const ch = this.game.config.height;
+
+    // Position (pixel → clip)
+    const tx = (x / cw) * 2 - 1;
+    const ty = 1 - (y / ch) * 2;
+
+    // Scale (pixel → clip)
+    const sx = (w / cw) * 2;
+    const sy = (h / ch) * 2;
+
+    const c = Math.cos(rot);
+    const s = Math.sin(rot);
+
+    return new Float32Array([
+      c * sx,  s * sy, 0, 0,
+     -s * sx,  c * sy, 0, 0,
+      0,       0,      1, 0,
+      tx,      ty,     0, 1
+    ]);
+  }
+
+  // 🔥 Shader program
+  _createProgram(gl) {
+    const vs = this._compileShader(
+      gl,
+      gl.VERTEX_SHADER,
+      `
       attribute vec2 a_position;
+      uniform mat4 u_model;
+
       void main() {
-        gl_Position = vec4(a_position, 0, 1);
+        gl_Position = u_model * vec4(a_position, 0.0, 1.0);
       }
       `
-        );
+    );
 
-        const fs = this._compileShader(
-            gl,
-            gl.FRAGMENT_SHADER,
-            `
+    const fs = this._compileShader(
+      gl,
+      gl.FRAGMENT_SHADER,
+      `
       precision mediump float;
       uniform vec3 u_color;
+
       void main() {
         gl_FragColor = vec4(u_color, 1.0);
       }
       `
-        );
+    );
 
-        const program = gl.createProgram();
-        gl.attachShader(program, vs);
-        gl.attachShader(program, fs);
-        gl.linkProgram(program);
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
 
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            throw new Error("Shader link error");
-        }
-
-        return program;
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error("Shader link error");
     }
 
-    _compileShader(gl, type, source) {
-        const shader = gl.createShader(type);
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
+    return program;
+  }
 
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            throw new Error(gl.getShaderInfoLog(shader));
-        }
+  _compileShader(gl, type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
 
-        return shader;
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(shader));
     }
 
-    hexToRgb(hex) {
-        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-        const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-        hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-            return r + r + g + g + b + b;
-        });
+    return shader;
+  }
 
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  // 🔥 HEX → normalized RGB
+  hexToRGB(hex) {
+    hex = hex.replace("#", "");
+    const num = parseInt(hex, 16);
 
-        return result ? {
-            r: parseInt(result[1], 16), // Convert the red part (first two digits)
-            g: parseInt(result[2], 16), // Convert the green part (middle two digits)
-            b: parseInt(result[3], 16)  // Convert the blue part (last two digits)
-        } : null; // Return null if the format is invalid
-    }
-
-    hexToRGB(hex) {
-        hex = hex.replace("#", "");
-        const num = parseInt(hex, 16);
-
-        return {
-            r: ((num >> 16) & 255) / 255,
-            g: ((num >> 8) & 255) / 255,
-            b: (num & 255) / 255
-        };
-    }
-
+    return {
+      r: ((num >> 16) & 255) / 255,
+      g: ((num >> 8) & 255) / 255,
+      b: (num & 255) / 255
+    };
+  }
 }

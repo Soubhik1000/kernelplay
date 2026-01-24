@@ -21,7 +21,7 @@ export function Wall(x = 100, y = 100, isTrigger = false) {
         isTrigger: isTrigger
     }));
     // wall.addComponent("renderer", new BoxRenderComponent("#000000"));
-    wall.addComponent("renderer", new WebGLBoxRender2D(size.x, size.y, "#000000"));
+    wall.addComponent("renderer", new WebGLBoxRender2D("#000000"));
 
     return wall;
 }

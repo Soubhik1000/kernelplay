@@ -23,7 +23,7 @@ export function Cube1(x, y, z = 0) {
 
   e.addComponent("mesh", new MeshComponent(mesh));
   // e.addComponent("collider", new ColliderComponent(1, 1, true));
-  e.addComponent("collider3D", new BoxCollider3D(1, 1, 1));
+  e.addComponent("collider3D", new BoxCollider3D());
 
   return e;
 }

@@ -1,23 +1,28 @@
 import { Component } from "../../Component.js";
 
 export class BoxCollider3D extends Component {
-  constructor(width, height, depth, isTrigger = false) {
+  constructor(isTrigger = false) {
     super();
-    this.width = width;
-    this.height = height;
-    this.depth = depth;
+    // this.width = width;
+    // this.height = height;
+    // this.depth = depth;
     this.isTrigger = isTrigger;
   }
 
   get bounds() {
-    const pos = this.entity.getComponent("transform").position;
+    const transform = this.entity.getComponent("transform");
+    // console.log(transform.scale.x);
+    
     return {
-      x: pos.x,
-      y: pos.y,
-      z: pos.z || 0,
-      width: this.width,
-      height: this.height,
-      depth: this.depth
+      x: transform.position.x - (transform.scale.x) / 2,
+      y: transform.position.y - (transform.scale.y) / 2,
+      z: transform.position.z - (transform.scale.z) / 2,
+      width: transform.scale.x,
+      height: transform.scale.y,
+      depth: transform.scale.z
+      // width: 1,
+      // height: 2,
+      // depth: 3
     };
   }
 }
