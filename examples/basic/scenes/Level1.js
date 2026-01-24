@@ -25,6 +25,7 @@ export class Level1 extends Scene {
     // this.addEntity(new Wall(300, 100, true));
     // this.addEntity(wall);
 
+    // Three
     let ground = new Cube1(0,-4,0);
     ground.getComponent("transform").scale.x = 10;
     ground.getComponent("transform").scale.z = 10;

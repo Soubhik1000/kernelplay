@@ -1,12 +1,11 @@
 import { Entity } from "../../../src/index.js";
 import {
     BoxRenderComponent,
-    PositionComponent,
     ColliderComponent
 } from "../../../src/index.js";
 
-import { WebGLBoxRender2D } from "../../../src/core/components/WebGL/WebGLBoxRender2D.js";
-import { TransformComponent } from "../../../src/core/components/TransformComponent.js";
+import { WebGLBoxRender2D } from "../../../src/index.js";
+import { TransformComponent } from "../../../src/index.js";
 
 export function Wall(x = 100, y = 100, isTrigger = false) {
     let size = { x: 40, y: 40 };
@@ -20,8 +19,8 @@ export function Wall(x = 100, y = 100, isTrigger = false) {
     wall.addComponent("collider", new ColliderComponent({
         isTrigger: isTrigger
     }));
-    wall.addComponent("renderer", new BoxRenderComponent("#000000"));
-    // wall.addComponent("renderer", new WebGLBoxRender2D("#000000"));
+    // wall.addComponent("renderer", new BoxRenderComponent("#000000"));
+    wall.addComponent("renderer", new WebGLBoxRender2D("#000000"));
 
     return wall;
 }

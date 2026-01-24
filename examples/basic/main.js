@@ -1,8 +1,8 @@
 import { Game } from "../../src/index.js";
 import { MenuScene } from "./scenes/MenuScene.js";
 import { Level1 } from "./scenes/Level1.js";
-import { WebGL2DRenderer } from "../../src/graphics/WebGL2DRenderer.js";
-import { ThreeRenderer } from "../../src/graphics/ThreeRenderer.js";
+import { WebGL2DRenderer } from "../../src/index.js";
+import { ThreeRenderer } from "../../src/index.js";
 
 // ---------------------------
 // Main Game
