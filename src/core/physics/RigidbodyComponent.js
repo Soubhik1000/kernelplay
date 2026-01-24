@@ -18,7 +18,7 @@ export class RigidbodyComponent extends Component {
     this.force = { x: 0, y: 0, z: 0 };
 
     this.drag = drag;
-    this.useGravity = true;
+    this.useGravity = useGravity;
     this.isGrounded = false;
   }
 

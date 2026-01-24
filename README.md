@@ -6,6 +6,21 @@ KernelPlayJS is a lightweight **2D JavaScript game engine** inspired by Unity's 
 
 ---
 
+## 🔴 Live Demo
+Experience the new render pipeline and physics features in real time:  
+👉 https://soubhik-rjs.github.io/kernelplay-js-demo/
+
+
+## 🚀 New Features
+
+* Added Render Pipeline
+Introduced a new render pipeline to improve rendering structure, performance, and future extensibility.
+* CanvasRenderer (2D)
+* WebGL2DRenderer (2D)
+* ThreeRenderer (Three.js 3D)
+* Added Physics Support
+Integrated a physics system to enable realistic movement, collisions.
+
 ## ✨ Features (Alpha)
 
 * Game loop with configurable FPS
@@ -29,6 +44,25 @@ KernelPlayJS is a lightweight **2D JavaScript game engine** inspired by Unity's 
 
 ```bash
 npm install kernelplay-js --save
+npm install three --save
+```
+
+```bash
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+    }
+  }
+</script>
+<script type="importmap">
+  {
+    "imports": {
+      "kernelplay-js": "https://cdn.jsdelivr.net/npm/kernelplay-js/src/index.js"
+    }
+  }
+</script>
 ```
 
 ---
@@ -37,14 +71,16 @@ npm install kernelplay-js --save
 
 ```js
 import { Game, Scene, Entity } from "kernelplay-js";
-import { PositionComponent, BoxRenderComponent } from "kernelplay-js";
+import { TransformComponent, BoxRenderComponent } from "kernelplay-js";
 
 class MyScene extends Scene {
   init() {
     const box = new Entity();
     // add components here
-    box.addComponent("position", new PositionComponent(300, 200));
-    box.addComponent("renderer", new BoxRenderComponent(40, 40, "red"));
+    box.addComponent("transform", new TransformComponent({
+       position: { x: 300, y: 200 },
+    }));
+    box.addComponent("renderer", new BoxRenderComponent("red"));
 
     this.addEntity(box);
   }
@@ -93,7 +129,8 @@ new MyGame({ width: 800, height: 600, fps: 60 }).start();
 project-root/
 ├── node_modules/           # Project dependencies
 ├── prefabs/                # Reusable game objects
-│   └── Player.js
+│   ├── Player.js
+│   └── Box.js
 ├── scenes/                 # Game scenes / levels
 │   └── Level1.js
 ├── scripts/                # Game logic scripts
@@ -116,6 +153,21 @@ project-root/
   <title>KernelPlay Test</title>
 </head>
 <body>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "kernelplay-js": "https://cdn.jsdelivr.net/npm/kernelplay-js/src/index.js"
+      }
+    }
+  </script>
   <script type="module" src="./main.js"></script>
 </body>
 </html>
@@ -148,12 +200,15 @@ game.start();
 ```js
 import { Scene } from "kernelplay-js";
 import { Player } from "../prefabs/Player.js";
+import { Box } from "../prefabs/Box.js";
 
 export class Level1 extends Scene {
   init() {
-    this.addEntity(new Player(100, 100));
+    this.addEntity(new Player(400, 300));
+    this.addEntity(new Box(500, 300));
   }
 }
+
 ```
 
 ### ``` prefabs/Player.js ```
@@ -161,10 +216,10 @@ export class Level1 extends Scene {
 ```js
 import {
     Entity,
-    PositionComponent,
-    VelocityComponent,
+    TransformComponent,
     ColliderComponent,
     BoxRenderComponent,
+    Rigidbody2DComponent
 } from "kernelplay-js";
 
 import { PlayerController } from "../scripts/PlayerController.js";
@@ -177,11 +232,44 @@ export class Player extends Entity {
         this.layer = Layers.Player;
         this.tag = "player"
 
-        this.addComponent("position", new PositionComponent(x, y));
-        this.addComponent("velocity", new VelocityComponent());
-        this.addComponent("collider", new ColliderComponent(40, 40));
-        this.addComponent("renderer", new BoxRenderComponent(40, 40, "blue"));
+        this.addComponent("transform", new TransformComponent({
+            position: { x, y },
+        }));
+        this.addComponent("rigidbody2d",new Rigidbody2DComponent({
+            useGravity: false
+        }))
+        this.addComponent("collider", new ColliderComponent());
+        this.addComponent("renderer", new BoxRenderComponent("red"));
         this.addComponent("playerController", new PlayerController());
+    }
+}
+```
+
+### ``` prefabs/Box.js ```
+
+```js
+import {
+    Entity,
+    TransformComponent,
+    ColliderComponent,
+    BoxRenderComponent,
+} from "kernelplay-js";
+
+import { Layers } from "kernelplay-js";
+
+export class Box extends Entity {
+    constructor(x, y) {
+        super("Box");
+
+        this.layer = Layers.Player;
+        this.tag = "box"
+
+        this.addComponent("transform", new TransformComponent({
+            position: { x, y },
+        }));
+
+        this.addComponent("collider", new ColliderComponent());
+        this.addComponent("renderer", new BoxRenderComponent("blue"));
     }
 }
 ```
@@ -193,15 +281,15 @@ import { ScriptComponent, Keyboard, Mouse, Layers } from "kernelplay-js";
 
 export class PlayerController extends ScriptComponent {
     update(dt) {
-        const vel = this.entity.getComponent("velocity");
+        const rb = this.entity.getComponent("rigidbody2d");
 
-        vel.vx = 0;
-        vel.vy = 0;
+        rb.velocity.x = 0;
+        rb.velocity.y = 0;
 
-        if (Keyboard.isPressed("ArrowRight")) vel.vx = 200;
-        if (Keyboard.isPressed("ArrowLeft")) vel.vx = -200;
-        if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
-        if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
+        if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
+        if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
+        if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
+        if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
 
         if (Mouse.wasPressed(0)) {
             const hit = this.entity.scene.raycast(Mouse.x, Mouse.y, {
@@ -211,8 +299,94 @@ export class PlayerController extends ScriptComponent {
             console.log("Hit (Player layer only):", hit?.entity?.tag);
         }
     }
-}
 
+    onCollision(other){
+        console.log(other.name);
+    }
+}
+```
+## New Component
+
+```js
+// Transform
+this.addComponent("transform", new TransformComponent({
+    position = {x: 0, y: 0, z: 0}, 
+    rotation = {x: 0, y: 0, z: 0}, 
+    scale = {x: 1, y: 1, z: 1}
+}));
+
+// Rigidbody 2D
+this.addComponent("rigidbody2d",new Rigidbody2DComponent({
+    mass = 1,
+    gravityScale = 1,
+    isKinematic = false,
+    drag = 0.05,
+    useGravity = true
+}));
+
+// Rigidbody 3D
+this.addComponent("rigidbody",new RigidbodyComponent({
+    mass = 1,
+    gravityScale = 1,
+    isKinematic = false,
+    drag = 0.05,
+    useGravity = true
+}));
+```
+
+## Change Render Pipeline
+
+### CanvasRenderer
+```js
+const game = new MyGame({
+  width: 800,
+  height: 600,
+  fps: 60
+});
+
+game.start();
+```
+
+### WebGL2DRenderer
+```js
+const game = new MyGame({
+  renderer: new WebGL2DRenderer(),
+  width: 800,
+  height: 600,
+  fps: 60,
+  backgroundColor: "#eeeeee"
+});
+
+game.start();
+```
+```js
+this.addComponent("renderer", new BoxRenderComponent("red"));
+// Change the renderer
+this.addComponent("renderer", new WebGLBoxRender2D("#FF0000"));
+```
+
+### ThreeRenderer
+```js
+const game = new MyGame({
+  renderer: new ThreeRenderer(),
+  width: 800,
+  height: 600,
+  fps: 60,
+  backgroundColor: "#eeeeee"
+});
+
+game.start();
+```
+
+```js
+// Use
+const mesh = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshStandardMaterial({ color: "blue" })
+);
+
+e.addComponent("mesh", new MeshComponent(mesh));
+e.addComponent("collider3D", new BoxCollider3D());
 ```
 
 ## 🖱 Input
@@ -326,7 +500,7 @@ this.entity.destroy();
 
 ## 🧪 Status
 
-* Version: `0.1.1-alpha`
+* Version: `0.1.2-alpha`
 * Stability: Experimental
 * Target: Learning & prototyping
 
