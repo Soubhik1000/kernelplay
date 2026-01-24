@@ -353,7 +353,7 @@ export class Scene {
         const posB = b.getComponent("transform").position;
 
         const rbA2 = a.getComponent("rigidbody2d");
-        const rbB = b.getComponent("rigidbody2d");
+        const rbA = a.getComponent("rigidbody");
 
         if (!posA || !posB) continue;
 
@@ -378,33 +378,33 @@ export class Scene {
 
             // if (overlapX < overlapY) {
             //   posA.x += posA.x < posB.x ? -overlapX : overlapX;
-              
+
             // } else {
             //   posA.y += posA.y < posB.y ? -overlapY : overlapY;
-              
+
             // }
 
             if (overlapX < overlapY) {
-                // X axis
-                if (posA.x < posB.x) posA.x -= overlapX;
-                else posA.x += overlapX;
+              // X axis
+              if (posA.x < posB.x) posA.x -= overlapX;
+              else posA.x += overlapX;
 
-                if (rbA2) rbA2.velocity.x = 0;
+              if (rbA2) rbA2.velocity.x = 0;
             } else {
-                // Y axis (GROUND LOGIC 🔥)
-                if (posA.y < posB.y) {
-                    // A is ABOVE B
-                    posA.y -= overlapY + EPS;
+              // Y axis (GROUND LOGIC 🔥)
+              if (posA.y < posB.y) {
+                // A is ABOVE B
+                posA.y -= overlapY + EPS;
 
-                    if (rbA2) {
-                        rbA2.velocity.y = 0;
-                        rbA2.isGrounded = true;
-                    }
-                } else {
-                    // A hit B from below
-                    posA.y += overlapY + EPS;
-                    if (rbA2) rbA2.velocity.y = 0;
+                if (rbA2) {
+                  rbA2.velocity.y = 0;
+                  rbA2.isGrounded = true;
                 }
+              } else {
+                // A hit B from below
+                posA.y += overlapY + EPS;
+                if (rbA2) rbA2.velocity.y = 0;
+              }
             }
           }
 
@@ -437,12 +437,39 @@ export class Scene {
               ) - Math.max(c3a.bounds.z, c3b.bounds.z);
 
             // Resolve on smallest axis
+            // if (overlapX <= overlapY && overlapX <= overlapZ) {
+            //   posA.x += posA.x < posB.x ? -overlapX : overlapX;
+            // } else if (overlapY <= overlapZ) {
+            //   posA.y += posA.y < posB.y ? -overlapY : overlapY;
+            // } else {
+            //   posA.z += posA.z < posB.z ? -overlapZ : overlapZ;
+            // }
+
+            // 🔥 resolve on smallest penetration axis
             if (overlapX <= overlapY && overlapX <= overlapZ) {
-              posA.x += posA.x < posB.x ? -overlapX : overlapX;
-            } else if (overlapY <= overlapZ) {
-              posA.y += posA.y < posB.y ? -overlapY : overlapY;
-            } else {
-              posA.z += posA.z < posB.z ? -overlapZ : overlapZ;
+              posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
+              if (rbA) rbA.velocity.x = 0;
+            }
+            else if (overlapY <= overlapZ) {
+              // Y AXIS (GROUND LOGIC)
+              if (posA.y < posB.y) {
+                // A is ABOVE B
+                posA.y -= overlapY + EPS;
+
+                if (rbA) {
+                  rbA.velocity.y = 0;
+                  rbA.isGrounded = true;
+                }
+              } else {
+                // hit from below
+                posA.y += overlapY + EPS;
+                if (rbA) rbA.velocity.y = 0;
+                rbA.isGrounded = true;
+              }
+            }
+            else {
+              posA.z += posA.z < posB.z ? -overlapZ - EPS : overlapZ + EPS;
+              if (rbA) rbA.velocity.z = 0;
             }
           }
 
@@ -461,6 +488,7 @@ export class Scene {
       if (r2b) r2b.integrate(dt, gravity);
 
       const rb3d = entity.getComponent("rigidbody");
+      if (rb3d) rb3d.isGrounded = false;
       if (rb3d) rb3d.integrate(dt, gravity);
     }
 

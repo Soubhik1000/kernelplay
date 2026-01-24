@@ -5,7 +5,8 @@ export class RigidbodyComponent extends Component {
     mass = 1,
     gravityScale = 1,
     isKinematic = false,
-    drag = 0
+    drag = 0.05,
+    useGravity = true
   } = {}) {
     super();
 
@@ -18,19 +19,26 @@ export class RigidbodyComponent extends Component {
 
     this.drag = drag;
     this.useGravity = true;
+    this.isGrounded = false;
   }
 
-  addForce(x, y, z) {
-    this.force.x += x;
-    this.force.y += y;
-    this.force.z += z;
+  addForce(x, y, z, mode = "force") {
+    if (mode === "impulse") {
+      this.velocity.x += x / this.mass;
+      this.velocity.y += y / this.mass;
+      this.velocity.z += z / this.mass;
+    } else {
+      this.force.x += x;
+      this.force.y += y;
+      this.force.z += z;
+    }
   }
 
   integrate(dt, gravity) {
     if (this.isKinematic) return;
 
     if (this.useGravity) {
-      this.force.y += gravity * this.gravityScale * this.mass;
+      this.force.y -= gravity * this.gravityScale * this.mass;
     }
 
     const ax = this.force.x / this.mass;

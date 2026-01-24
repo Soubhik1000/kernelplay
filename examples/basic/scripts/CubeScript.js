@@ -19,16 +19,35 @@ export class CubeScript extends ScriptComponent {
     update(dt) {
         const pos = this.entity.getComponent("transform").position;
         const transform = this.entity.getComponent("transform");
+        const rb = this.entity.getComponent("rigidbody");
 
-        if (Keyboard.isPressed("ArrowRight")) pos.x += 10 * dt;
-        if (Keyboard.isPressed("ArrowLeft")) pos.x += -10 * dt;
-        if (Keyboard.isPressed("ArrowUp")) pos.y += 10 * dt;
-        if (Keyboard.isPressed("ArrowDown")) pos.y += -10 * dt;
-        if (Keyboard.isPressed("w")) pos.z += -10 * dt;
-        if (Keyboard.isPressed("s")) pos.z += 10 * dt;
+        rb.velocity.x = 0;
+        // rb.velocity.y = 0;
+        rb.velocity.z = 0;
+
+        if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200 * dt;
+        if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200 * dt;
+        // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = 200 * dt;
+        // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = -200 * dt;
+        // if (Keyboard.isPressed("w")) rb.velocity.z = -200 * dt;
+        // if (Keyboard.isPressed("s")) rb.velocity.z = 200 * dt;
+
+        // if (Keyboard.isPressed("ArrowRight")) rb.addForce(10, 0, 0);
+        // if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-10, 0, 0);
+        // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = 200 * dt;
+        // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = -200 * dt;
+        if (Keyboard.isPressed("ArrowUp")) rb.velocity.z = -200 * dt;
+        if (Keyboard.isPressed("ArrowDown")) rb.velocity.z = 200 * dt;
 
         if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
         if (Keyboard.isPressed("e")) transform.rotation.z += 2 * dt;
+        // console.log(rb.isGrounded);
+        
+        if(rb.isGrounded){
+            if(Keyboard.isPressed(" ")){
+                rb.addForce(0, 20, 0, "impulse");
+            }
+        }
 
         if (Keyboard.wasPressed('x')) {
             this.entity.destroy();
@@ -58,7 +77,7 @@ export class CubeScript extends ScriptComponent {
     }
 
     onCollision(object) {
-        console.log(object.name);
+        // console.log(object.name);
     }
 
     onTriggerEnter(other) {

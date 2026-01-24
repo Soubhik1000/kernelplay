@@ -6,6 +6,7 @@ import { CubeScript } from "../scripts/CubeScript.js";
 import { BoxCollider3D } from "../../../src/core/components/WebGL_3D/BoxCollider3D.js";
 import { Layers } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/core/components/TransformComponent.js";
+import { RigidbodyComponent } from "../../../src/core/physics/RigidbodyComponent.js";
 
 export function Cube(x, y, z = 0) {
   const e = new Entity("Cube");
@@ -26,6 +27,10 @@ export function Cube(x, y, z = 0) {
   e.addComponent("mesh", new MeshComponent(mesh));
   // e.addComponent("collider", new ColliderComponent(1, 1));
   e.addComponent("collider3D", new BoxCollider3D());
+  e.addComponent("rigidbody", new RigidbodyComponent({
+    gravityScale: 0.05,
+    drag: 1
+  }));
   e.addComponent("CubeScript", new CubeScript());
 
   return e;

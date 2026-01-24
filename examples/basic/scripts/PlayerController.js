@@ -23,6 +23,7 @@ export class PlayerController extends ScriptComponent {
         // rb.velocity.x = 0;
         // rb.velocity.y = 0
 
+        // if (Keyboard.isPressed("ArrowRight")) transform.position.x += 10;
         // if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
         // if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
         // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
@@ -30,7 +31,7 @@ export class PlayerController extends ScriptComponent {
 
         if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
         if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
-        if (Keyboard.isPressed("ArrowUp")) rb.addForce(0, -800);
+        if (Keyboard.isPressed("w")) rb.addForce(0, -30, "impulse");
         if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
         
@@ -40,8 +41,8 @@ export class PlayerController extends ScriptComponent {
 
 
         if (rb.isGrounded) {
-            if (Keyboard.isPressed("p")) {
-                rb.addForce(0, -400, "impulse");
+            if (Keyboard.isPressed(" ")) {
+                rb.addForce(0, -600, "impulse");
                 this.isGround = false;
             }
         }
