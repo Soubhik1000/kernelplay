@@ -11,21 +11,34 @@ export class PlayerController extends ScriptComponent {
 
     onStart(){
         console.log('onStart player');
+        this.isGround = false;
     }
 
     update(dt) {
-        const vel = this.entity.getComponent("velocity");
+        const rb = this.entity.getComponent("rigidbody2d");
         const transform = this.entity.getComponent("transform");
         const renderer = this.entity.getComponent("renderer");
-        if (!vel) return;
+        // if (!vel) return;
 
-        vel.vx = 0;
-        vel.vy = 0;
+        // rb.velocity.x = 0;
+        // rb.velocity.y = 0
 
-        if (Keyboard.isPressed("ArrowRight")) vel.vx = 200;
-        if (Keyboard.isPressed("ArrowLeft")) vel.vx = -200;
-        if (Keyboard.isPressed("ArrowUp")) vel.vy = -200;
-        if (Keyboard.isPressed("ArrowDown")) vel.vy = 200;
+        // if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
+        // if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
+        // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
+        // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
+
+        if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
+        if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
+        if (Keyboard.isPressed("ArrowUp")) rb.addForce(0, -800);
+        if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
+
+        if (this.isGround) {
+            if (Keyboard.wasPressed("p")) {
+                rb.addForce(0, -20000);
+                this.isGround = false;
+            }
+        }
 
         if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
         if (Keyboard.isPressed("e")) transform.rotation.z += 2 * dt;
@@ -97,7 +110,8 @@ export class PlayerController extends ScriptComponent {
     }
 
     onCollision(other) {
-        console.log("Player hit:", other.name);
+        // console.log("Player hit:", other.name);
+        this.isGround = true;
     }
 
     onTriggerEnter(other) {

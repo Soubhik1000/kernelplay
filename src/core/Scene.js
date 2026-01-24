@@ -16,6 +16,20 @@ export class Scene {
   }
 
   update(dt) {
+
+    const gravity = this.game?.config?.gravity ?? 980;
+
+    // 🔥 Physics integration
+    for (const entity of this.entities) {
+      
+      const rb2d = entity.getComponent("rigidbody2d");
+      if (rb2d) rb2d.integrate(dt, gravity);
+      // console.log(rb);
+
+      const rb3d = entity.getComponent("rigidbody");
+      if (rb3d) rb3d.integrate(dt, gravity);
+    }
+
     // Update all entities
     for (const entity of this.entities) {
       entity.update(dt);

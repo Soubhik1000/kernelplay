@@ -5,6 +5,8 @@ export class Config {
     this.fps = options.fps || 60; // target FPS
     this.backgroundColor = options.backgroundColor || "#ffffff";
 
+    this.gravity = 980;
+
     // Add more defaults here in future (e.g., gravity, scale)
   }
 }
