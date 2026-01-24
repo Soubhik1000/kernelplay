@@ -33,15 +33,18 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.isPressed("ArrowUp")) rb.addForce(0, -800);
         if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
-        if (this.isGround) {
-            if (Keyboard.wasPressed("p")) {
-                rb.addForce(0, -20000);
-                this.isGround = false;
-            }
-        }
+        
 
         if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
         if (Keyboard.isPressed("e")) transform.rotation.z += 2 * dt;
+
+
+        if (rb.isGrounded) {
+            if (Keyboard.isPressed("p")) {
+                rb.addForce(0, -400, "impulse");
+                this.isGround = false;
+            }
+        }
 
         if (Keyboard.isPressed("g")){
             console.log(renderer);
@@ -101,7 +104,7 @@ export class PlayerController extends ScriptComponent {
     }
 
     // lateUpdate(dt){
-    //     console.log('l player');
+        
     // }
 
     onDestroy(){
@@ -111,6 +114,7 @@ export class PlayerController extends ScriptComponent {
 
     onCollision(other) {
         // console.log("Player hit:", other.name);
+        // this.rb.velocity.y = 0; // simple resolution
         this.isGround = true;
     }
 

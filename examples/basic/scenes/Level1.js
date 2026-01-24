@@ -7,14 +7,19 @@ import { Cube1 } from "../prefabs/Cube1.js";
 export class Level1 extends Scene {
   init() {
     const player = Player(100, 100);
-    const wall = new Wall(400, 200);
+    const wall = new Wall(200, 200);
     
     wall.getComponent('renderer').color = '#ff0000';
     player.getComponent("playerController").wall = wall;
+    wall.getComponent("transform").scale.y = 4;
+    
+    const wall1 = new Wall(100, 400);
+    wall1.getComponent("transform").scale.x = 3;
+    wall1.getComponent("transform").scale.y = 4;
 
     this.addEntity(player);
     this.addEntity(new Wall(200, 100));
-    this.addEntity(new Wall(100, 400));
+    this.addEntity(wall1);
     this.addEntity(new Wall(300, 100, true));
     this.addEntity(wall);
 

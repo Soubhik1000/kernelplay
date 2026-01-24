@@ -28,6 +28,7 @@ export class Game {
     this.loop = new Loop({
       update: (dt) => {
         Time.update(dt, performance.now());
+        dt = Math.min(dt, 0.05);
         
         this.update(dt);
         this.sceneManager.update(dt);

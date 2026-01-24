@@ -5,7 +5,8 @@ export class Rigidbody2DComponent extends Component {
     mass = 1,
     gravityScale = 1,
     isKinematic = false,
-    drag = 0.5
+    drag = 0.05,
+    useGravity = true
   } = {}) {
     super();
 
@@ -17,13 +18,18 @@ export class Rigidbody2DComponent extends Component {
     this.force = { x: 0, y: 0 };
 
     this.drag = drag; // linear drag
-    this.useGravity = true;
-    
+    this.useGravity = useGravity;
+    this.isGrounded = false;
 }
 
-addForce(x, y) {
+addForce(x, y, mode = "force") {
+  if (mode === "impulse") {
+    this.velocity.x += x / this.mass;
+    this.velocity.y += y / this.mass;
+  } else {
     this.force.x += x;
     this.force.y += y;
+  }
 }
 
 integrate(dt, gravity) {
