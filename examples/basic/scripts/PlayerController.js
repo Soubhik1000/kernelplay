@@ -3,6 +3,8 @@ import { ScriptComponent, Keyboard, Mouse } from "../../../src/index.js";
 import { Wall } from "../prefabs/Wall.js";
 import { Layers } from "../../../src/index.js";
 
+import * as PIXI from "pixi.js";
+
 export class PlayerController extends ScriptComponent {
 
     start() {
@@ -18,6 +20,8 @@ export class PlayerController extends ScriptComponent {
         const rb = this.entity.getComponent("rigidbody2d");
         const transform = this.entity.getComponent("transform");
         const renderer = this.entity.getComponent("renderer");
+        // console.log(transform.position);
+        
         // if (!vel) return;
 
         // rb.velocity.x = 0;
@@ -33,6 +37,22 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
         if (Keyboard.isPressed("w")) rb.addForce(0, -30, "impulse");
         if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
+
+        if (Keyboard.isPressed("h")) {
+            const box = new PIXI.Graphics()
+                    // 2. Define geometry: rect(x, y, width, height)
+                    .rect(0, 0, 150, 100)
+                    // 3. Set fill color
+                    .fill(0xff0000)
+                    // 4. Add an optional border (stroke)
+                    .stroke({ width: 4, color: 0xffffff });
+            
+                  // Position the box
+                //   box.x = this.entity.scene.game.renderer.app.screen.width / 2 - 75;
+                //   box.y = this.entity.scene.game.renderer.app.screen.height / 2 - 50;
+            
+                  this.entity.scene.game.renderer.stage.addChild(box);
+        }
 
         
 

@@ -20,7 +20,7 @@ export class Game {
 
     // 🔥 default renderer
     this.renderer = options.renderer || new CanvasRenderer();
-    this.renderer.init(this);
+    // this.renderer.init(this);
 
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);
@@ -63,7 +63,9 @@ export class Game {
   update(dt) {}
   render() {}
 
-  start() {
+  async start() {
+    // console.log("init");
+    await this.renderer.init(this);
     this.init();
     this.loop.start();
   }
