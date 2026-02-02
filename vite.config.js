@@ -5,13 +5,14 @@ export default defineConfig({
     lib: {
       entry: "src/index.js",
       name: "KernelPlay",
-      fileName: (format) => `kernelplay.${format}.js`
+      formats: ['es', 'umd'],    // 👈 THIS is the key
+      fileName: (format) => `kernelplay.${format}.js`,
     },
     rollupOptions: {
       external: [], // add "three", "pixi.js" if you want them external
       output: {
         globals: {
-          three: "THREE"
+          // three: "THREE"
         }
       }
     },

@@ -1,5 +1,5 @@
 import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
-import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
+// import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
 import { RaycastHit } from "./physics/RaycastHit.js";
 
 export class Scene {
