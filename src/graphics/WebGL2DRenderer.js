@@ -1,4 +1,5 @@
 import { Renderer } from "./Renderer.js";
+import { Mouse } from "../input/Mouse.js";
 import * as PIXI from "pixi.js";
 
 export class WebGL2DRenderer extends Renderer {
@@ -22,6 +23,8 @@ export class WebGL2DRenderer extends Renderer {
     game.canvas.canvas.replaceWith(this.app.canvas);
     game.canvas.canvas = this.app.canvas;
     this.stage = this.app.stage;
+
+    Mouse.init(game.canvas.canvas); // 🔥 IMPORTANT
   }
 
   render(scene) {

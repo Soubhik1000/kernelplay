@@ -10,10 +10,8 @@ export class WebGLBoxRender2D extends Component {
     this.color = color || 0xff0000;
 
     // 🔥 create graphics object
-    this.object = new PIXI.Graphics()
-      .rect(0, 0, this.width, this.height)
-      .fill(this.color)
-      // .stroke({ width: 4, color: 0xffffff });
+    this.object = new PIXI.Graphics().rect(0, 0, this.width, this.height);
+    // .stroke({ width: 4, color: 0xffffff });
       
 
     // center pivot like engine transform
@@ -22,6 +20,7 @@ export class WebGLBoxRender2D extends Component {
 
   onStart() {
     this.object.entity = this.entity;
+    this.object.fill(this.color);
     // this.entity.scene.game.renderer.stage.addChild(this.object);
     this.entity.scene.game.renderer.app.stage.addChild(this.object);
   }
