@@ -6,6 +6,7 @@ export { Mouse } from "./input/Mouse.js"
 export { Canvas } from "./graphics/Canvas.js";
 export { Scene } from "./core/Scene.js";
 export { SceneManager } from "./core/SceneManager.js";
+export { Renderer } from "./graphics/Renderer.js";
 
 export { Layers } from "./core/constants/Layers.js";
 
