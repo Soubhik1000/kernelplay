@@ -3,7 +3,7 @@ import {BoxRenderComponent, ColliderComponent} from "../../../src/index.js";
 import { PlayerController } from "../scripts/PlayerController.js";
 import { Layers } from "../../../src/index.js";
 
-import { WebGLBoxRender2D } from "../../../src/index.js";
+// import { WebGLBoxRender2D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
 
@@ -26,8 +26,8 @@ export function Player(x = 100, y = 100) {
     // player.addComponent("velocity", new VelocityComponent());
     player.addComponent("collider", new ColliderComponent());
 
-    // player.addComponent("renderer", new BoxRenderComponent("#FF0000"));
-    player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
+    player.addComponent("renderer", new BoxRenderComponent("#FF0000"));
+    // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
 
     player.addComponent("playerController", new PlayerController());
 

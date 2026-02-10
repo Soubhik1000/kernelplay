@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Entity, ColliderComponent } from "../../../src/index.js";
-import { MeshComponent } from "../../../src/index.js";
-import { BoxCollider3D } from "../../../src/index.js";
+// import { MeshComponent } from "../../../src/index.js";
+// import { BoxCollider3D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
 
 import { CubeScript } from "../scripts/CubeScript.js";
