@@ -6,6 +6,8 @@ export class BoxRenderComponent extends Component {
     this.width = 50;
     this.height = 50;
     this.color = color;
+
+    this._dirty = true; // 🔥 renderer dirty
   }
 
   init() {
@@ -13,12 +15,25 @@ export class BoxRenderComponent extends Component {
   }
 
   render(ctx) {
-    ctx.save();
-    ctx.translate(this.transform.position.x, this.transform.position.y);
-    ctx.rotate(this.transform.rotation.z); // 🔥 only Z axis for 2D
-    ctx.scale(this.transform.scale.x, this.transform.scale.y);
+    if (this.transform._dirty || this._dirty) {
+      // rebuild cached transform
+      this._x = this.transform.position.x;
+      this._y = this.transform.position.y;
+      this._rot = this.transform.rotation.z;
+      this._sx = this.transform.scale.x;
+      this._sy = this.transform.scale.y;
 
-    ctx.fillStyle = this.color || "black";
+      this.transform.clearDirty();
+      this._dirty = false;
+    }
+
+    // ALWAYS DRAW
+    ctx.save();
+    ctx.translate(this._x, this._y);
+    ctx.rotate(this._rot);
+    ctx.scale(this._sx, this._sy);
+
+    ctx.fillStyle = this.color;
     ctx.fillRect(
       -this.width / 2,
       -this.height / 2,
@@ -27,9 +42,5 @@ export class BoxRenderComponent extends Component {
     );
 
     ctx.restore();
-
-    // ctx.fillStyle = this.color;
-    // // ctx.fillRect(this.entity.getComponent("position").x, this.entity.getComponent("position").y, this.width, this.height);
-    // ctx.fillRect(this.transform.position.x, this.transform.position.y, this.width, this.height);
   }
 }

@@ -20,7 +20,8 @@ export function Player(x = 100, y = 100) {
     player.addComponent("rigidbody2d", new Rigidbody2DComponent({
         mass: 1,
         gravityScale: 1,
-        drag: 1
+        drag: 1,
+        // useGravity: false
     }));
 
     // player.addComponent("velocity", new VelocityComponent());

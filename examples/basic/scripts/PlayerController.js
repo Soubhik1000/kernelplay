@@ -25,9 +25,14 @@ export class PlayerController extends ScriptComponent {
         // if (!vel) return;
 
         // rb.velocity.x = 0;
-        // rb.velocity.y = 0
+        // rb.velocity.y = 0;
 
         // if (Keyboard.isPressed("ArrowRight")) transform.position.x += 10;
+        // if (Keyboard.isPressed("ArrowLeft")) transform.position.x -= 10;
+        // if (Keyboard.isPressed("ArrowUp")) transform.position.y -= 10;
+        // if (Keyboard.isPressed("ArrowDown")) transform.position.y += 10;
+
+
         // if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
         // if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
         // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
@@ -36,23 +41,23 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
         if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
         if (Keyboard.isPressed("w")) rb.addForce(0, -30, "impulse");
-        if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
+        // if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
-        if (Keyboard.isPressed("h")) {
-            const box = new PIXI.Graphics()
-                    // 2. Define geometry: rect(x, y, width, height)
-                    .rect(0, 0, 150, 100)
-                    // 3. Set fill color
-                    .fill(0xff0000)
-                    // 4. Add an optional border (stroke)
-                    .stroke({ width: 4, color: 0xffffff });
+        // if (Keyboard.isPressed("h")) {
+        //     const box = new PIXI.Graphics()
+        //             // 2. Define geometry: rect(x, y, width, height)
+        //             .rect(0, 0, 150, 100)
+        //             // 3. Set fill color
+        //             .fill(0xff0000)
+        //             // 4. Add an optional border (stroke)
+        //             .stroke({ width: 4, color: 0xffffff });
             
-                  // Position the box
-                //   box.x = this.entity.scene.game.renderer.app.screen.width / 2 - 75;
-                //   box.y = this.entity.scene.game.renderer.app.screen.height / 2 - 50;
+        //           // Position the box
+        //         //   box.x = this.entity.scene.game.renderer.app.screen.width / 2 - 75;
+        //         //   box.y = this.entity.scene.game.renderer.app.screen.height / 2 - 50;
             
-                  this.entity.scene.game.renderer.stage.addChild(box);
-        }
+        //           this.entity.scene.game.renderer.stage.addChild(box);
+        // }
 
         
 
