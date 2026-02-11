@@ -81,7 +81,9 @@ export class PlayerController extends ScriptComponent {
             console.log("add");
             let position = this.entity.getComponent("transform").position;
             // this.entity.scene.addEntity(new Wall(position.x, position.y, true));
-            this.instantiate(Wall, position.x, position.y, true)
+            // this.instantiate(Wall, position.x, position.y, true)
+
+            this.entity.scene.spawn(Wall, position.x, position.y, true);
         }
 
         if (Keyboard.wasPressed('x')) {

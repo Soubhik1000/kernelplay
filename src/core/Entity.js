@@ -115,4 +115,16 @@ export class Entity {
   isLayer(layer) {
     return this.layer === layer;
   }
+
+  reset() {
+    this.name = "Entity";
+    this.tag = "Untagged";
+    this.active = true;
+    this.started = false;
+    this.layer = 0;
+    this._destroyed = false;
+
+    this.components = {};
+    this._componentCache = Object.create(null);
+  }
 }

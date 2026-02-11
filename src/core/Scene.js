@@ -1,6 +1,7 @@
 import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
 // import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
 import { RaycastHit } from "./physics/RaycastHit.js";
+import { Entity } from "./Entity.js";
 
 export class Scene {
   constructor(name = "Scene") {
@@ -8,6 +9,8 @@ export class Scene {
     this.entities = [];
     this.fixedTimeStep = 1 / 60;
     this._accumulator = 0;
+
+    this._entityPool = []; // 🔥 ADD THIS
   }
 
   addEntity(entity) {
@@ -151,7 +154,19 @@ export class Scene {
     }
 
     // 🔥 CLEANUP
-    this.entities = this.entities.filter(e => !e._destroyed);
+    // this.entities = this.entities.filter(e => !e._destroyed);
+
+    const alive = [];
+
+    for (const entity of this.entities) {
+      if (entity._destroyed) {
+        this._recycleEntity(entity); // 🔥 return to pool
+      } else {
+        alive.push(entity);
+      }
+    }
+
+    this.entities = alive;
 
   }
 
@@ -312,6 +327,28 @@ export class Scene {
   //   return { entity: object.userData.entity };
   // }
 
+  spawn(prefabFn, ...args) {
+    let entity;
+
+    if (this._entityPool.length > 0) {
+      entity = this._entityPool.pop();
+      entity.reset();
+      console.log("old object pooled");
+    } else {
+      entity = new Entity();
+      console.log("new object created");
+    }
+
+    const newEntity = prefabFn(...args);
+
+    // copy components from prefab into pooled entity
+    entity.name = newEntity.name;
+    entity.tag = newEntity.tag;
+    entity.components = newEntity.components;
+    entity._componentCache = newEntity._componentCache;
+
+    return this.addEntity(entity);
+  }
 
 
   findByTag(tag) {
@@ -493,6 +530,12 @@ export class Scene {
     }
 
     this._handleCollisions();
+  }
+
+  _recycleEntity(entity) {
+    entity.reset();          // must exist in Entity
+    entity.scene = null;
+    this._entityPool.push(entity);
   }
 
 
