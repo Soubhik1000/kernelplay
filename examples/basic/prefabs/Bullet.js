@@ -54,7 +54,7 @@ export function Bullet(entity, x = 100, y = 100) {
     }));
 
 
-    entity.addComponent("renderer", new BoxRenderComponent("#00ff11"));
+    entity.addComponent("renderer", new BoxRenderComponent({color:"#00ff11", zIndex:-20}));
     entity.addComponent("bulletscript", new BulletScript());
 }
 

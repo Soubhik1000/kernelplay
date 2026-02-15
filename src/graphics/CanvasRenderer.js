@@ -112,6 +112,17 @@ export class CanvasRenderer extends Renderer {
         // 🔥 CHANGED: Use spatial grid query instead of looping all renderers
         const visibleRenderers = scene._getVisibleRenderers(cameraBounds);
 
+        // 🔥 SORT BY Z-INDEX
+        // visibleRenderers.sort((a, b) => a.zIndex - b.zIndex);
+
+        // 🔥 Check entity.zIndex first, fallback to component.zIndex
+        visibleRenderers.sort((a, b) => {
+            const aZ = a.entity.zIndex ?? a.zIndex ?? 0;
+            const bZ = b.entity.zIndex ?? b.zIndex ?? 0;
+            return aZ - bZ;
+        });
+
+
         const groups = new Map();
 
         // 🔥 Now only loop through visible objects (maybe 50-200 instead of 20,000!)

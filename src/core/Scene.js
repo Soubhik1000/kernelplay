@@ -20,6 +20,7 @@ export class Scene {
     this._colliders3D = [];
     this._renderers = [];
 
+    this._renderGrid2D = new Map();     // for rendering
     this._grid2D = new Map();
     this._grid3D = new Map();
     this._gridCellSize = 128; // adjust as needed
@@ -468,48 +469,47 @@ export class Scene {
     }
   }
 
-  // 🔥 Add this method to Scene class
-  _getVisibleRenderers(cameraBounds) {
-    const visible = [];
+  // _getVisibleRenderers(cameraBounds) {
+  //   const visible = [];
 
-    // 🔥 Only check grid cells that overlap camera
-    const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+  //   // 🔥 Only check grid cells that overlap camera
+  //   const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
 
-    const checked = new Set(); // avoid duplicate entities
+  //   const checked = new Set(); // avoid duplicate entities
 
-    for (let x = minX; x <= maxX; x++) {
-      for (let y = minY; y <= maxY; y++) {
-        const key = `${x},${y}`;
-        const cell = this._grid2D.get(key);
+  //   for (let x = minX; x <= maxX; x++) {
+  //     for (let y = minY; y <= maxY; y++) {
+  //       const key = `${x},${y}`;
+  //       const cell = this._grid2D.get(key);
 
-        if (!cell) continue;
+  //       if (!cell) continue;
 
-        // 🔥 Check entities in this cell
-        for (const collider of cell) {
-          const entity = collider.entity;
+  //       // 🔥 Check entities in this cell
+  //       for (const collider of cell) {
+  //         const entity = collider.entity;
 
-          if (checked.has(entity)) continue;
-          checked.add(entity);
+  //         if (checked.has(entity)) continue;
+  //         checked.add(entity);
 
-          if (!entity.active) continue;
+  //         if (!entity.active) continue;
 
-          // 🔥 Get renderer component
-          // const renderer = entity.getComponent("boxrender") ||
-          //   entity.getComponent("spriterender");
-          const renderer = entity.getComponent("renderer")
+  //         // 🔥 Get renderer component
+  //         // const renderer = entity.getComponent("boxrender") ||
+  //         //   entity.getComponent("spriterender");
+  //         const renderer = entity.getComponent("renderer")
 
-          if (!renderer) continue;
+  //         if (!renderer) continue;
 
-          // 🔥 Final precise AABB check
-          if (AABB(renderer.getBounds(), cameraBounds)) {
-            visible.push(renderer);
-          }
-        }
-      }
-    }
+  //         // 🔥 Final precise AABB check
+  //         if (AABB(renderer.getBounds(), cameraBounds)) {
+  //           visible.push(renderer);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return visible;
-  }
+  //   return visible;
+  // }
 
   // _handleCollisions() {
   //   const EPS = 0.0001;
@@ -819,6 +819,7 @@ export class Scene {
     this._entityPool.push(entity);
   }
 
+
   _getCellRange2D(bounds) {
     const minX = Math.floor(bounds.x / this._gridCellSize);
     const minY = Math.floor(bounds.y / this._gridCellSize);
@@ -844,6 +845,7 @@ export class Scene {
       }
     }
   }
+
 
   _getCellRange3D(bounds) {
     const minX = Math.floor(bounds.x / this._gridCellSize);
@@ -876,6 +878,64 @@ export class Scene {
       }
     }
   }
+
+  // 🔥 Insert renderer into render grid
+  _insertRenderer2D(renderer) {
+    const bounds = renderer.getBounds();
+    const { minX, minY, maxX, maxY } = this._getCellRange2D(bounds);
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = `${x},${y}`;
+
+        if (!this._renderGrid2D.has(key)) {
+          this._renderGrid2D.set(key, []);
+        }
+
+        this._renderGrid2D.get(key).push(renderer);
+      }
+    }
+  }
+
+  // 🔥 Get visible renderers from render grid
+  _getVisibleRenderers(cameraBounds) {
+    const visible = [];
+
+    // 🔥 Rebuild render grid each frame (objects move!)
+    this._renderGrid2D.clear();
+
+    for (const renderer of this._renderers) {
+      if (!renderer.entity.active) continue;
+      this._insertRenderer2D(renderer);
+    }
+
+    // 🔥 Query only cells in camera view
+    const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+
+    const checked = new Set();
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = `${x},${y}`;
+        const cell = this._renderGrid2D.get(key);
+
+        if (!cell) continue;
+
+        for (const renderer of cell) {
+          if (checked.has(renderer)) continue;
+          checked.add(renderer);
+
+          // 🔥 Final precise check
+          if (AABB(renderer.getBounds(), cameraBounds)) {
+            visible.push(renderer);
+          }
+        }
+      }
+    }
+
+    return visible;
+  }
+
 
   _clearGrid() {
     this._grid2D.clear();

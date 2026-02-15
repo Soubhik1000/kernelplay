@@ -20,8 +20,8 @@ export class Level1 extends Scene {
     wall1.getComponent("transform").scale.x = 3;
     wall1.getComponent("transform").scale.y = 4;
 
-    this.addEntity(player);
     // this.addEntity(new Bullet(100, 150));
+    this.addEntity(player);
     
     this.addEntity(new Wall(200, 100));
     this.addEntity(wall1);

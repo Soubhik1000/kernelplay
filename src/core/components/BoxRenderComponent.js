@@ -1,11 +1,15 @@
 import { Component } from "../Component.js";
 
 export class BoxRenderComponent extends Component {
-  constructor(color = "#FF0000") {
+  constructor({
+    color = "#FF0000",
+    zIndex = 0
+  }) {
     super();
     this.width = 50;
     this.height = 50;
     this.color = color;
+    this.zIndex = zIndex; // 🔥 ADD THIS
 
     this._dirty = true; // 🔥 renderer dirty
   }

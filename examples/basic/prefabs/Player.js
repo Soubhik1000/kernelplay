@@ -10,6 +10,7 @@ import { Rigidbody2DComponent } from "../../../src/index.js";
 export function Player(x = 100, y = 100) {
     const player = new Entity("Player");
     player.layer = Layers.Player;
+    player.zIndex = -10;
 
     // player.addComponent("position", new PositionComponent(x, y));
     player.addComponent("transform", new TransformComponent({
@@ -21,13 +22,13 @@ export function Player(x = 100, y = 100) {
         mass: 1,
         gravityScale: 1,
         drag: 1,
-        useGravity: false
+        // useGravity: false
     }));
 
     // player.addComponent("velocity", new VelocityComponent());
     player.addComponent("collider", new ColliderComponent());
 
-    player.addComponent("renderer", new BoxRenderComponent("#FF0000"));
+    player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
 
     player.addComponent("playerController", new PlayerController());

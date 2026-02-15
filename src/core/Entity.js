@@ -7,6 +7,7 @@ export class Entity {
 
     this.tag = tag;
     this.layer = 0; // Default layer
+    this.zIndex = 0;
     this.started = false;
     this._destroyed = false;
   }
