@@ -17,6 +17,7 @@ export class Scene {
     this._rigidbody3D = [];
     this._colliders = [];
     this._colliders3D = [];
+    this._renderers = [];
 
     this._grid2D = new Map();
     this._grid3D = new Map();
@@ -417,6 +418,10 @@ export class Scene {
       case "collider3D":
         this._colliders3D.push(component);
         break;
+
+      case "renderer":
+        this._renderers.push(component);
+        break;
     }
   }
 
@@ -435,6 +440,9 @@ export class Scene {
         break;
       case "collider3D":
         list = this._colliders3D;
+        break;
+      case "renderer":
+        list = this._renderers;
         break;
       default:
         return;

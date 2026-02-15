@@ -15,32 +15,58 @@ export class BoxRenderComponent extends Component {
   }
 
   render(ctx) {
-    if (this.transform._dirty || this._dirty) {
-      // rebuild cached transform
-      this._x = this.transform.position.x;
-      this._y = this.transform.position.y;
-      this._rot = this.transform.rotation.z;
-      this._sx = this.transform.scale.x;
-      this._sy = this.transform.scale.y;
+    const t = this.transform;
 
-      this.transform.clearDirty();
+    // 🔥 Update cached transform only if dirty
+    if (t._dirty || this._dirty) {
+      this._x = t.position.x;
+      this._y = t.position.y;
+      this._rot = t.rotation.z;
+      this._sx = t.scale.x;
+      this._sy = t.scale.y;
+
+      t.clearDirty();
       this._dirty = false;
     }
 
-    // ALWAYS DRAW
-    ctx.save();
-    ctx.translate(this._x, this._y);
-    ctx.rotate(this._rot);
-    ctx.scale(this._sx, this._sy);
+    const halfW = this.width * 0.5;
+    const halfH = this.height * 0.5;
 
-    ctx.fillStyle = this.color;
-    ctx.fillRect(
-      -this.width / 2,
-      -this.height / 2,
-      this.width,
-      this.height
-    );
+    // 🔥 FAST PATH (no rotation, no scale)
+    if (
+      this._rot === 0 &&
+      this._sx === 1 &&
+      this._sy === 1
+    ) {
+      ctx.fillRect(
+        this._x - halfW,
+        this._y - halfH,
+        this.width,
+        this.height
+      );
+    }
+    // 🔥 FULL TRANSFORM PATH
+    else {
+      ctx.save();
 
-    ctx.restore();
+      ctx.translate(this._x, this._y);
+
+      if (this._rot !== 0) {
+        ctx.rotate(this._rot);
+      }
+
+      if (this._sx !== 1 || this._sy !== 1) {
+        ctx.scale(this._sx, this._sy);
+      }
+
+      ctx.fillRect(
+        -halfW,
+        -halfH,
+        this.width,
+        this.height
+      );
+
+      ctx.restore();
+    }
   }
 }
