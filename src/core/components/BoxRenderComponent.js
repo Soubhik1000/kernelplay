@@ -12,6 +12,25 @@ export class BoxRenderComponent extends Component {
 
   init() {
     this.transform = this.entity.getComponent("transform");
+    // 🔥 Cache bounds object to avoid creating new objects
+    this._cachedBounds = { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  getBounds() {
+    const t = this.transform;
+
+    // 🔥 Only recalculate if dirty
+    if (t._dirty || this._dirty) {
+      const w = this.width * t.scale.x;
+      const h = this.height * t.scale.y;
+
+      this._cachedBounds.x = t.position.x - w * 0.5;
+      this._cachedBounds.y = t.position.y - h * 0.5;
+      this._cachedBounds.width = w;
+      this._cachedBounds.height = h;
+    }
+
+    return this._cachedBounds; // 🔥 Reuse same object
   }
 
   render(ctx) {

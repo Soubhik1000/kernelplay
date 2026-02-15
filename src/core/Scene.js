@@ -2,6 +2,7 @@ import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
 // import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
 import { RaycastHit } from "./physics/RaycastHit.js";
 import { Entity } from "./Entity.js";
+import { Camera2D } from "./components/Camera2D.js";
 
 export class Scene {
   constructor(name = "Scene") {
@@ -420,6 +421,9 @@ export class Scene {
         break;
 
       case "renderer":
+      case "boxrender":
+      case "spriterender":
+      case "meshrender":
         this._renderers.push(component);
         break;
     }
@@ -462,6 +466,49 @@ export class Scene {
       if (isTrigger && comp.onTriggerEnter) comp.onTriggerEnter(a);
       else if (!isTrigger && comp.onCollision) comp.onCollision(a);
     }
+  }
+
+  // 🔥 Add this method to Scene class
+  _getVisibleRenderers(cameraBounds) {
+    const visible = [];
+
+    // 🔥 Only check grid cells that overlap camera
+    const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+
+    const checked = new Set(); // avoid duplicate entities
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = `${x},${y}`;
+        const cell = this._grid2D.get(key);
+
+        if (!cell) continue;
+
+        // 🔥 Check entities in this cell
+        for (const collider of cell) {
+          const entity = collider.entity;
+
+          if (checked.has(entity)) continue;
+          checked.add(entity);
+
+          if (!entity.active) continue;
+
+          // 🔥 Get renderer component
+          // const renderer = entity.getComponent("boxrender") ||
+          //   entity.getComponent("spriterender");
+          const renderer = entity.getComponent("renderer")
+
+          if (!renderer) continue;
+
+          // 🔥 Final precise AABB check
+          if (AABB(renderer.getBounds(), cameraBounds)) {
+            visible.push(renderer);
+          }
+        }
+      }
+    }
+
+    return visible;
   }
 
   // _handleCollisions() {

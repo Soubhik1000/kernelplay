@@ -21,7 +21,7 @@ export function Player(x = 100, y = 100) {
         mass: 1,
         gravityScale: 1,
         drag: 1,
-        // useGravity: false
+        useGravity: false
     }));
 
     // player.addComponent("velocity", new VelocityComponent());
