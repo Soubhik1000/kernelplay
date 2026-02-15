@@ -28,6 +28,11 @@ export class Entity {
     this._componentCache[name] = component; // 🔥
     component.entity = this;
 
+    // 🔥 Register to scene if entity already added
+    if (this.scene) {
+      this.scene._registerComponent(type, component);
+    }
+
     if (component.init) component.init();
     if (component.onAttach) component.onAttach();
 
@@ -60,7 +65,6 @@ export class Entity {
     delete this.components[name];
     delete this._componentCache[name];
   }
-
 
   _start() {
     if (this.started) return;

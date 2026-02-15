@@ -23,10 +23,18 @@ export class ColliderComponent extends Component {
     };
 
     this._dirty = true;
+
+    // 🔥 Cached references
+    this.transform = null;
+    this.rigidbody2d = null;
+
+    // 🔥 Grid tracking
+    this._gridKey = null;
   }
 
   init() {
     this.transform = this.entity.getComponent("transform");
+    this.rigidbody2d = this.entity.getComponent("rigidbody2d"); // 🔥 cache this
     this.rebuildBounds();
   }
 

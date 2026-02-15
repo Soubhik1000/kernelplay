@@ -33,34 +33,6 @@ class BulletScript extends ScriptComponent {
     }
 }
 
-// export class Bullet extends Entity {
-//     constructor(x = 100, y = 100) {
-//         super("Bullet");
-//         this.tag = "bullet"
-//         this.layer = Layers.Player;
-
-//         this.addComponent("transform", new TransformComponent({
-//             position: { x, y },
-//             scale: { x: 0.2, y: 0.2 }
-//         }));
-
-//         this.addComponent("rigidbody2d", new Rigidbody2DComponent({
-//             mass: 1,
-//             gravityScale: 1,
-//             drag: 1,
-//             useGravity: false
-//         }));
-
-//         this.addComponent("collider", new ColliderComponent({
-//             isTrigger: true
-//         }));
-
-
-//         this.addComponent("renderer", new BoxRenderComponent("#00ff11"));
-//         this.addComponent("bulletscript", new BulletScript());
-//     }
-// }
-
 export function Bullet(entity, x = 100, y = 100) {
     entity.name = "Bullet";
     entity.tag = "bullet";
@@ -84,7 +56,5 @@ export function Bullet(entity, x = 100, y = 100) {
 
     entity.addComponent("renderer", new BoxRenderComponent("#00ff11"));
     entity.addComponent("bulletscript", new BulletScript());
-
-    // return entity;
 }
 
