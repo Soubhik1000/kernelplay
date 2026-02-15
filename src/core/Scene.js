@@ -327,6 +327,32 @@ export class Scene {
   //   return { entity: object.userData.entity };
   // }
 
+  // spawn(prefabFn, ...args) {
+  //   let entity;
+
+  //   if (this._entityPool.length > 0) {
+  //     entity = this._entityPool.pop();
+  //     entity.reset();
+  //     console.log("old object pooled");
+  //   } else {
+  //     // entity = new Entity();
+  //     console.log("new object created");
+  //     const newEntity = prefabFn(...args);
+  //     return this.addEntity(newEntity);
+  //   }
+
+  //   // const newEntity = prefabFn(...args);
+  //   const newEntity = prefabFn(...args);
+
+  //   // copy components from prefab into pooled entity
+  //   entity.name = newEntity.name;
+  //   entity.tag = newEntity.tag;
+  //   entity.components = newEntity.components;
+  //   entity._componentCache = newEntity._componentCache;
+
+  //   return this.addEntity(entity);
+  // }
+
   spawn(prefabFn, ...args) {
     let entity;
 
@@ -339,17 +365,10 @@ export class Scene {
       console.log("new object created");
     }
 
-    const newEntity = prefabFn(...args);
-
-    // copy components from prefab into pooled entity
-    entity.name = newEntity.name;
-    entity.tag = newEntity.tag;
-    entity.components = newEntity.components;
-    entity._componentCache = newEntity._componentCache;
+    prefabFn(entity, ...args);
 
     return this.addEntity(entity);
   }
-
 
   findByTag(tag) {
     return this.entities.find(e => e.tag === tag) || null;

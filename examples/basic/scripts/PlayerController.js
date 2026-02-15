@@ -1,6 +1,7 @@
 // import { ScriptComponent } from "../../../src/core/components/ScriptComponent.js";
 import { ScriptComponent, Keyboard, Mouse } from "../../../src/index.js";
 import { Wall } from "../prefabs/Wall.js";
+import { Bullet } from "../prefabs/Bullet.js";
 import { Layers } from "../../../src/index.js";
 
 import * as PIXI from "pixi.js";
@@ -33,13 +34,13 @@ export class PlayerController extends ScriptComponent {
         // if (Keyboard.isPressed("ArrowDown")) transform.position.y += 10;
 
 
-        if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
-        if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
-        if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
-        if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
+        // if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
+        // if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
+        // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
+        // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
 
-        // if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
-        // if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
+        if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
+        if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
         if (Keyboard.isPressed("w")) rb.addForce(0, -30, "impulse");
         // if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
@@ -84,6 +85,11 @@ export class PlayerController extends ScriptComponent {
             // this.instantiate(Wall, position.x, position.y, true)
 
             this.entity.scene.spawn(Wall, position.x, position.y, true);
+        }
+
+        if(Keyboard.wasPressed("m")){
+            this.entity.scene.spawn(Bullet, transform.position.x+30, transform.position.y);
+            // this.instantiate(Bullet, transform.position.x, transform.position.y, true);
         }
 
         if (Keyboard.wasPressed('x')) {

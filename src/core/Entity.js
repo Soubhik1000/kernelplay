@@ -8,6 +8,7 @@ export class Entity {
     this.tag = tag;
     this.layer = 0; // Default layer
     this.started = false;
+    this._destroyed = false;
   }
 
   // addComponent(name, component) {

@@ -8,13 +8,23 @@ import { Layers } from "../../../src/index.js";
 class BulletScript extends ScriptComponent {
 
     onStart() {
-        this.speed = 50;
-        // this.transform = this.entity.getComponent("transform");
+        // console.log('added');
+        
+        this.speed = 400;
+        this.transform = this.entity.getComponent("transform");
         this.rb = this.entity.getComponent("rigidbody2d");
+
+        setTimeout(() => {
+            // console.log("Spawning entity, destroyed:", this.entity._destroyed);
+            this.entity.destroy();
+            // console.log("Spawning entity, destroyed:", this.entity._destroyed);
+            
+        }, 2000);
     }
 
     update(dt) {
         // this.transform.position.x += this.speed * dt;
+        this.rb.velocity.x += this.speed * dt;
 
         // if (Keyboard.isPressed("ArrowRight")) this.rb.velocity.x = 100;
         // if (Keyboard.isPressed("ArrowLeft")) this.rb.velocity.x = -100;
@@ -23,28 +33,58 @@ class BulletScript extends ScriptComponent {
     }
 }
 
-export class Bullet extends Entity {
-    constructor(x = 100, y = 100) {
-        super("Bullet");
-        this.tag = "bullet"
-        this.layer = Layers.Player;
+// export class Bullet extends Entity {
+//     constructor(x = 100, y = 100) {
+//         super("Bullet");
+//         this.tag = "bullet"
+//         this.layer = Layers.Player;
 
-        this.addComponent("transform", new TransformComponent({
-            position: { x, y },
-            scale: { x: 0.2, y: 0.2 }
-        }));
+//         this.addComponent("transform", new TransformComponent({
+//             position: { x, y },
+//             scale: { x: 0.2, y: 0.2 }
+//         }));
 
-        this.addComponent("rigidbody2d", new Rigidbody2DComponent({
-            mass: 1,
-            gravityScale: 1,
-            drag: 1,
-            // useGravity: false
-        }));
+//         this.addComponent("rigidbody2d", new Rigidbody2DComponent({
+//             mass: 1,
+//             gravityScale: 1,
+//             drag: 1,
+//             useGravity: false
+//         }));
 
-        this.addComponent("collider", new ColliderComponent());
+//         this.addComponent("collider", new ColliderComponent({
+//             isTrigger: true
+//         }));
 
 
-        this.addComponent("renderer", new BoxRenderComponent("#00ff11"));
-        this.addComponent("bulletscript", new BulletScript());
-    }
+//         this.addComponent("renderer", new BoxRenderComponent("#00ff11"));
+//         this.addComponent("bulletscript", new BulletScript());
+//     }
+// }
+
+export function Bullet(entity, x = 100, y = 100) {
+    entity.name = "Bullet";
+    entity.tag = "bullet";
+
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 0.2, y: 0.2 }
+    }));
+
+    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+        mass: 1,
+        gravityScale: 1,
+        drag: 1,
+        useGravity: false
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({
+        isTrigger: true
+    }));
+
+
+    entity.addComponent("renderer", new BoxRenderComponent("#00ff11"));
+    entity.addComponent("bulletscript", new BulletScript());
+
+    // return entity;
 }
+
