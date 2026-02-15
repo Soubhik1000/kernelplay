@@ -33,13 +33,13 @@ export class PlayerController extends ScriptComponent {
         // if (Keyboard.isPressed("ArrowDown")) transform.position.y += 10;
 
 
-        // if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
-        // if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
-        // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
-        // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
+        if (Keyboard.isPressed("ArrowRight")) rb.velocity.x = 200;
+        if (Keyboard.isPressed("ArrowLeft")) rb.velocity.x = -200;
+        if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
+        if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
 
-        if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
-        if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
+        // if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
+        // if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
         if (Keyboard.isPressed("w")) rb.addForce(0, -30, "impulse");
         // if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 

@@ -3,6 +3,7 @@ import { Player } from "../prefabs/Player.js";
 import { Wall } from "../prefabs/Wall.js";
 import { Cube } from "../prefabs/Cube.js";
 import { Cube1 } from "../prefabs/Cube1.js";
+import { Bullet } from "../prefabs/Bullet.js";
 
 export class Level1 extends Scene {
   init() {
@@ -19,7 +20,9 @@ export class Level1 extends Scene {
     wall1.getComponent("transform").scale.x = 3;
     wall1.getComponent("transform").scale.y = 4;
 
+    this.addEntity(new Bullet(100, 50));
     this.addEntity(player);
+    
     this.addEntity(new Wall(200, 100));
     this.addEntity(wall1);
     this.addEntity(new Wall(300, 100, true));
