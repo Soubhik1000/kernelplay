@@ -116,11 +116,13 @@ export class CanvasRenderer extends Renderer {
         // visibleRenderers.sort((a, b) => a.zIndex - b.zIndex);
 
         // 🔥 Check entity.zIndex first, fallback to component.zIndex
-        visibleRenderers.sort((a, b) => {
-            const aZ = a.entity.zIndex ?? a.zIndex ?? 0;
-            const bZ = b.entity.zIndex ?? b.zIndex ?? 0;
-            return aZ - bZ;
-        });
+        if (visibleRenderers.length > 1) {
+            visibleRenderers.sort((a, b) => {
+                const aZ = a.entity.zIndex ?? a.zIndex ?? 0;
+                const bZ = b.entity.zIndex ?? b.zIndex ?? 0;
+                return aZ - bZ;
+            });
+        }
 
 
         const groups = new Map();

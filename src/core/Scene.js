@@ -899,42 +899,40 @@ export class Scene {
 
   // 🔥 Get visible renderers from render grid
   _getVisibleRenderers(cameraBounds) {
-    const visible = [];
-
-    // 🔥 Rebuild render grid each frame (objects move!)
-    this._renderGrid2D.clear();
-
-    for (const renderer of this._renderers) {
-      if (!renderer.entity.active) continue;
-      this._insertRenderer2D(renderer);
-    }
-
-    // 🔥 Query only cells in camera view
-    const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
-
-    const checked = new Set();
-
-    for (let x = minX; x <= maxX; x++) {
-      for (let y = minY; y <= maxY; y++) {
-        const key = `${x},${y}`;
-        const cell = this._renderGrid2D.get(key);
-
-        if (!cell) continue;
-
-        for (const renderer of cell) {
-          if (checked.has(renderer)) continue;
-          checked.add(renderer);
-
-          // 🔥 Final precise check
-          if (AABB(renderer.getBounds(), cameraBounds)) {
-            visible.push(renderer);
-          }
+  const visible = [];
+  
+  // 🔥 Rebuild render grid each frame
+  this._renderGrid2D.clear();
+  
+  for (const renderer of this._renderers) {
+    if (!renderer.entity.active) continue;
+    this._insertRenderer2D(renderer);
+  }
+  
+  const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+  const checked = new Set();
+  
+  for (let x = minX; x <= maxX; x++) {
+    for (let y = minY; y <= maxY; y++) {
+      const key = `${x},${y}`;
+      const cell = this._renderGrid2D.get(key);
+      
+      if (!cell) continue;
+      
+      for (const renderer of cell) {
+        if (checked.has(renderer)) continue;
+        checked.add(renderer);
+        
+        if (AABB(renderer.getBounds(), cameraBounds)) {
+          visible.push(renderer);
         }
       }
     }
-
-    return visible;
   }
+  
+  this._visibleCount = visible.length; // 🔥 Store for debug
+  return visible;
+}
 
 
   _clearGrid() {

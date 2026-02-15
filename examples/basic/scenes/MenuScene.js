@@ -3,7 +3,9 @@ import { Keyboard } from "../../../src/index.js";
 
 export class MenuScene extends Scene {
   init() {
-    // this.ctx = this.game.ctx; // use Game's single canvas
+    this.ctx = this.game.renderer.ctx; // use Game's single canvas
+    console.log(this);
+    
   }
 
   update(dt) {
