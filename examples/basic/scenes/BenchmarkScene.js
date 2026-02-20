@@ -90,10 +90,10 @@ export class BenchmarkScene extends Scene {
 
         // 🔥 Camera controls
         const speed = 300;
-        if (Keyboard.isPressed("ArrowLeft")) this.camera.x -= speed * dt;
-        if (Keyboard.isPressed("ArrowRight")) this.camera.x += speed * dt;
-        if (Keyboard.isPressed("ArrowUp")) this.camera.y -= speed * dt;
-        if (Keyboard.isPressed("ArrowDown")) this.camera.y += speed * dt;
+        if (Keyboard.isPressed("ArrowLeft")) this.game.camera.x -= speed * dt;
+        if (Keyboard.isPressed("ArrowRight")) this.game.camera.x += speed * dt;
+        if (Keyboard.isPressed("ArrowUp")) this.game.camera.y -= speed * dt;
+        if (Keyboard.isPressed("ArrowDown")) this.game.camera.y += speed * dt;
 
         // Exit benchmark
         if (Keyboard.isPressed("Escape")) {

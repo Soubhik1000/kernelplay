@@ -174,3 +174,5 @@ export function Wall(x = 100, y = 100, isTrigger = false) {
         }
 </script>
 <script type="module" src="./main.js"></script>
+
+npx vite build
