@@ -19,6 +19,7 @@ export class Scene {
     this._colliders = [];
     this._colliders3D = [];
     this._renderers = [];
+    this._meshes = []; // 🔥 ADD THIS
 
     this._renderGrid2D = new Map();     // for rendering
     this._grid2D = new Map();
@@ -427,6 +428,10 @@ export class Scene {
       case "meshrender":
         this._renderers.push(component);
         break;
+      
+      case "mesh":
+        this._meshes.push(component);
+        break;
     }
   }
 
@@ -448,6 +453,9 @@ export class Scene {
         break;
       case "renderer":
         list = this._renderers;
+        break;
+      case "mesh":
+        list = this._meshes;
         break;
       default:
         return;
