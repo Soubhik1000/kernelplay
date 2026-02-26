@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KernelPlay-JS Benchmark</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            display: flex;
+            height: 100vh;
+        }
+
+        #canvasWrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        canvas {
+            display: block;
+            border: 2px solid #333;
+        }
+
+        #controlPanel {
+            width: 320px;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-left: 2px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+        }
+
+        .panel-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .panel-subtitle {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .control-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-value {
+            display: inline-block;
+            float: right;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #444;
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00ff88;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #00ffff;
+            box-shadow: 0 0 15px rgba(0,255,255,0.7);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00ff88;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+        }
+
+        .description {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .apply-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-top: 10px;
+        }
+
+        .apply-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .apply-button:active {
+            transform: translateY(0);
+        }
+
+        .warning {
+            background: rgba(255, 200, 0, 0.1);
+            border: 1px solid rgba(255, 200, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #ffcc00;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: #00ff88;
+        }
+
+        .stats-info {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stats-info strong {
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="canvasWrapper">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+        
+        <div id="controlPanel">
+            <div class="panel-title">Benchmark Controls</div>
+            <div class="panel-subtitle">Adjust settings and rebuild scene</div>
+
+            <div class="warning">
+                ⚠️ Changing settings will rebuild the entire scene
+            </div>
+
+            <div class="stats-info">
+                <strong>Current Scene:</strong> <span id="currentStats">Loading...</span>
+            </div>
+
+            <!-- Object Count -->
+            <div class="control-group">
+                <label class="control-label">
+                    Object Count
+                    <span class="control-value" id="objectCountValue">5000</span>
+                </label>
+                <input 
+                    type="range" 
+                    id="objectCount" 
+                    min="100" 
+                    max="20000" 
+                    value="5000" 
+                    step="100"
+                >
+                <div class="description">
+                    Total number of objects in the scene
+                </div>
+            </div>
+
+            <!-- Physics Percentage -->
+            <div class="control-group">
+                <label class="control-label">
+                    Physics Objects
+                    <span class="control-value" id="physicsPercentageValue">10%</span>
+                </label>
+                <input 
+                    type="range" 
+                    id="physicsPercentage" 
+                    min="0" 
+                    max="100" 
+                    value="10" 
+                    step="5"
+                >
+                <div class="description">
+                    Percentage of objects with physics enabled
+                </div>
+            </div>
+
+            <!-- Density -->
+            <div class="control-group">
+                <label class="control-label">
+                    World Size
+                    <span class="control-value" id="densityValue">5000</span>
+                </label>
+                <input 
+                    type="range" 
+                    id="density" 
+                    min="1000" 
+                    max="10000" 
+                    value="5000" 
+                    step="500"
+                >
+                <div class="description">
+                    Spread area (higher = more spread out, fewer visible)
+                </div>
+            </div>
+
+            <button class="apply-button" id="applyButton">
+                🚀 Apply Changes
+            </button>
+
+            <!-- Presets -->
+            <div class="control-group">
+                <label class="control-label">Quick Presets</label>
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-preset="light">
+                        🟢 Light<br>
+                        <small>1K objects</small>
+                    </button>
+                    <button class="preset-btn" data-preset="medium">
+                        🟡 Medium<br>
+                        <small>5K objects</small>
+                    </button>
+                    <button class="preset-btn" data-preset="heavy">
+                        🟠 Heavy<br>
+                        <small>10K objects</small>
+                    </button>
+                    <button class="preset-btn" data-preset="extreme">
+                        🔴 Extreme<br>
+                        <small>20K objects</small>
+                    </button>
+                </div>
+            </div>
+
+            <div class="description" style="margin-top: 20px; text-align: center;">
+                Performance metrics shown in game window
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Update value displays
+        const objectCountSlider = document.getElementById('objectCount');
+        const physicsSlider = document.getElementById('physicsPercentage');
+        const densitySlider = document.getElementById('density');
+        
+        const objectCountValue = document.getElementById('objectCountValue');
+        const physicsValue = document.getElementById('physicsPercentageValue');
+        const densityValue = document.getElementById('densityValue');
+        const currentStats = document.getElementById('currentStats');
+
+        function updateDisplays() {
+            objectCountValue.textContent = objectCountSlider.value;
+            physicsValue.textContent = physicsSlider.value + '%';
+            densityValue.textContent = densitySlider.value;
+            
+            const physicsCount = Math.round(
+                (objectCountSlider.value * physicsSlider.value) / 100
+            );
+            currentStats.textContent = 
+                `${objectCountSlider.value} objects, ${physicsCount} with physics`;
+        }
+
+        objectCountSlider.addEventListener('input', updateDisplays);
+        physicsSlider.addEventListener('input', updateDisplays);
+        densitySlider.addEventListener('input', updateDisplays);
+
+        // Apply button
+        document.getElementById('applyButton').addEventListener('click', () => {
+            if (window.updateBenchmarkSettings) {
+                window.updateBenchmarkSettings({
+                    objectCount: parseInt(objectCountSlider.value),
+                    physicsPercentage: parseInt(physicsSlider.value),
+                    density: parseInt(densitySlider.value)
+                });
+            }
+        });
+
+        // Preset buttons
+        const presets = {
+            light: { objectCount: 1000, physicsPercentage: 10, density: 3000 },
+            medium: { objectCount: 5000, physicsPercentage: 10, density: 5000 },
+            heavy: { objectCount: 10000, physicsPercentage: 10, density: 7000 },
+            extreme: { objectCount: 20000, physicsPercentage: 5, density: 10000 }
+        };
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = presets[btn.dataset.preset];
+                objectCountSlider.value = preset.objectCount;
+                physicsSlider.value = preset.physicsPercentage;
+                densitySlider.value = preset.density;
+                updateDisplays();
+                
+                // Auto-apply
+                if (window.updateBenchmarkSettings) {
+                    window.updateBenchmarkSettings(preset);
+                }
+            });
+        });
+
+        updateDisplays();
+    </script>
+
+
+
+
+    <!-- Your game script goes here -->
+    <script type="module" src="./main.js"></script>
+</body>
+</html>

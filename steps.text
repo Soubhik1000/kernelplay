@@ -175,4 +175,21 @@ export function Wall(x = 100, y = 100, isTrigger = false) {
 </script>
 <script type="module" src="./main.js"></script>
 
+<script type="importmap">
+  {
+    "imports": {
+      "pixi.js": "https://cdn.jsdelivr.net/npm/pixi.js@8.14.3/dist/pixi.mjs"
+    }
+  }
+  </script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/8.13.2/pixi.min.js"></script> -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+      }
+    }
+  </script>
+
 npx vite build

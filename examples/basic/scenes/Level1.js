@@ -1,9 +1,9 @@
 import { Scene } from "../../../src/core/Scene.js";
 import { Player } from "../prefabs/Player.js";
 import { Wall } from "../prefabs/Wall.js";
-import { Cube } from "../prefabs/Cube.js";
-import { Cube1 } from "../prefabs/Cube1.js";
-import { Bullet } from "../prefabs/Bullet.js";
+// import { Cube } from "../prefabs/Cube.js";
+// import { Cube1 } from "../prefabs/Cube1.js";
+// import { Bullet } from "../prefabs/Bullet.js";
 
 export class Level1 extends Scene {
   init() {
