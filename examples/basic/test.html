@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +43,7 @@
             border-left: 2px solid #333;
             padding: 20px;
             overflow-y: auto;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
         }
 
         .panel-title {
@@ -65,9 +66,9 @@
         .control-group {
             margin-bottom: 30px;
             padding: 15px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .control-label {
@@ -106,13 +107,13 @@
             border-radius: 50%;
             background: #00ff88;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
             transition: all 0.2s;
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
             background: #00ffff;
-            box-shadow: 0 0 15px rgba(0,255,255,0.7);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
         }
 
         input[type="range"]::-moz-range-thumb {
@@ -122,7 +123,7 @@
             background: #00ff88;
             cursor: pointer;
             border: none;
-            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
 
         .description {
@@ -177,8 +178,8 @@
 
         .preset-btn {
             padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 5px;
             color: white;
             font-size: 12px;
@@ -187,13 +188,13 @@
         }
 
         .preset-btn:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border-color: #00ff88;
         }
 
         .stats-info {
-            background: rgba(0,255,136,0.1);
-            border: 1px solid rgba(0,255,136,0.3);
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
             padding: 12px;
             border-radius: 5px;
             font-size: 12px;
@@ -205,12 +206,13 @@
         }
     </style>
 </head>
+
 <body>
     <div id="gameContainer">
         <div id="canvasWrapper">
-            <canvas id="gameCanvas"></canvas>
+            <!-- <canvas id="gameCanvas"></canvas> -->
         </div>
-        
+
         <div id="controlPanel">
             <div class="panel-title">Benchmark Controls</div>
             <div class="panel-subtitle">Adjust settings and rebuild scene</div>
@@ -229,14 +231,7 @@
                     Object Count
                     <span class="control-value" id="objectCountValue">5000</span>
                 </label>
-                <input 
-                    type="range" 
-                    id="objectCount" 
-                    min="100" 
-                    max="20000" 
-                    value="5000" 
-                    step="100"
-                >
+                <input type="range" id="objectCount" min="100" max="20000" value="5000" step="100">
                 <div class="description">
                     Total number of objects in the scene
                 </div>
@@ -248,14 +243,7 @@
                     Physics Objects
                     <span class="control-value" id="physicsPercentageValue">10%</span>
                 </label>
-                <input 
-                    type="range" 
-                    id="physicsPercentage" 
-                    min="0" 
-                    max="100" 
-                    value="10" 
-                    step="5"
-                >
+                <input type="range" id="physicsPercentage" min="0" max="100" value="10" step="5">
                 <div class="description">
                     Percentage of objects with physics enabled
                 </div>
@@ -267,14 +255,7 @@
                     World Size
                     <span class="control-value" id="densityValue">5000</span>
                 </label>
-                <input 
-                    type="range" 
-                    id="density" 
-                    min="1000" 
-                    max="10000" 
-                    value="5000" 
-                    step="500"
-                >
+                <input type="range" id="density" min="1000" max="10000" value="5000" step="500">
                 <div class="description">
                     Spread area (higher = more spread out, fewer visible)
                 </div>
@@ -318,7 +299,7 @@
         const objectCountSlider = document.getElementById('objectCount');
         const physicsSlider = document.getElementById('physicsPercentage');
         const densitySlider = document.getElementById('density');
-        
+
         const objectCountValue = document.getElementById('objectCountValue');
         const physicsValue = document.getElementById('physicsPercentageValue');
         const densityValue = document.getElementById('densityValue');
@@ -328,11 +309,11 @@
             objectCountValue.textContent = objectCountSlider.value;
             physicsValue.textContent = physicsSlider.value + '%';
             densityValue.textContent = densitySlider.value;
-            
+
             const physicsCount = Math.round(
                 (objectCountSlider.value * physicsSlider.value) / 100
             );
-            currentStats.textContent = 
+            currentStats.textContent =
                 `${objectCountSlider.value} objects, ${physicsCount} with physics`;
         }
 
@@ -366,7 +347,7 @@
                 physicsSlider.value = preset.physicsPercentage;
                 densitySlider.value = preset.density;
                 updateDisplays();
-                
+
                 // Auto-apply
                 if (window.updateBenchmarkSettings) {
                     window.updateBenchmarkSettings(preset);
@@ -375,12 +356,18 @@
         });
 
         updateDisplays();
+
+        window.addEventListener('load', async () => {
+            setTimeout(() => {
+                const container1 = document.getElementById('canvasWrapper');
+                const canvas = document.getElementsByTagName('canvas')[0];
+                container1.appendChild(canvas);
+            }, 100);
+        })
     </script>
-
-
-
 
     <!-- Your game script goes here -->
     <script type="module" src="./main.js"></script>
 </body>
+
 </html>

@@ -4,7 +4,7 @@ import { Wall } from "../prefabs/Wall.js";
 import { Bullet } from "../prefabs/Bullet.js";
 import { Layers } from "../../../src/index.js";
 
-import * as PIXI from "pixi.js";
+// import * as PIXI from "pixi.js";
 
 export class PlayerController extends ScriptComponent {
 
