@@ -23,8 +23,8 @@ export class Level1 extends Scene {
     // this.addEntity(new Bullet(100, 150));
     this.addEntity(player);
     
-    this.addEntity(new Wall(200, 100));
     this.addEntity(wall1);
+    this.addEntity(new Wall(200, 100));
     this.addEntity(new Wall(300, 100, true));
     this.addEntity(wall);
 

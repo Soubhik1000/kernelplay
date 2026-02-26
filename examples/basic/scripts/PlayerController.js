@@ -88,8 +88,8 @@ export class PlayerController extends ScriptComponent {
         }
 
         if(Keyboard.wasPressed("m")){
-            this.entity.scene.spawn(Bullet, transform.position.x+10, transform.position.y);
-            // this.instantiate(Bullet, transform.position.x, transform.position.y, true);
+            // this.entity.scene.spawn(Bullet, transform.position.x+10, transform.position.y);
+            this.instantiate(Bullet, transform.position.x, transform.position.y, true);
         }
 
         if (Keyboard.wasPressed('x')) {

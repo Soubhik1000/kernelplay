@@ -14,8 +14,8 @@ class MyGame extends Game {
     this.sceneManager.addScene(new Level1("Level1"));
     this.sceneManager.addScene(new BenchmarkScene("Benchmark"));
 
-    // this.sceneManager.startScene("Level1");
-    this.sceneManager.startScene("Benchmark");
+    this.sceneManager.startScene("Level1");
+    // this.sceneManager.startScene("Benchmark");
     // this.sceneManager.startScene("Menu");
 
   }
@@ -29,8 +29,9 @@ const game = new MyGame({
   // renderer: new ThreeRenderer(),
   width: 800,
   height: 600,
-  fps: 100,
-  backgroundColor: "#eeeeee"
+  fps: 90,
+  backgroundColor: "#eeeeee",
+  // debugPhysics: true
 });
 
 game.start();

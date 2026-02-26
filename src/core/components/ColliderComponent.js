@@ -51,9 +51,10 @@ export class ColliderComponent extends Component {
 
   get bounds() {
     // 🔥 only rebuild if transform changed
-    if (this.transform._dirty || this._dirty) {
-      this.rebuildBounds();
-    }
+    this.rebuildBounds();
+    // if (this.transform._dirty || this._dirty) {
+    //   this.rebuildBounds();
+    // }
     return this._bounds;
   }
 

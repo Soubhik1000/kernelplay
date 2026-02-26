@@ -7,6 +7,9 @@ export class CanvasRenderer extends Renderer {
 
         this.ctx = game.canvas.canvas.getContext("2d");
         this.camera = game.camera;
+        this.debugPhysics = game.config.debugPhysics;
+        console.log(game.config);
+        
 
         // Fill background on init
         this.ctx.fillStyle = game.config.backgroundColor;
@@ -144,6 +147,31 @@ export class CanvasRenderer extends Renderer {
             }
         }
 
+        // 🔥 ADD THIS: Debug draw colliders
+        if (this.debugPhysics) {            
+            this.drawColliders(ctx, scene);
+        }
+
         ctx.restore(); // 🔥 Don't forget this!
+    }
+
+    // 🔥 ADD THIS METHOD
+    drawColliders(ctx, scene) {
+        ctx.strokeStyle = "#00FF00"; // Green for normal colliders
+        ctx.lineWidth = 2;
+
+        for (const collider of scene._colliders) {
+            const bounds = collider.bounds;
+
+            // Draw rectangle
+            ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+            // Draw trigger colliders in different color
+            if (collider.isTrigger) {
+                ctx.strokeStyle = "#FFFF00"; // Yellow for triggers
+                ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                ctx.strokeStyle = "#00FF00";
+            }
+        }
     }
 }

@@ -385,10 +385,10 @@ export class Scene {
     if (this._entityPool.length > 0) {
       entity = this._entityPool.pop();
       entity.reset();
-      console.log("old object pooled");
+      // console.log("old object pooled");
     } else {
       entity = new Entity();
-      console.log("new object created");
+      // console.log("new object created");
     }
 
     prefabFn(entity, ...args);
@@ -709,13 +709,19 @@ export class Scene {
             } else {
               if (posA.y < posB.y) {
                 posA.y -= overlapY + EPS;
+
+                // 🔥 ADD THIS: Clamp to exact surface
+                // posA.y = posB.y - (boundsB.height / 2) - (boundsB.height / 2);
+
                 if (rbA) {
                   rbA.velocity.y = 0;
+                  // rbA.velocity.y = Math.max(0, rbA.velocity.y);
                   rbA.isGrounded = true;
                 }
               } else {
                 posA.y += overlapY + EPS;
                 if (rbA) rbA.velocity.y = 0;
+                // if (rbA) rbA.velocity.y = Math.min(0, rbA.velocity.y);
               }
             }
           }
@@ -819,6 +825,7 @@ export class Scene {
     }
 
     this._handleCollisions();
+    
   }
 
   _recycleEntity(entity) {
