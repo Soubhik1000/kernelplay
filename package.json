@@ -1,17 +1,25 @@
 {
   "name": "kernelplay-js",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A lightweight JavaScript 2D game engine inspired by Unity’s component system.",
   "type": "module",
-  "main": "src/index.js",
+
+  "main": "dist/kernelplay.umd.js",
+  "module": "dist/kernelplay.es.js",
+
   "exports": {
-    ".": "./src/index.js"
+    ".": {
+      "import": "./dist/kernelplay.es.js",
+      "require": "./dist/kernelplay.umd.js"
+    }
   },
+
   "files": [
-    "src",
+    "dist",
     "README.md",
     "LICENSE"
   ],
+
   "keywords": [
     "game-engine",
     "2d",
@@ -21,5 +29,9 @@
     "unity-like"
   ],
   "author": "Soubhik Mukherjee",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "terser": "^5.19.0"
+  }
 }

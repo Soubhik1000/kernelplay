@@ -6,6 +6,7 @@ import { Config } from "./Config.js";
 import { SceneManager } from "./SceneManager.js";
 import { Canvas } from "../graphics/Canvas.js";
 import { CanvasRenderer } from "../graphics/CanvasRenderer.js";
+import { Camera2D } from "./components/Camera2D.js";
 
 export class Game {
   constructor(options = {}) {
@@ -15,6 +16,8 @@ export class Game {
     // 🔥 Single canvas for entire game
     this.canvas = new Canvas(this.config);
     this.ctx = this.canvas.ctx;
+
+    this.camera = new Camera2D(this.config.width, this.config.height);
 
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
 
@@ -58,7 +61,9 @@ export class Game {
   init() {
     // console.log("init");
     
-    this.renderer.init(this);
+    // this.renderer.init(this);
+    // console.log("init");
+    // await this.renderer.init(this);
   }
   update(dt) {}
   render() {}

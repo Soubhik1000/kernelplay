@@ -1,6 +1,8 @@
 import { AABB, AABB3D, resolveAABB3D } from "../core/physics/Collision.js";
-import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
+// import { ThreeRenderer } from "../graphics/ThreeRenderer.js";
 import { RaycastHit } from "./physics/RaycastHit.js";
+import { Entity } from "./Entity.js";
+import { Camera2D } from "./components/Camera2D.js";
 
 export class Scene {
   constructor(name = "Scene") {
@@ -8,11 +10,32 @@ export class Scene {
     this.entities = [];
     this.fixedTimeStep = 1 / 60;
     this._accumulator = 0;
+
+    this._entityPool = []; // 🔥 ADD THIS
+
+    // 🔥 Component registries
+    this._rigidbody2D = [];
+    this._rigidbody3D = [];
+    this._colliders = [];
+    this._colliders3D = [];
+    this._renderers = [];
+    this._meshes = []; // 🔥 ADD THIS
+
+    this._renderGrid2D = new Map();     // for rendering
+    this._grid2D = new Map();
+    this._grid3D = new Map();
+    this._gridCellSize = 128; // adjust as needed
   }
 
   addEntity(entity) {
     entity.scene = this;   // 🔥 inject scene
     this.entities.push(entity);
+
+    // 🔥 Register all existing components
+    for (const [type, comp] of Object.entries(entity.components)) {
+      this._registerComponent(type, comp);
+    }
+
     entity._start();
     return entity;
   }
@@ -151,7 +174,25 @@ export class Scene {
     }
 
     // 🔥 CLEANUP
-    this.entities = this.entities.filter(e => !e._destroyed);
+    // this.entities = this.entities.filter(e => !e._destroyed);
+
+    const alive = [];
+
+    for (const entity of this.entities) {
+      if (entity._destroyed) {
+
+        // 🔥 Unregister its components
+        for (const [type, comp] of Object.entries(entity.components)) {
+          this._unregisterComponent(type, comp);
+        }
+
+        this._recycleEntity(entity); // 🔥 return to pool
+      } else {
+        alive.push(entity);
+      }
+    }
+
+    this.entities = alive;
 
   }
 
@@ -312,7 +353,48 @@ export class Scene {
   //   return { entity: object.userData.entity };
   // }
 
+  // spawn(prefabFn, ...args) {
+  //   let entity;
 
+  //   if (this._entityPool.length > 0) {
+  //     entity = this._entityPool.pop();
+  //     entity.reset();
+  //     console.log("old object pooled");
+  //   } else {
+  //     // entity = new Entity();
+  //     console.log("new object created");
+  //     const newEntity = prefabFn(...args);
+  //     return this.addEntity(newEntity);
+  //   }
+
+  //   // const newEntity = prefabFn(...args);
+  //   const newEntity = prefabFn(...args);
+
+  //   // copy components from prefab into pooled entity
+  //   entity.name = newEntity.name;
+  //   entity.tag = newEntity.tag;
+  //   entity.components = newEntity.components;
+  //   entity._componentCache = newEntity._componentCache;
+
+  //   return this.addEntity(entity);
+  // }
+
+  spawn(prefabFn, ...args) {
+    let entity;
+
+    if (this._entityPool.length > 0) {
+      entity = this._entityPool.pop();
+      entity.reset();
+      // console.log("old object pooled");
+    } else {
+      entity = new Entity();
+      // console.log("new object created");
+    }
+
+    prefabFn(entity, ...args);
+
+    return this.addEntity(entity);
+  }
 
   findByTag(tag) {
     return this.entities.find(e => e.tag === tag) || null;
@@ -322,6 +404,66 @@ export class Scene {
     return this.entities.filter(e => e.tag === tag);
   }
 
+  _registerComponent(type, component) {
+    switch (type) {
+      case "rigidbody2d":
+        this._rigidbody2D.push(component);
+        break;
+
+      case "rigidbody":
+        this._rigidbody3D.push(component);
+        break;
+
+      case "collider":
+        this._colliders.push(component);
+        break;
+
+      case "collider3D":
+        this._colliders3D.push(component);
+        break;
+
+      case "renderer":
+      case "boxrender":
+      case "spriterender":
+      case "meshrender":
+        this._renderers.push(component);
+        break;
+      
+      case "mesh":
+        this._meshes.push(component);
+        break;
+    }
+  }
+
+  _unregisterComponent(type, component) {
+    let list;
+
+    switch (type) {
+      case "rigidbody2d":
+        list = this._rigidbody2D;
+        break;
+      case "rigidbody":
+        list = this._rigidbody3D;
+        break;
+      case "collider":
+        list = this._colliders;
+        break;
+      case "collider3D":
+        list = this._colliders3D;
+        break;
+      case "renderer":
+        list = this._renderers;
+        break;
+      case "mesh":
+        list = this._meshes;
+        break;
+      default:
+        return;
+    }
+
+    const index = list.indexOf(component);
+    if (index !== -1) list.splice(index, 1);
+  }
 
   _dispatchCollisionEvents(a, b, isTrigger) {
     for (const comp of Object.values(a.components)) {
@@ -335,136 +477,315 @@ export class Scene {
     }
   }
 
+  // _getVisibleRenderers(cameraBounds) {
+  //   const visible = [];
+
+  //   // 🔥 Only check grid cells that overlap camera
+  //   const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+
+  //   const checked = new Set(); // avoid duplicate entities
+
+  //   for (let x = minX; x <= maxX; x++) {
+  //     for (let y = minY; y <= maxY; y++) {
+  //       const key = `${x},${y}`;
+  //       const cell = this._grid2D.get(key);
+
+  //       if (!cell) continue;
+
+  //       // 🔥 Check entities in this cell
+  //       for (const collider of cell) {
+  //         const entity = collider.entity;
+
+  //         if (checked.has(entity)) continue;
+  //         checked.add(entity);
+
+  //         if (!entity.active) continue;
+
+  //         // 🔥 Get renderer component
+  //         // const renderer = entity.getComponent("boxrender") ||
+  //         //   entity.getComponent("spriterender");
+  //         const renderer = entity.getComponent("renderer")
+
+  //         if (!renderer) continue;
+
+  //         // 🔥 Final precise AABB check
+  //         if (AABB(renderer.getBounds(), cameraBounds)) {
+  //           visible.push(renderer);
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   return visible;
+  // }
+
+  // _handleCollisions() {
+  //   const EPS = 0.0001;
+
+  //   for (let i = 0; i < this.entities.length; i++) {
+  //     for (let j = i + 1; j < this.entities.length; j++) {
+  //       const a = this.entities[i];
+  //       const b = this.entities[j];
+
+  //       const c2a = a.getComponent("collider");
+  //       const c2b = b.getComponent("collider");
+
+  //       const c3a = a.getComponent("collider3D");
+  //       const c3b = b.getComponent("collider3D");
+
+  //       const posA = a.getComponent("transform").position;
+  //       const posB = b.getComponent("transform").position;
+
+  //       const rbA2 = a.getComponent("rigidbody2d");
+  //       const rbA = a.getComponent("rigidbody");
+
+  //       if (!posA || !posB) continue;
+
+  //       /* =======================
+  //          🔹 2D COLLISION
+  //       ======================= */
+  //       if (c2a && c2b && AABB(c2a.bounds, c2b.bounds)) {
+  //         const isTrigger = c2a.isTrigger || c2b.isTrigger;
+
+  //         if (!isTrigger) {
+  //           const overlapX =
+  //             Math.min(
+  //               c2a.bounds.x + c2a.bounds.width,
+  //               c2b.bounds.x + c2b.bounds.width
+  //             ) - Math.max(c2a.bounds.x, c2b.bounds.x);
+
+  //           const overlapY =
+  //             Math.min(
+  //               c2a.bounds.y + c2a.bounds.height,
+  //               c2b.bounds.y + c2b.bounds.height
+  //             ) - Math.max(c2a.bounds.y, c2b.bounds.y);
+
+  //           // if (overlapX < overlapY) {
+  //           //   posA.x += posA.x < posB.x ? -overlapX : overlapX;
+
+  //           // } else {
+  //           //   posA.y += posA.y < posB.y ? -overlapY : overlapY;
+
+  //           // }
+
+  //           if (overlapX < overlapY) {
+  //             // X axis
+  //             if (posA.x < posB.x) posA.x -= overlapX;
+  //             else posA.x += overlapX;
+
+  //             if (rbA2) rbA2.velocity.x = 0;
+  //           } else {
+  //             // Y axis (GROUND LOGIC 🔥)
+  //             if (posA.y < posB.y) {
+  //               // A is ABOVE B
+  //               posA.y -= overlapY + EPS;
+
+  //               if (rbA2) {
+  //                 rbA2.velocity.y = 0;
+  //                 rbA2.isGrounded = true;
+  //               }
+  //             } else {
+  //               // A hit B from below
+  //               posA.y += overlapY + EPS;
+  //               if (rbA2) rbA2.velocity.y = 0;
+  //             }
+  //           }
+  //         }
+
+  //         this._dispatchCollisionEvents(a, b, isTrigger);
+  //       }
+
+  //       /* =======================
+  //          🔹 3D COLLISION
+  //       ======================= */
+  //       if (c3a && c3b && AABB3D(c3a.bounds, c3b.bounds)) {
+  //         const isTrigger = c3a.isTrigger || c3b.isTrigger;
+
+  //         if (!isTrigger) {
+  //           const overlapX =
+  //             Math.min(
+  //               c3a.bounds.x + c3a.bounds.width,
+  //               c3b.bounds.x + c3b.bounds.width
+  //             ) - Math.max(c3a.bounds.x, c3b.bounds.x);
+
+  //           const overlapY =
+  //             Math.min(
+  //               c3a.bounds.y + c3a.bounds.height,
+  //               c3b.bounds.y + c3b.bounds.height
+  //             ) - Math.max(c3a.bounds.y, c3b.bounds.y);
+
+  //           const overlapZ =
+  //             Math.min(
+  //               c3a.bounds.z + c3a.bounds.depth,
+  //               c3b.bounds.z + c3b.bounds.depth
+  //             ) - Math.max(c3a.bounds.z, c3b.bounds.z);
+
+  //           // Resolve on smallest axis
+  //           // if (overlapX <= overlapY && overlapX <= overlapZ) {
+  //           //   posA.x += posA.x < posB.x ? -overlapX : overlapX;
+  //           // } else if (overlapY <= overlapZ) {
+  //           //   posA.y += posA.y < posB.y ? -overlapY : overlapY;
+  //           // } else {
+  //           //   posA.z += posA.z < posB.z ? -overlapZ : overlapZ;
+  //           // }
+
+  //           // 🔥 resolve on smallest penetration axis
+  //           if (overlapX <= overlapY && overlapX <= overlapZ) {
+  //             posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
+  //             if (rbA) rbA.velocity.x = 0;
+  //           }
+  //           else if (overlapY <= overlapZ) {
+  //             // Y AXIS (GROUND LOGIC)
+  //             if (posA.y < posB.y) {
+  //               // A is ABOVE B
+  //               posA.y -= overlapY + EPS;
+
+  //               if (rbA) {
+  //                 rbA.velocity.y = 0;
+  //                 rbA.isGrounded = true;
+  //               }
+  //             } else {
+  //               // hit from below
+  //               posA.y += overlapY + EPS;
+  //               if (rbA) rbA.velocity.y = 0;
+  //               rbA.isGrounded = true;
+  //             }
+  //           }
+  //           else {
+  //             posA.z += posA.z < posB.z ? -overlapZ - EPS : overlapZ + EPS;
+  //             if (rbA) rbA.velocity.z = 0;
+  //           }
+  //         }
+
+  //         this._dispatchCollisionEvents(a, b, isTrigger);
+  //       }
+  //     }
+  //   }
+  // }
+
   _handleCollisions() {
     const EPS = 0.0001;
 
-    for (let i = 0; i < this.entities.length; i++) {
-      for (let j = i + 1; j < this.entities.length; j++) {
-        const a = this.entities[i];
-        const b = this.entities[j];
+    /* =========================
+       🔹 2D COLLISIONS
+    ========================= */
 
-        const c2a = a.getComponent("collider");
-        const c2b = b.getComponent("collider");
+    this._grid2D.clear();
 
-        const c3a = a.getComponent("collider3D");
-        const c3b = b.getComponent("collider3D");
+    for (const collider of this._colliders) {
+      this._insertCollider2D(collider);
+    }
 
-        const posA = a.getComponent("transform").position;
-        const posB = b.getComponent("transform").position;
+    for (const cell of this._grid2D.values()) {
 
-        const rbA2 = a.getComponent("rigidbody2d");
-        const rbA = a.getComponent("rigidbody");
+      for (let i = 0; i < cell.length; i++) {
+        const cA = cell[i];
+        const boundsA = cA.bounds;
+        const posA = cA.transform.position;
+        const rbA = cA.rigidbody2d;
+        // const rbA = cA.entity.getComponent("rigidbody2d");
 
-        if (!posA || !posB) continue;
+        for (let j = i + 1; j < cell.length; j++) {
+          const cB = cell[j];
+          const boundsB = cB.bounds;
+          const posB = cB.transform.position;
 
-        /* =======================
-           🔹 2D COLLISION
-        ======================= */
-        if (c2a && c2b && AABB(c2a.bounds, c2b.bounds)) {
-          const isTrigger = c2a.isTrigger || c2b.isTrigger;
+          if (!AABB(boundsA, boundsB)) continue;
+
+          const isTrigger = cA.isTrigger || cB.isTrigger;
 
           if (!isTrigger) {
             const overlapX =
-              Math.min(
-                c2a.bounds.x + c2a.bounds.width,
-                c2b.bounds.x + c2b.bounds.width
-              ) - Math.max(c2a.bounds.x, c2b.bounds.x);
+              Math.min(boundsA.x + boundsA.width, boundsB.x + boundsB.width) -
+              Math.max(boundsA.x, boundsB.x);
 
             const overlapY =
-              Math.min(
-                c2a.bounds.y + c2a.bounds.height,
-                c2b.bounds.y + c2b.bounds.height
-              ) - Math.max(c2a.bounds.y, c2b.bounds.y);
-
-            // if (overlapX < overlapY) {
-            //   posA.x += posA.x < posB.x ? -overlapX : overlapX;
-
-            // } else {
-            //   posA.y += posA.y < posB.y ? -overlapY : overlapY;
-
-            // }
+              Math.min(boundsA.y + boundsA.height, boundsB.y + boundsB.height) -
+              Math.max(boundsA.y, boundsB.y);
 
             if (overlapX < overlapY) {
-              // X axis
-              if (posA.x < posB.x) posA.x -= overlapX;
-              else posA.x += overlapX;
-
-              if (rbA2) rbA2.velocity.x = 0;
+              posA.x += posA.x < posB.x ? -overlapX : overlapX;
+              if (rbA) rbA.velocity.x = 0;
             } else {
-              // Y axis (GROUND LOGIC 🔥)
               if (posA.y < posB.y) {
-                // A is ABOVE B
                 posA.y -= overlapY + EPS;
 
-                if (rbA2) {
-                  rbA2.velocity.y = 0;
-                  rbA2.isGrounded = true;
+                // 🔥 ADD THIS: Clamp to exact surface
+                // posA.y = posB.y - (boundsB.height / 2) - (boundsB.height / 2);
+
+                if (rbA) {
+                  rbA.velocity.y = 0;
+                  // rbA.velocity.y = Math.max(0, rbA.velocity.y);
+                  rbA.isGrounded = true;
                 }
               } else {
-                // A hit B from below
                 posA.y += overlapY + EPS;
-                if (rbA2) rbA2.velocity.y = 0;
+                if (rbA) rbA.velocity.y = 0;
+                // if (rbA) rbA.velocity.y = Math.min(0, rbA.velocity.y);
               }
             }
           }
 
-          this._dispatchCollisionEvents(a, b, isTrigger);
+          this._dispatchCollisionEvents(cA.entity, cB.entity, isTrigger);
         }
+      }
+    }
 
-        /* =======================
-           🔹 3D COLLISION
-        ======================= */
-        if (c3a && c3b && AABB3D(c3a.bounds, c3b.bounds)) {
-          const isTrigger = c3a.isTrigger || c3b.isTrigger;
+    /* =========================
+       🔹 3D COLLISIONS
+    ========================= */
+
+    this._grid3D.clear();
+
+    for (const collider of this._colliders3D) {
+      this._insertCollider3D(collider);
+    }
+
+    for (const cell of this._grid3D.values()) {
+
+      for (let i = 0; i < cell.length; i++) {
+        const cA = cell[i];
+        const boundsA = cA.bounds;
+        const posA = cA.transform.position;
+        const rbA = cA.rigidbody;
+        // const rbA = cA.entity.getComponent("rigidbody");
+
+        for (let j = i + 1; j < cell.length; j++) {
+          const cB = cell[j];
+          const boundsB = cB.bounds;
+          const posB = cB.transform.position;
+
+          if (!AABB3D(boundsA, boundsB)) continue;
+
+          const isTrigger = cA.isTrigger || cB.isTrigger;
 
           if (!isTrigger) {
             const overlapX =
-              Math.min(
-                c3a.bounds.x + c3a.bounds.width,
-                c3b.bounds.x + c3b.bounds.width
-              ) - Math.max(c3a.bounds.x, c3b.bounds.x);
+              Math.min(boundsA.x + boundsA.width, boundsB.x + boundsB.width) -
+              Math.max(boundsA.x, boundsB.x);
 
             const overlapY =
-              Math.min(
-                c3a.bounds.y + c3a.bounds.height,
-                c3b.bounds.y + c3b.bounds.height
-              ) - Math.max(c3a.bounds.y, c3b.bounds.y);
+              Math.min(boundsA.y + boundsA.height, boundsB.y + boundsB.height) -
+              Math.max(boundsA.y, boundsB.y);
 
             const overlapZ =
-              Math.min(
-                c3a.bounds.z + c3a.bounds.depth,
-                c3b.bounds.z + c3b.bounds.depth
-              ) - Math.max(c3a.bounds.z, c3b.bounds.z);
+              Math.min(boundsA.z + boundsA.depth, boundsB.z + boundsB.depth) -
+              Math.max(boundsA.z, boundsB.z);
 
-            // Resolve on smallest axis
-            // if (overlapX <= overlapY && overlapX <= overlapZ) {
-            //   posA.x += posA.x < posB.x ? -overlapX : overlapX;
-            // } else if (overlapY <= overlapZ) {
-            //   posA.y += posA.y < posB.y ? -overlapY : overlapY;
-            // } else {
-            //   posA.z += posA.z < posB.z ? -overlapZ : overlapZ;
-            // }
-
-            // 🔥 resolve on smallest penetration axis
             if (overlapX <= overlapY && overlapX <= overlapZ) {
               posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
               if (rbA) rbA.velocity.x = 0;
             }
             else if (overlapY <= overlapZ) {
-              // Y AXIS (GROUND LOGIC)
               if (posA.y < posB.y) {
-                // A is ABOVE B
                 posA.y -= overlapY + EPS;
-
                 if (rbA) {
                   rbA.velocity.y = 0;
                   rbA.isGrounded = true;
                 }
               } else {
-                // hit from below
                 posA.y += overlapY + EPS;
                 if (rbA) rbA.velocity.y = 0;
-                rbA.isGrounded = true;
               }
             }
             else {
@@ -473,7 +794,7 @@ export class Scene {
             }
           }
 
-          this._dispatchCollisionEvents(a, b, isTrigger);
+          this._dispatchCollisionEvents(cA.entity, cB.entity, isTrigger);
         }
       }
     }
@@ -482,18 +803,156 @@ export class Scene {
   _physicsStep(dt) {
     const gravity = this.game?.config?.gravity ?? 980;
 
-    for (const entity of this.entities) {
-      const r2b = entity.getComponent("rigidbody2d");
-      if (r2b) r2b.isGrounded = false;
-      if (r2b) r2b.integrate(dt, gravity);
+    // for (const entity of this.entities) {
+    //   const r2b = entity.getComponent("rigidbody2d");
+    //   if (r2b) r2b.isGrounded = false;
+    //   if (r2b) r2b.integrate(dt, gravity);
 
-      const rb3d = entity.getComponent("rigidbody");
-      if (rb3d) rb3d.isGrounded = false;
-      if (rb3d) rb3d.integrate(dt, gravity);
+    //   const rb3d = entity.getComponent("rigidbody");
+    //   if (rb3d) rb3d.isGrounded = false;
+    //   if (rb3d) rb3d.integrate(dt, gravity);
+    // }
+
+    // 🔥 Direct loop over rigidbodies
+    for (const rb of this._rigidbody2D) {
+      rb.isGrounded = false;
+      rb.integrate(dt, gravity);
+    }
+
+    for (const rb of this._rigidbody3D) {
+      rb.isGrounded = false;
+      rb.integrate(dt, gravity);
     }
 
     this._handleCollisions();
+    
   }
 
+  _recycleEntity(entity) {
+    entity.reset();          // must exist in Entity
+    entity.scene = null;
+    this._entityPool.push(entity);
+  }
+
+
+  _getCellRange2D(bounds) {
+    const minX = Math.floor(bounds.x / this._gridCellSize);
+    const minY = Math.floor(bounds.y / this._gridCellSize);
+    const maxX = Math.floor((bounds.x + bounds.width) / this._gridCellSize);
+    const maxY = Math.floor((bounds.y + bounds.height) / this._gridCellSize);
+
+    return { minX, minY, maxX, maxY };
+  }
+
+  _insertCollider2D(collider) {
+    const bounds = collider.bounds;
+    const { minX, minY, maxX, maxY } = this._getCellRange2D(bounds);
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = `${x},${y}`;
+
+        if (!this._grid2D.has(key)) {
+          this._grid2D.set(key, []);
+        }
+
+        this._grid2D.get(key).push(collider);
+      }
+    }
+  }
+
+
+  _getCellRange3D(bounds) {
+    const minX = Math.floor(bounds.x / this._gridCellSize);
+    const minY = Math.floor(bounds.y / this._gridCellSize);
+    const minZ = Math.floor(bounds.z / this._gridCellSize);
+
+    const maxX = Math.floor((bounds.x + bounds.width) / this._gridCellSize);
+    const maxY = Math.floor((bounds.y + bounds.height) / this._gridCellSize);
+    const maxZ = Math.floor((bounds.z + bounds.depth) / this._gridCellSize);
+
+    return { minX, minY, minZ, maxX, maxY, maxZ };
+  }
+
+  _insertCollider3D(collider) {
+    const bounds = collider.bounds;
+    const { minX, minY, minZ, maxX, maxY, maxZ } = this._getCellRange3D(bounds);
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        for (let z = minZ; z <= maxZ; z++) {
+
+          const key = `${x},${y},${z}`;
+
+          if (!this._grid3D.has(key)) {
+            this._grid3D.set(key, []);
+          }
+
+          this._grid3D.get(key).push(collider);
+        }
+      }
+    }
+  }
+
+  // 🔥 Insert renderer into render grid
+  _insertRenderer2D(renderer) {
+    const bounds = renderer.getBounds();
+    const { minX, minY, maxX, maxY } = this._getCellRange2D(bounds);
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = `${x},${y}`;
+
+        if (!this._renderGrid2D.has(key)) {
+          this._renderGrid2D.set(key, []);
+        }
+
+        this._renderGrid2D.get(key).push(renderer);
+      }
+    }
+  }
+
+  // 🔥 Get visible renderers from render grid
+  _getVisibleRenderers(cameraBounds) {
+  const visible = [];
+  
+  // 🔥 Rebuild render grid each frame
+  this._renderGrid2D.clear();
+  
+  for (const renderer of this._renderers) {
+    if (!renderer.entity.active) continue;
+    this._insertRenderer2D(renderer);
+  }
+  
+  const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+  const checked = new Set();
+  
+  for (let x = minX; x <= maxX; x++) {
+    for (let y = minY; y <= maxY; y++) {
+      const key = `${x},${y}`;
+      const cell = this._renderGrid2D.get(key);
+      
+      if (!cell) continue;
+      
+      for (const renderer of cell) {
+        if (checked.has(renderer)) continue;
+        checked.add(renderer);
+        
+        if (AABB(renderer.getBounds(), cameraBounds)) {
+          visible.push(renderer);
+        }
+      }
+    }
+  }
+  
+  this._visibleCount = visible.length; // 🔥 Store for debug
+  return visible;
+}
+
+
+  _clearGrid() {
+    this._grid2D.clear();
+    this._grid3D.clear();
+  }
 
 }

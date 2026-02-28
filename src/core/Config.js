@@ -6,6 +6,7 @@ export class Config {
     this.backgroundColor = options.backgroundColor || "#ffffff";
 
     this.gravity = 980;
+    this.debugPhysics = options.debugPhysics;
 
     // Add more defaults here in future (e.g., gravity, scale)
   }

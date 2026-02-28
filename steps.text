@@ -137,6 +137,35 @@ export class Player extends Entity {
 }
 
 
+import { Entity } from "../../../src/index.js";
+import {
+    BoxRenderComponent,
+    ColliderComponent
+} from "../../../src/index.js";
+
+// import { WebGLBoxRender2D } from "../../../src/index.js";
+import { TransformComponent } from "../../../src/index.js";
+
+export function Wall(x = 100, y = 100, isTrigger = false) {
+    let size = { x: 40, y: 40 };
+    const wall = new Entity("Wall", 'wall');
+
+    // wall.addComponent("position", new PositionComponent(x, y));
+    wall.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: {x: 1, y: 2}
+    }));
+    wall.addComponent("collider", new ColliderComponent({
+        isTrigger: isTrigger
+    }));
+    wall.addComponent("renderer", new BoxRenderComponent("#000000"));
+    // wall.addComponent("renderer", new WebGLBoxRender2D({color: "#000000"}));
+
+    return wall;
+}
+
+
+
 <script type="importmap">
         {
             "imports": {
@@ -145,3 +174,72 @@ export class Player extends Entity {
         }
 </script>
 <script type="module" src="./main.js"></script>
+
+<script type="importmap">
+  {
+    "imports": {
+      "pixi.js": "https://cdn.jsdelivr.net/npm/pixi.js@8.14.3/dist/pixi.mjs"
+    }
+  }
+  </script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/8.13.2/pixi.min.js"></script> -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+      }
+    }
+  </script>
+
+
+//More Detailed Debug (Advanced)
+drawColliders(ctx, scene) {
+  for (const collider of scene._colliders) {
+    const bounds = collider.bounds;
+    
+    // Color based on state
+    if (collider.isTrigger) {
+      ctx.strokeStyle = "#FFFF00"; // Yellow = trigger
+    } else if (collider.rigidbody2d?.isGrounded) {
+      ctx.strokeStyle = "#00FF00"; // Green = grounded
+    } else {
+      ctx.strokeStyle = "#FF0000"; // Red = airborne
+    }
+    
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    
+    // Draw center point
+    ctx.fillStyle = ctx.strokeStyle;
+    const centerX = bounds.x + bounds.width / 2;
+    const centerY = bounds.y + bounds.height / 2;
+    ctx.fillRect(centerX - 2, centerY - 2, 4, 4);
+  }
+}
+
+
+// DebugCollider ThreeRenderer
+addDebugCollider(entity) {
+  const collider = entity.getComponent("collider3D");
+  if (!collider) return;
+  
+  const geometry = new THREE.BoxGeometry(
+    collider.bounds.width,
+    collider.bounds.height,
+    collider.bounds.depth
+  );
+  
+  const material = new THREE.MeshBasicMaterial({
+    color: collider.isTrigger ? 0xFFFF00 : 0x00FF00,
+    wireframe: true
+  });
+  
+  const debugBox = new THREE.Mesh(geometry, material);
+  this.scene3D.add(debugBox);
+  
+  collider.debugMesh = debugBox; // Store reference
+}
+
+
+npx vite build

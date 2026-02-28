@@ -4,8 +4,8 @@ import { CubeScript } from "../scripts/CubeScript.js";
 
 import { Layers } from "../../../src/index.js";
 
-import { MeshComponent } from "../../../src/index.js";
-import { BoxCollider3D } from "../../../src/index.js";
+// import { MeshComponent } from "../../../src/index.js";
+// import { BoxCollider3D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
 import { RigidbodyComponent } from "../../../src/index.js";
 
