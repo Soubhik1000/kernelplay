@@ -1,6 +1,6 @@
 {
   "name": "kernelplay-js",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A lightweight JavaScript 2D game engine inspired by Unity’s component system.",
   "type": "module",
 

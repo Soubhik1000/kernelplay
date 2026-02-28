@@ -456,7 +456,7 @@ MIT License - feel free to use in commercial projects
 
 - **GitHub:** https://github.com/Soubhik1000/kernelplay
 - **NPM:** https://www.npmjs.com/package/kernelplay-js
-- **Documentation:** https://docs.kernelplay.dev
+- **Documentation:** https://soubhik-rjs.github.io/kernelplay-js-demo/docs/
 - **Discord:** [Join our community](#)
 
 ---
