@@ -6,6 +6,12 @@ A high-performance **2D/3D JavaScript game engine** with Entity-Component archit
 
 ---
 
+<div align="left">
+  <img height="400" src="https://soubhik2.github.io/HomeLand.github.oi/Images/PerformanceM.png"  />
+</div>
+
+---
+
 ## 🔴 Live Demo
 👉 https://soubhik-rjs.github.io/kernelplay-js-demo/examples/Canvas2D/
 
@@ -112,7 +118,7 @@ Or use CDN:
 <script type="importmap">
 {
   "imports": {
-    "kernelplay-js": "https://cdn.jsdelivr.net/npm/kernelplay-js/src/kernelplay.es.js"
+    "kernelplay-js": "https://cdn.jsdelivr.net/npm/kernelplay-js/dist/kernelplay.es.js"
   }
 }
 </script>
