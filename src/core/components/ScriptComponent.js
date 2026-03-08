@@ -4,10 +4,14 @@ export class ScriptComponent extends Component {
   constructor() {
     super();
     this.started = false;
+    this.camera = null;
   }
 
   // Called once when entity enters scene
-  start() {}
+  start() {
+    this.camera = this.entity.scene.game.camera;
+    this.game = this.entity.scene.game;
+  }
 
   // Called every frame
   update(dt) {}

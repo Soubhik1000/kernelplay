@@ -8,19 +8,23 @@ import { Layers } from "../../../src/index.js";
 
 export class PlayerController extends ScriptComponent {
 
-    start() {
-        console.log('start player');
-    }
+    // start() {
+    //     console.log('start player');
+    // }
 
     onStart(){
         console.log('onStart player');
         this.isGround = false;
+
+        // console.log(this.entity.scene.game.camera);
+        // this.camera = this.entity.scene.game.camera;
+        // console.log(this.camera);
     }
 
     update(dt) {
         const rb = this.entity.getComponent("rigidbody2d");
         const transform = this.entity.getComponent("transform");
-        const renderer = this.entity.getComponent("renderer");
+        // const renderer = this.entity.getComponent("renderer");
         // console.log(transform.position);
         
         // if (!vel) return;
@@ -60,10 +64,20 @@ export class PlayerController extends ScriptComponent {
         //           this.entity.scene.game.renderer.stage.addChild(box);
         // }
 
+
+        // console.log(this.entity.scene);
         
+        // Camera follows player automatically
+        this.camera.x = transform.position.x - this.camera.width / 2;
+        this.camera.y = transform.position.y - this.camera.height / 2;
+                
 
         if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
         if (Keyboard.isPressed("e")) transform.rotation.z += 2 * dt;
+        // if (Keyboard.isPressed("l")) {
+        //     console.log('done');
+        //     this.game.config.debugPhysics = true;
+        // }
 
 
         if (rb.isGrounded) {

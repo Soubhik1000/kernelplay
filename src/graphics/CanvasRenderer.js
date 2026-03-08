@@ -8,7 +8,7 @@ export class CanvasRenderer extends Renderer {
         this.ctx = game.canvas.canvas.getContext("2d");
         this.camera = game.camera;
         this.debugPhysics = game.config.debugPhysics;
-        console.log(game.config);
+        // console.log(game.config);
         
 
         // Fill background on init

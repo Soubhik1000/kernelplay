@@ -79,8 +79,8 @@ this.instantiate(Bullet, position.x, position.y, direction);
 **Camera System**
 ```javascript
 // Camera follows player automatically
-game.camera.x = player.position.x - game.camera.width / 2;
-game.camera.y = player.position.y - game.camera.height / 2;
+this.camera.x = transform.position.x - this.camera.width / 2;
+this.camera.y = transform.position.y - this.camera.height / 2;
 ```
 
 **Debug Physics Rendering**

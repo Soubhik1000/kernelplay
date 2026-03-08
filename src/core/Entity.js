@@ -82,7 +82,7 @@ export class Entity {
     if (!this.active) return;
     for (const comp of Object.values(this.components)) {
       // Script start hook
-      // if (comp._internalStart) comp._internalStart();
+      if (comp._internalStart) comp._internalStart();
 
       if (comp.update) comp.update(dt);
     }
