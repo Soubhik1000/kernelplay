@@ -2,7 +2,7 @@
 
 A high-performance **2D/3D JavaScript game engine** with Entity-Component architecture, built for production games and rapid prototyping.
 
-> **Version:** `0.2.0-alpha` | **Status:** Production-ready performance, API stabilizing
+> **Version:** `0.2.1-alpha` | **Status:** Production-ready performance, API stabilizing
 
 ---
 
@@ -36,7 +36,7 @@ Complete documentation with architecture details, tutorials, and API reference:
 
 ---
 
-## 🚀 What's New in v0.2.0
+## 🚀 What's New in v0.2.1
 
 ### 🎯 Object Pooling & Spawning System
 Eliminate GC pauses in bullet hell games and high-entity scenarios.
@@ -56,7 +56,7 @@ this.instantiate(Bullet, position.x, position.y, direction);
 
 ### ⚡ Performance Optimizations Added
 
-**Spatial Grid System (v0.2.0)**
+**Spatial Grid System (v0.2.1)**
 - Collision detection: 40,000x faster for large scenes
 - Frustum culling: 20,000 objects → 200-500 render checks
 - Cell-based partitioning with configurable grid size
@@ -401,7 +401,7 @@ scene._visibleCount        // Visible renderers
 
 ## 🗺️ Roadmap
 
-**v0.2.0** (Current)
+**v0.2.1** (Current)
 - ✅ Object pooling & spawn system
 - ✅ Spatial grid optimization
 - ✅ Frustum culling
