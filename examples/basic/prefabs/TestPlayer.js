@@ -95,12 +95,14 @@ class PlayerScript extends ScriptComponent {
             // console.log(n);
 
             // direction vector
-            let s = Vector2.sub(new Vector2(0,0), this.transform.position)
-            const dir = new Vector2(
-                s.x,
-                s.y
-            ).normalize();
-            console.log(dir);
+            // let s = Vector2.sub(new Vector2(0,0), this.transform.position)
+            // const dir = new Vector2(
+            //     s.x,
+            //     s.y
+            // ).normalize();
+
+            // const dir = Vector2.sub(new Vector2(0,0), this.transform.position).normalize();
+            // console.log(dir);
 
             // this.transform.position.x += dir.x * 100 * dt;
             // this.transform.position.y += dir.y * 100 * dt;
