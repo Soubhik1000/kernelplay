@@ -22,6 +22,10 @@ export {Mathf} from "./utils/Mathf.js";
 export {Random} from "./utils/Random.js";
 export { Cooldown } from "./utils/Cooldown.js"
 export { Timer } from "./utils/Timer.js";
+export { hexToRGB } from "./utils/utils.js";
+export { rgbToHex } from "./utils/utils.js"; 
+export { radToDeg } from "./utils/utils.js";
+export { degToRad } from "./utils/utils.js";
 
 // user components
 export { TransformComponent } from "./core/components/TransformComponent.js";
