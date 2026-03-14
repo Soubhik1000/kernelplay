@@ -8,4 +8,12 @@ export class Mathf {
         return a + (b - a) * t;
     }
 
+    static degToRad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    static radToDeg(rad) {
+        return rad * (180 / Math.PI);
+    }
+
 }

@@ -70,9 +70,9 @@ class PlayerScript extends ScriptComponent {
             const velocity = new Vector2(2, 1);
 
             // const newPosition = Vector2.add(position, velocity);
-
             // console.log(newPosition);
-            // // this.transform.setPosition(newPosition.x,newPosition.y);
+
+            // this.transform.setPosition(newPosition.x,newPosition.y);
             // this.transform.setPosition(newPosition);
 
 
@@ -91,14 +91,19 @@ class PlayerScript extends ScriptComponent {
 
             // Normalize (direction vector)
             // const v = new Vector2(10, 0);
-            // const n = Vector2.normalize(v);
+            // const n = new Vector2(10,0).normalize();
             // console.log(n);
 
             // direction vector
-            const dir = Vector2.normalize(
-                Vector2.sub(new Vector2(0,0), this.transform.position)
-            );
+            let s = Vector2.sub(new Vector2(0,0), this.transform.position)
+            const dir = new Vector2(
+                s.x,
+                s.y
+            ).normalize();
             console.log(dir);
+
+            // this.transform.position.x += dir.x * 100 * dt;
+            // this.transform.position.y += dir.y * 100 * dt;
 
         }
 
