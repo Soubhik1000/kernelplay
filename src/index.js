@@ -20,6 +20,8 @@ export {Vector2} from "./utils/Vector2.js";
 export {Vector3} from "./utils/Vector3.js";
 export {Mathf} from "./utils/Mathf.js";
 export {Random} from "./utils/Random.js";
+export { Cooldown } from "./utils/Cooldown.js"
+export { Timer } from "./utils/Timer.js";
 
 // user components
 export { TransformComponent } from "./core/components/TransformComponent.js";
