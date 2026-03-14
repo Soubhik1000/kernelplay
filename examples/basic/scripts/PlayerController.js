@@ -3,6 +3,8 @@ import { ScriptComponent, Keyboard, Mouse } from "../../../src/index.js";
 import { Wall } from "../prefabs/Wall.js";
 import { Bullet } from "../prefabs/Bullet.js";
 import { Layers } from "../../../src/index.js";
+import { KeyCode } from "../../../src/index.js";
+import { MouseButton } from "../../../src/index.js";
 
 // import * as PIXI from "pixi.js";
 
@@ -43,9 +45,9 @@ export class PlayerController extends ScriptComponent {
         // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
         // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
 
-        if (Keyboard.isPressed("ArrowRight")) rb.addForce(800, 0);
-        if (Keyboard.isPressed("ArrowLeft")) rb.addForce(-800, 0);
-        if (Keyboard.isPressed("w")) rb.addForce(0, -30, "impulse");
+        if (Keyboard.isPressed(KeyCode.ArrowRight)) rb.addForce(800, 0);
+        if (Keyboard.isPressed(KeyCode.ArrowLeft)) rb.addForce(-800, 0);
+        if (Keyboard.isPressed(KeyCode.W)) rb.addForce(0, -30, "impulse");
         // if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
         // if (Keyboard.isPressed("h")) {
@@ -81,7 +83,7 @@ export class PlayerController extends ScriptComponent {
 
 
         if (rb.isGrounded) {
-            if (Keyboard.isPressed(" ")) {
+            if (Keyboard.isPressed(KeyCode.Space)) {
                 rb.addForce(0, -600, "impulse");
                 this.isGround = false;
             }
@@ -134,13 +136,14 @@ export class PlayerController extends ScriptComponent {
             // wall[1].getComponent('transform').position.x = 0;
         }
 
-        if (Mouse.wasPressed(0)) {
+        // if (Mouse.wasPressed('0')) {
+        if (Mouse.wasPressed(MouseButton.Left)) {
             // const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
 
             const hit = this.raycast(Mouse.x, Mouse.y);
 
             // const hit = this.entity.scene.pick(Mouse.x, Mouse.y);
-            
+
             // const hit = this.pick(Mouse.x, Mouse.y);
             if (hit) {
                 console.log("Clicked:", hit.entity.name);

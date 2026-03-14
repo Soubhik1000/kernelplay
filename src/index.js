@@ -13,6 +13,10 @@ export { Layers } from "./core/constants/Layers.js";
 export { Entity } from "./core/Entity.js";
 export { Component } from "./core/Component.js";
 
+// uitls
+export { KeyCode } from "./utils/KeyCode.js";
+export { MouseButton } from "./utils/MouseButton.js";
+
 // user components
 export { TransformComponent } from "./core/components/TransformComponent.js";
 export { BoxRenderComponent } from "./core/components/BoxRenderComponent.js";
