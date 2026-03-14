@@ -8,7 +8,7 @@ import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
 
 export function Player(x = 100, y = 100) {
-    const player = new Entity("Player");
+    const player = new Entity("Player", "player");
     player.layer = Layers.Player;
     player.zIndex = -10;
 

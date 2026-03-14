@@ -11,6 +11,7 @@ export class ScriptComponent extends Component {
   start() {
     this.camera = this.entity.scene.game.camera;
     this.game = this.entity.scene.game;
+    this.scene = this.entity.scene;
   }
 
   // Called every frame
@@ -28,6 +29,30 @@ export class ScriptComponent extends Component {
   instantiate(entity, ...args){
     this.entity.scene.spawn(entity, ...args);
     return entity;
+  }
+
+  hasTag(tag){
+    return this.entity.hasTag(tag);
+  }
+
+  findByTag(tag){
+    return this.entity.scene.findByTag(tag);
+  }
+
+  findAllByTag(tag){
+    return this.entity.scene.findAllByTag(tag);
+  }
+
+  raycast(MouseX, MouseY){
+    return this.entity.scene.raycast(MouseX, MouseY);
+  }
+
+  pick(MouseX, MouseY){
+    return this.entity.scene.pick(MouseX, MouseY);
+  }
+
+  destroy(){
+    this.entity.destroy();
   }
 
   _internalStart() {

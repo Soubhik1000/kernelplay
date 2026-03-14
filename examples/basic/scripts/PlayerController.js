@@ -68,8 +68,8 @@ export class PlayerController extends ScriptComponent {
         // console.log(this.entity.scene);
         
         // Camera follows player automatically
-        this.camera.x = transform.position.x - this.camera.width / 2;
-        this.camera.y = transform.position.y - this.camera.height / 2;
+        // this.camera.x = transform.position.x - this.camera.width / 2;
+        // this.camera.y = transform.position.y - this.camera.height / 2;
                 
 
         if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
@@ -107,7 +107,8 @@ export class PlayerController extends ScriptComponent {
         }
 
         if (Keyboard.wasPressed('x')) {
-            this.entity.destroy();
+            // this.entity.destroy();
+            this.destroy();
         }
 
         // if(Mouse.isPressed(0)){
@@ -118,19 +119,29 @@ export class PlayerController extends ScriptComponent {
 
         if (Keyboard.wasPressed('c')) {
             // this.wall.getComponent('position').x = 0;
-            // console.log(this.entity.hasTag("wall"));
+            // console.log(this.entity.hasTag("player"));
 
-            const wall = this.entity.scene.findByTag("wall");
-            wall.getComponent('position').x = 0;
+            // console.log(this.hasTag("player"));
+
+            // const wall = this.entity.scene.findByTag("wall");
+
+            // const wall = this.findByTag("wall");
+            // wall.getComponent('transform').position.x = 0;
 
             // const wall = this.entity.scene.findAllByTag("wall");
-            // wall[1].getComponent('position').x = 0;
+
+            // const wall = this.findAllByTag("wall");
+            // wall[1].getComponent('transform').position.x = 0;
         }
 
         if (Mouse.wasPressed(0)) {
-            const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
+            // const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
+
+            const hit = this.raycast(Mouse.x, Mouse.y);
 
             // const hit = this.entity.scene.pick(Mouse.x, Mouse.y);
+            
+            // const hit = this.pick(Mouse.x, Mouse.y);
             if (hit) {
                 console.log("Clicked:", hit.entity.name);
                 // console.log("Clicked:", hit.name, hit.tag);
