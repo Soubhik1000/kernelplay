@@ -33,7 +33,7 @@ export class TransformComponent extends Component {
   // 🔒 read-only references
   get position() { return this._position; }
   get rotation() { return this._rotation; }
-  get scale()    { return this._scale; }
+  get scale() { return this._scale; }
 
   // 🔥 helpers
   translate(dx = 0, dy = 0, dz = 0) {
@@ -44,10 +44,28 @@ export class TransformComponent extends Component {
     // dirty set automatically by proxy
   }
 
+  // setPosition(x, y, z = this._position.z) {
+  //   this._position.x = x;
+  //   this._position.y = y;
+  //   this._position.z = z;
+  // }
+
+  // setPosition(vector) {
+  //   this._position.x = vector.x;
+  //   this._position.y = vector.y;
+  //   this._position.z = vector.z;
+  // }
+
   setPosition(x, y, z = this._position.z) {
-    this._position.x = x;
-    this._position.y = y;
-    this._position.z = z;
+    if (typeof x === "object") {
+      this._position.x = x.x;
+      this._position.y = x.y;
+      this._position.z = x.z;
+    } else {
+      this._position.x = x;
+      this._position.y = y;
+      this._position.z = z;
+    }
   }
 
   setRotation(x, y, z) {
