@@ -830,10 +830,10 @@ export class Scene {
                 }
               } else {
                 // A is BELOW B (hitting ceiling)
-                posA.y += overlapY + EPS;
+                posA.y -= overlapY + EPS;
                 // cA.transform._dirty = true;
                 if (rbA) {
-                  rbA.velocity.y = 0;
+                  if (rbA.velocity.y > 0) rbA.velocity.y = 0;
                   // rbA.isGrounded = true;
                 }
               }
