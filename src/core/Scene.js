@@ -428,7 +428,7 @@ export class Scene {
       case "meshrender":
         this._renderers.push(component);
         break;
-      
+
       case "mesh":
         this._meshes.push(component);
         break;
@@ -747,7 +747,8 @@ export class Scene {
         const cA = cell[i];
         const boundsA = cA.bounds;
         const posA = cA.transform.position;
-        const rbA = cA.rigidbody;
+        // const rbA = cA.rigidbody;
+        const rbA = cA.entity.getComponent("rigidbody");  // 🔥 Changed
         // const rbA = cA.entity.getComponent("rigidbody");
 
         for (let j = i + 1; j < cell.length; j++) {
@@ -758,6 +759,41 @@ export class Scene {
           if (!AABB3D(boundsA, boundsB)) continue;
 
           const isTrigger = cA.isTrigger || cB.isTrigger;
+
+          // if (!isTrigger) {
+          //   const overlapX =
+          //     Math.min(boundsA.x + boundsA.width, boundsB.x + boundsB.width) -
+          //     Math.max(boundsA.x, boundsB.x);
+
+          //   const overlapY =
+          //     Math.min(boundsA.y + boundsA.height, boundsB.y + boundsB.height) -
+          //     Math.max(boundsA.y, boundsB.y);
+
+          //   const overlapZ =
+          //     Math.min(boundsA.z + boundsA.depth, boundsB.z + boundsB.depth) -
+          //     Math.max(boundsA.z, boundsB.z);
+
+          //   if (overlapX <= overlapY && overlapX <= overlapZ) {
+          //     posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
+          //     if (rbA) rbA.velocity.x = 0;
+          //   }
+          //   else if (overlapY <= overlapZ) {
+          //     if (posA.y < posB.y) {
+          //       posA.y -= overlapY + EPS;
+          //       if (rbA) {
+          //         rbA.velocity.y = 0;
+          //         rbA.isGrounded = true;
+          //       }
+          //     } else {
+          //       posA.y += overlapY + EPS;
+          //       if (rbA) rbA.velocity.y = 0;
+          //     }
+          //   }
+          //   else {
+          //     posA.z += posA.z < posB.z ? -overlapZ - EPS : overlapZ + EPS;
+          //     if (rbA) rbA.velocity.z = 0;
+          //   }
+          // }
 
           if (!isTrigger) {
             const overlapX =
@@ -774,22 +810,26 @@ export class Scene {
 
             if (overlapX <= overlapY && overlapX <= overlapZ) {
               posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
+              cA.transform._dirty = true;  // 🔥 ADD THIS
               if (rbA) rbA.velocity.x = 0;
             }
             else if (overlapY <= overlapZ) {
               if (posA.y < posB.y) {
                 posA.y -= overlapY + EPS;
-                if (rbA) {
-                  rbA.velocity.y = 0;
+                cA.transform._dirty = true;  // 🔥 ADD THIS
+                if (rbA || true) {
+                  rbA.velocity.y = Math.max(0, rbA.velocity.y);
                   rbA.isGrounded = true;
                 }
               } else {
                 posA.y += overlapY + EPS;
-                if (rbA) rbA.velocity.y = 0;
+                cA.transform._dirty = true;  // 🔥 ADD THIS
+                if (rbA) rbA.velocity.y = Math.min(0, rbA.velocity.y);
               }
             }
             else {
               posA.z += posA.z < posB.z ? -overlapZ - EPS : overlapZ + EPS;
+              cA.transform._dirty = true;  // 🔥 ADD THIS
               if (rbA) rbA.velocity.z = 0;
             }
           }
@@ -825,7 +865,7 @@ export class Scene {
     }
 
     this._handleCollisions();
-    
+
   }
 
   _recycleEntity(entity) {
@@ -914,40 +954,40 @@ export class Scene {
 
   // 🔥 Get visible renderers from render grid
   _getVisibleRenderers(cameraBounds) {
-  const visible = [];
-  
-  // 🔥 Rebuild render grid each frame
-  this._renderGrid2D.clear();
-  
-  for (const renderer of this._renderers) {
-    if (!renderer.entity.active) continue;
-    this._insertRenderer2D(renderer);
-  }
-  
-  const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
-  const checked = new Set();
-  
-  for (let x = minX; x <= maxX; x++) {
-    for (let y = minY; y <= maxY; y++) {
-      const key = `${x},${y}`;
-      const cell = this._renderGrid2D.get(key);
-      
-      if (!cell) continue;
-      
-      for (const renderer of cell) {
-        if (checked.has(renderer)) continue;
-        checked.add(renderer);
-        
-        if (AABB(renderer.getBounds(), cameraBounds)) {
-          visible.push(renderer);
+    const visible = [];
+
+    // 🔥 Rebuild render grid each frame
+    this._renderGrid2D.clear();
+
+    for (const renderer of this._renderers) {
+      if (!renderer.entity.active) continue;
+      this._insertRenderer2D(renderer);
+    }
+
+    const { minX, minY, maxX, maxY } = this._getCellRange2D(cameraBounds);
+    const checked = new Set();
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        const key = `${x},${y}`;
+        const cell = this._renderGrid2D.get(key);
+
+        if (!cell) continue;
+
+        for (const renderer of cell) {
+          if (checked.has(renderer)) continue;
+          checked.add(renderer);
+
+          if (AABB(renderer.getBounds(), cameraBounds)) {
+            visible.push(renderer);
+          }
         }
       }
     }
+
+    this._visibleCount = visible.length; // 🔥 Store for debug
+    return visible;
   }
-  
-  this._visibleCount = visible.length; // 🔥 Store for debug
-  return visible;
-}
 
 
   _clearGrid() {
