@@ -636,7 +636,7 @@ export class Scene {
   //           }
   //           else if (overlapY <= overlapZ) {
   //             // Y AXIS (GROUND LOGIC)
-  //             if (posA.y < posB.y) {
+  //             if (posA.y > posB.y) {
   //               // A is ABOVE B
   //               posA.y -= overlapY + EPS;
 
@@ -794,7 +794,7 @@ export class Scene {
           //     if (rbA) rbA.velocity.z = 0;
           //   }
           // }
-
+          
           if (!isTrigger) {
             const overlapX =
               Math.min(boundsA.x + boundsA.width, boundsB.x + boundsB.width) -
@@ -807,24 +807,35 @@ export class Scene {
             const overlapZ =
               Math.min(boundsA.z + boundsA.depth, boundsB.z + boundsB.depth) -
               Math.max(boundsA.z, boundsB.z);
-
+              
             if (overlapX <= overlapY && overlapX <= overlapZ) {
               posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
               cA.transform._dirty = true;  // 🔥 ADD THIS
               if (rbA) rbA.velocity.x = 0;
             }
             else if (overlapY <= overlapZ) {
-              if (posA.y < posB.y) {
-                posA.y -= overlapY + EPS;
-                cA.transform._dirty = true;  // 🔥 ADD THIS
-                if (rbA || true) {
-                  rbA.velocity.y = Math.max(0, rbA.velocity.y);
+              // 🔥 Use CENTER of objects for comparison, not corner
+              const centerA = posA.y;
+              const centerB = posB.y;
+              // console.log(centerA , centerB);
+              
+              if (centerA > centerB) {
+                // A is ABOVE B (landing on top)
+                posA.y += overlapY + EPS;
+                // cA.transform._dirty = true;
+                if (rbA) {
+                  // rbA.velocity.y = 0;
+                  if (rbA.velocity.y < 0) rbA.velocity.y = 0;
                   rbA.isGrounded = true;
                 }
               } else {
+                // A is BELOW B (hitting ceiling)
                 posA.y += overlapY + EPS;
-                cA.transform._dirty = true;  // 🔥 ADD THIS
-                if (rbA) rbA.velocity.y = Math.min(0, rbA.velocity.y);
+                // cA.transform._dirty = true;
+                if (rbA) {
+                  rbA.velocity.y = 0;
+                  // rbA.isGrounded = true;
+                }
               }
             }
             else {
