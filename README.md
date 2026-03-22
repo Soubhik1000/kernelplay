@@ -1,8 +1,9 @@
 # KernelPlayJS
 
-A high-performance **2D/3D JavaScript game engine** with Entity-Component architecture, built for production games and rapid prototyping.
+A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
+Built on an Entity–Component architecture, KernelPlayJS is fast, flexible, and surprisingly fun to use.
 
-> **Version:** `0.2.1-alpha` | **Status:** Production-ready performance, API stabilizing
+> **v0.2.2-alpha** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
@@ -15,95 +16,21 @@ A high-performance **2D/3D JavaScript game engine** with Entity-Component archit
 ## 🔴 Live Demo
 👉 https://soubhik-rjs.github.io/kernelplay-js-demo/examples/Canvas2D/
 
-## 🔴 Live Benchmark Demo
-👉 https://soubhik-rjs.github.io/kernelplay-js-demo/examples/BenchmarkCanvas2D/
-
-## 📚 Full Documentation
-
-Complete documentation with architecture details, tutorials, and API reference:
-👉 **[https://soubhik-rjs.github.io/kernelplay-js-demo/docs/](https://soubhik-rjs.github.io/kernelplay-js-demo/docs/)**
+🏁 **[Benchmark Demo](https://soubhik-rjs.github.io/kernelplay-js-demo/examples/BenchmarkCanvas2D/)** · 📚 **[Full Documentation](https://soubhik-rjs.github.io/kernelplay-js-demo/docs/)**
 
 ---
 
-## ⚡ Performance Highlights
+## ⚡ Why KernelPlayJS?
 
-- **10,000+ objects** at 50-60 FPS (i3 7th gen)
-- **3,000 physics objects** with 100% collision detection at 40 FPS
-- **5,000+ visible sprites** at 40 FPS
-- **Spatial grid optimization** - O(n²) → O(n) collision detection
-- **Frustum culling** - Only renders visible objects
-- **Component registries** - Direct array iteration for systems
+Most browser game engines either hold your hand too much or leave you drowning in boilerplate. KernelPlayJS hits the sweet spot — it handles the hard stuff (physics [AABB], rendering [**Canvas 2D**, **Pixi JS**, **Three JS**], collision, object pooling) so you can focus on making your game actually fun.
 
----
-
-## 🚀 What's New in v0.2.1
-
-### 🎯 Object Pooling & Spawning System
-Eliminate GC pauses in bullet hell games and high-entity scenarios.
-
-```javascript
-// Automatic object pooling - reuses entities instead of creating new ones
-this.instantiate(Bullet, position.x, position.y, direction);
-
-// Works in any ScriptComponent - handles pooling internally
-// Perfect for bullets, particles, enemies, pickups
-```
-
-**Benefits:**
-- Zero GC pressure for spawn-heavy games
-- 1000+ bullets/second with smooth 60 FPS
-- Automatic entity recycling when destroyed
-
-### ⚡ Performance Optimizations Added
-
-**Spatial Grid System (v0.2.1)**
-- Collision detection: 40,000x faster for large scenes
-- Frustum culling: 20,000 objects → 200-500 render checks
-- Cell-based partitioning with configurable grid size
-
-**Dirty Flag Pattern**
-- Skip unnecessary bound recalculations
-- 91% reduction in transform updates for static objects
-
-**Component Registries**
-- Direct system access to component arrays
-- No more entity filtering overhead
-- 10x faster system iteration
-
-**Batch Rendering**
-- Group draws by color/material
-- Reduce canvas state changes by 100x
-
-### 🚧 Experimental Features
-
-**Camera System**
-```javascript
-// Camera follows player automatically
-this.camera.x = transform.position.x - this.camera.width / 2;
-this.camera.y = transform.position.y - this.camera.height / 2;
-```
-
-**Debug Physics Rendering**
-```javascript
-// Toggle with F1 key
-game.config.debugPhysics = true;
-
-// Visualizes all colliders with color coding:
-// Green = grounded, Red = airborne, Yellow = trigger
-```
-
-**Enhanced Collision Resolution**
-```javascript
-// Improved ground detection
-// Fixes: objects sinking through ground, jittery collisions
-// Uses Math.max/min for velocity clamping instead of setting to 0
-```
-
-**zIndex Layering**
-```javascript
-entity.zIndex = 10;  // Higher = rendered on top
-// Supports both entity-level and component-level zIndex
-```
+- **10,000+ objects** at 60 FPS on a 7th gen i3 — yes, really
+- **3,000 physics objects** with full collision detection at 40+ FPS
+- **Spatial grid** turns O(n²) collision into O(n) — automatic, no config needed
+- **Frustum culling** — skips anything off-screen entirely
+- **Object pooling** — spawn 1000+ bullets/sec with zero GC stutters
+- **Dirty flag system** — 91% fewer transform recalculations for static objects
+- **Batch rendering** — groups draws by color to cut canvas state changes by 100×
 
 ---
 
@@ -113,7 +40,8 @@ entity.zIndex = 10;  // Higher = rendered on top
 npm install kernelplay-js
 ```
 
-Or use CDN:
+Or drop it straight into HTML with a CDN:
+
 ```html
 <script type="importmap">
 {
@@ -124,20 +52,26 @@ Or use CDN:
 </script>
 ```
 
+### Optional Renderer Plugins
+
+The core engine ships with Canvas 2D — **zero external dependencies**. When your game needs more visual firepower, bolt on a renderer plugin:
+
+```bash
+npm install @kernelplay/pixi-renderer    # Pixi.js — GPU-accelerated 2D sprites & effects
+npm install @kernelplay/three-renderer   # Three.js — full 3D with lights, meshes, shadows
+```
+
 ---
 
 ## 🚀 Quick Start
 
 ```js
-import { Game, Scene, Entity } from "kernelplay-js";
-import { TransformComponent, BoxRenderComponent } from "kernelplay-js";
+import { Game, Scene, Entity, TransformComponent, BoxRenderComponent } from "kernelplay-js";
 
 class MyScene extends Scene {
   init() {
     const box = new Entity();
-    box.addComponent("transform", new TransformComponent({
-      position: { x: 300, y: 200 }
-    }));
+    box.addComponent("transform", new TransformComponent({ position: { x: 300, y: 200 } }));
     box.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
     this.addEntity(box);
   }
@@ -157,67 +91,37 @@ new MyGame({ width: 800, height: 600, fps: 60 }).start();
 
 ## 🎮 Core Concepts
 
-### Entity Component System (ECS)
-- **Entities** - Containers with unique IDs
-- **Components** - Data-only modules (Position, Sprite, Health)
-- **Systems** - Logic that operates on components (Physics, Rendering)
+Everything in KernelPlayJS is built around three ideas:
 
-### Scene Management
-```javascript
-// Switch between menu, gameplay, game over
-sceneManager.addScene(new MenuScene("Menu"));
-sceneManager.startScene("Menu");
-```
+- **Entities** — your game objects (player, bullet, enemy, tree)
+- **Components** — data attached to entities (position, physics, renderer)
+- **Scripts** — the brains; custom logic that runs every frame
 
-### Object Spawning with Pooling
-```javascript
-// In any ScriptComponent
-this.instantiate(Enemy, x, y, enemyType);
-
-// Automatically pools and reuses entities
-// No manual pool management needed
-```
-
----
-
-## 🧩 Usage Examples
-
-### Player Prefab
 ```js
-import { Entity, TransformComponent, ColliderComponent,
-         BoxRenderComponent, Rigidbody2DComponent } from "kernelplay-js";
-import { PlayerController } from "../scripts/PlayerController.js";
-
 export class Player extends Entity {
   constructor(x, y) {
     super("Player");
     this.tag = "player";
-    this.zIndex = 10;  // Render on top
+    this.zIndex = 10; // renders on top
 
-    this.addComponent("transform", new TransformComponent({
-      position: { x, y }
-    }));
-    this.addComponent("rigidbody2d", new Rigidbody2DComponent({
-      mass: 1,
-      gravityScale: 1
-    }));
-    this.addComponent("collider", new ColliderComponent({
-      width: 50,
-      height: 50
-    }));
-    this.addComponent("renderer", new BoxRenderComponent({ 
-      color: "red" 
-    }));
-    this.addComponent("playerController", new PlayerController());
+    this.addComponent("transform", new TransformComponent({ position: { x, y } }));
+    this.addComponent("rigidbody2d", new Rigidbody2DComponent({ mass: 1, gravityScale: 1 }));
+    this.addComponent("collider", new ColliderComponent({ width: 50, height: 50 }));
+    this.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
+    this.addComponent("controller", new PlayerController());
   }
 }
 ```
 
-### Player Controller Script
-```js
-import { ScriptComponent, Keyboard, Mouse } from "kernelplay-js";
+---
 
+## 🧠 Script Lifecycle
+
+Scripts work just like Unity's MonoBehaviour — with clean hooks for every stage of an entity's life:
+
+```js
 export class PlayerController extends ScriptComponent {
+
   onStart() {
     this.speed = 200;
     this.jumpForce = 500;
@@ -225,236 +129,283 @@ export class PlayerController extends ScriptComponent {
 
   update(dt) {
     const rb = this.entity.getComponent("rigidbody2d");
-    
-    // Horizontal movement
+
     rb.velocity.x = 0;
-    if (Keyboard.isDown("ArrowRight")) rb.velocity.x = this.speed;
-    if (Keyboard.isDown("ArrowLeft")) rb.velocity.x = -this.speed;
-    
-    // Jump
-    if (Keyboard.wasPressed("Space") && rb.isGrounded) {
+    if (Keyboard.isDown(KeyCode.ArrowRight)) rb.velocity.x = this.speed;
+    if (Keyboard.isDown(KeyCode.ArrowLeft))  rb.velocity.x = -this.speed;
+
+    if (Keyboard.wasPressed(KeyCode.Space) && rb.isGrounded) {
       rb.velocity.y = -this.jumpForce;
     }
-    
-    // Shoot bullets (with automatic pooling!)
-    if (Mouse.wasPressed(0)) {
-      this.instantiate(Bullet, this.transform.position.x, 
-                              this.transform.position.y, 
-                              this.getAimDirection());
+
+    if (Mouse.wasPressed(MouseButton.Left)) {
+      this.instantiate(Bullet, this.transform.position.x, this.transform.position.y);
     }
   }
 
   onCollision(other) {
-    if (other.tag === "enemy") {
-      this.takeDamage(10);
-    }
+    if (other.tag === "enemy") this.takeDamage(10);
+  }
+
+  onDestroy() {
+    // cleanup resources here
   }
 }
 ```
 
-### Bullet Prefab (Auto-pooled)
+**Lifecycle order:** `onAttach → onStart → update → lateUpdate → onDestroy`
+
+---
+
+## 🔫 Object Pooling (Automatic)
+
+Spawning hundreds of bullets per second? KernelPlayJS silently recycles destroyed entities back into a pool so they can be reused — no setup, no pool sizes to configure, no GC spikes to fight.
+
 ```js
-// Do not use Entity Object for the Bullet prefab if it will be instantiated.
-// It now contains data only for ECS.
+// Creates a Bullet, or quietly reuses a destroyed one from the pool
+this.instantiate(Bullet, x, y);
 
-export function Bullet(entity, x = 100, y = 100) {
-    entity.name = "Bullet";
-    entity.tag = "bullet";
+// When the bullet's lifetime ends or it hits something:
+this.destroy(); // entity goes back to the pool, not the garbage collector
+```
 
-    entity.addComponent("transform", new TransformComponent({
-        position: { x, y },
-        scale: { x: 0.2, y: 0.2 }
-    }));
+This is what lets bullet-hell games run at 60 FPS. The GC never sees a thing.
 
-    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
-        mass: 1,
-        gravityScale: 1,
-        drag: 1,
-        useGravity: false
-    }));
+---
 
-    entity.addComponent("collider", new ColliderComponent({
-        isTrigger: true
-    }));
+## 🖥️ Multi-Renderer & Performance
 
-    entity.addComponent("renderer", new BoxRenderComponent({color:"#00ff11", zIndex:-20}));
-    entity.addComponent("bulletscript", new BulletScript());
+The rendering system is designed to be **swapped out without touching your game logic**. Your entities, scripts, and physics stay exactly the same — only the renderer changes. One line of code, completely different rendering backend.
+
+### Canvas 2D — Default, Zero Dependencies
+
+The built-in renderer. Lightweight, fast, and no install required. Under the hood it uses batch rendering (groups draws by color) and frustum culling (skips off-screen objects entirely) to squeeze every bit of performance from the Canvas API.
+
+```js
+// No imports, no config — this is the default
+new MyGame({ width: 800, height: 600, fps: 60 }).start();
+```
+
+**When to use it:** Prototypes, logic-heavy simulations, games up to ~10,000 objects, anything where you want zero external dependencies.
+
+---
+
+### Pixi.js 2D — GPU-Accelerated Sprites
+
+```bash
+npm install @kernelplay/pixi-renderer
+```
+
+```js
+import { PixiRenderer, PixiSpriteRender } from "@kernelplay/pixi-renderer";
+
+new MyGame({ renderer: new PixiRenderer(), width: 800, height: 600 }).start();
+
+// Swap in the Pixi sprite renderer for textured objects
+entity.addComponent("renderer", new PixiSpriteRender("./assets/player.png"));
+```
+
+Pixi.js runs on WebGL — it batches thousands of textured sprites into a handful of draw calls and pushes them straight to the GPU. The moment your game goes heavy on sprites, particle effects, or dense visual scenes, this is the renderer to reach for. The same ECS, the same physics, the same scripts — just dramatically more rendering throughput.
+
+**When to use it:** Sprite-heavy games, particle systems, visual effects, scenes with 20,000+ objects, anything that makes Canvas 2D sweat.
+
+---
+
+### Three.js 3D — Full 3D Rendering
+
+```bash
+npm install @kernelplay/three-renderer
+```
+
+```js
+import { ThreeRenderer } from "@kernelplay/three-renderer";
+
+new MyGame({ renderer: new ThreeRenderer(), width: 800, height: 600 }).start();
+
+// Your game logic is unchanged — just use 3D mesh components
+const mesh = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshStandardMaterial({ color: "royalblue" })
+);
+entity.addComponent("mesh", new MeshComponent(mesh));
+entity.addComponent("collider3D", new BoxCollider3D());
+```
+
+Full Three.js under the hood — PBR materials, point lights, shadows, fog, post-processing — all wired into the same entity system you already know. Your physics scripts and game logic don't need to change at all.
+
+**When to use it:** 3D games, isometric views, 2.5D hybrids, any game that needs lighting and depth.
+
+---
+
+### Renderer Comparison
+
+| | Canvas 2D | Pixi.js 2D | Three.js 3D |
+|---|---|---|---|
+| Install | None | `@kernelplay/pixi-renderer` | `@kernelplay/three-renderer` |
+| Rendering | CPU (Canvas API) | GPU (WebGL) | GPU (WebGL) |
+| Best for | Prototypes, logic-heavy | Sprite games, VFX | 3D, isometric |
+| Smooth object ceiling | ~10,000 | 20,000+ | Scene-dependent |
+| External dependency | Zero | Pixi.js | Three.js |
+
+The same ECS, scripts, physics, and input work across all three. Switching renderer is a one-liner.
+
+---
+
+## 🛠️ Helper Classes (New in v0.2.2)
+
+Writing game logic just got cleaner. No more drilling through `this.entity.scene.game...` chains every single time.
+
+### Shorthand API
+
+```js
+// Before                                        →  After
+this.entity.destroy()                            →  this.destroy()
+this.entity.hasTag("wall")                       →  this.hasTag("wall")
+this.entity.scene.findByTag("wall")              →  this.findByTag("wall")
+this.entity.scene.findAllByTag("wall")           →  this.findAllByTag("wall")
+this.entity.scene.raycast(Mouse.x, Mouse.y)     →  this.raycast(Mouse.x, Mouse.y)
+this.entity.scene.pick(Mouse.x, Mouse.y)        →  this.pick(Mouse.x, Mouse.y)
+this.entity.scene                                →  this.scene
+this.entity.scene.game                           →  this.game
+this.entity.scene.game.camera                   →  this.camera
+```
+
+### KeyCode & MouseButton
+
+No more magic strings or raw numbers buried in your input checks:
+
+```js
+if (Keyboard.isPressed(KeyCode.W))           // was: "w"
+if (Keyboard.wasPressed(KeyCode.Space))      // was: "Space"
+if (Mouse.wasPressed(MouseButton.Left))      // was: 0
+if (Mouse.wasPressed(MouseButton.Right))     // was: 2
+if (Mouse.wasPressed(MouseButton.Middle))    // was: 1
+```
+
+### Vector2 / Vector3
+
+```js
+const a = new Vector2(10, 5);
+const b = new Vector2(3, 2);
+
+Vector2.add(a, b)           // → Vector2(13, 7)
+Vector2.sub(a, b)           // → Vector2(7, 3)
+Vector2.distance(a, b)      // → number
+Vector2.lerp(a, b, 0.5)     // → smooth midpoint
+Vector2.dot(a, b)           // → scalar
+a.normalize()               // modifies in place, returns self
+a.clone()                   // safe copy
+```
+
+### Mathf
+
+```js
+Mathf.clamp(health, 0, 100)           // never go below 0 or above 100
+Mathf.lerp(currentVal, target, 0.1)   // smooth follow / easing
+Mathf.degToRad(90)                    // → 1.5707...
+Mathf.radToDeg(Math.PI)               // → 180
+```
+
+### Timer & Cooldown
+
+```js
+// Timer — great for wave spawning, cutscenes, and delayed events
+const waveTimer = new Timer(5.0, true); // 5 seconds, starts immediately
+
+update(dt) {
+  waveTimer.update(dt);
+  if (waveTimer.isFinished()) {
+    spawnNextWave();
+    waveTimer.start(); // loop it
+  }
 }
 
-class BulletScript extends ScriptComponent {
-  constructor(direction) {
-    super();
-    this.direction = direction;
-    this.lifetime = 2.0; // seconds
-  }
+// Cooldown — fire rates, dash recharge, ability delays
+const fireCooldown = new Cooldown(0.2); // 5 shots per second
 
-  update(dt) {
-    this.transform.position.x += this.direction.x * 500 * dt;
-    this.transform.position.y += this.direction.y * 500 * dt;
-    
-    this.lifetime -= dt;
-    if (this.lifetime <= 0) {
-      this.entity.destroy(); // Returns to pool automatically
-    }
-  }
-
-  onTriggerEnter(other) {
-    if (other.tag === "enemy") {
-      other.destroy();
-      this.entity.destroy(); // Both return to pool
-    }
+update(dt) {
+  fireCooldown.update(dt);
+  if (Mouse.wasPressed(MouseButton.Left) && fireCooldown.trigger()) {
+    this.instantiate(Bullet, x, y);
   }
 }
 ```
 
----
+### Utility Functions
 
-
-
-### Raycasting
 ```js
-const hit = this.entity.scene.raycast(Mouse.x, Mouse.y, {
-  layerMask: Layers.Enemy,
-  tag: "boss",
-  ignore: this.entity
-});
-
-if (hit) {
-  console.log("Hit:", hit.entity.name);
-}
+RandomRange(1, 10)              // random float between 1 and 10
+CheckOverlap(rectA, rectB)      // quick AABB overlap check
+GetDistance(entityA, entityB)   // world-space distance between two entities
+HexToRGB("#ff0000")             // → { r: 255, g: 0, b: 0 }
+RGBToHex(255, 0, 0)             // → "#ff0000"
 ```
 
 ---
 
-## 🏷️ Tags & Layers
+## 🏷️ Tags, Layers & Raycasting
 
 ```js
-// Tags for identification
-entity.tag = "player";
-const enemies = scene.findAllByTag("enemy");
+entity.tag = "enemy";
+entity.layer = Layers.Enemy;
 
-// Layers for filtering (bitmask)
-import { Layers } from "kernelplay-js";
+// Scene queries
+const boss = this.findByTag("boss");
+const allEnemies = this.findAllByTag("enemy");
 
-entity.layer = Layers.Player;
-entity.layer = Layers.Enemy | Layers.Projectile; // Multiple layers
-
-// Raycast with layer filtering
-const hit = scene.raycast(x, y, { layerMask: Layers.Enemy });
+// Raycast — only hits enemies, ignores everything else
+const hit = this.raycast(Mouse.x, Mouse.y, { layerMask: Layers.Enemy, ignore: this.entity });
+if (hit) console.log("Hit:", hit.entity.name);
 ```
 
 ---
 
-## 🎯 Performance Tips
-
-### For Large Scenes (10K+ objects)
-```js
-// 1. Use spatial partitioning (automatic)
-// 2. Enable frustum culling (automatic)
-// 3. Use object pooling for frequently spawned objects
-this.instantiate(Bullet, x, y); // Pooled automatically
-
-// 4. Set objects as static when they don't move
-// (Optimization coming in v0.3.0)
-```
-
-### For Physics-Heavy Games
-```js
-// Use trigger colliders when you don't need physics response
-collider.isTrigger = true;
-
-// Adjust physics percentage
-// Only 10-20% of objects need physics in most games
-```
-
-### For Rendering Performance
-```js
-// Group objects by color for batch rendering
-// Use same colors when possible
-
-// Set appropriate zIndex
-entity.zIndex = 0;  // Background
-entity.zIndex = 10; // Foreground
-```
-
----
-
-## 🐛 Debug Tools
+## 🐛 Debug Mode
 
 ```js
-// 🚧 Experimental Features
-// Toggle physics visualization
-game.config.debugPhysics = true; // Press F1 in-game
+// Toggle with F1 in-game, or set it in config
+game.config.debugPhysics = true;
 
-// ⚠️ Work in Progress
-// FPS counter
-scene.fps // Current FPS (in custom scenes)
-
-// ⚠️ Work in Progress
-// Entity count
-scene.entities.length
-scene._rigidbody2D.length  // Physics objects
-scene._visibleCount        // Visible renderers
+// Color coding:
+// 🟢 Green  = grounded
+// 🔴 Red    = airborne
+// 🟡 Yellow = trigger collider
 ```
-
----
-
-## 🗺️ Roadmap
-
-**v0.2.1** (Current)
-- ✅ Object pooling & spawn system
-- ✅ Spatial grid optimization
-- ✅ Frustum culling
-- ✅ Camera system
-- ✅ Debug rendering
-
-**v0.3.0** (Next)
-- [ ] Audio system
-- [ ] Particle effects
-- [ ] Scene serialization (save/load)
-- [ ] Static object optimization
-- [ ] Continuous collision detection
-
-**v0.4.0** (Future)
-- [ ] UI system with raycasting
-- [ ] Animation system
-- [ ] State machine component
-- [ ] Physics constraints (joints)
-- [ ] Tilemap support
 
 ---
 
 ## 📊 Benchmarks
 
-**Hardware:** i3 7th Gen, 8GB RAM
+Tested on **i3 7th Gen, 8GB RAM** — a deliberately modest machine:
 
-| Scenario | Objects | Physics | FPS |
-|----------|---------|---------|-----|
+| Scenario | Objects | Physics % | FPS |
+|----------|---------|-----------|-----|
 | Light | 1,000 | 10% | 60 |
 | Medium | 5,000 | 10% | 60 |
-| Heavy | 10,000 | 10% | 50-60 |
-| Extreme | 20,000 | 5% | 30-40 |
-| Physics Heavy | 3,000 | 100% | 40-45 |
+| Heavy | 10,000 | 10% | 50–60 |
+| Extreme | 20,000 | 5% | 30–40 |
+| Physics Heavy | 3,000 | 100% | 40–45 |
 
-*Modern hardware (Ryzen 5/i5 10th gen+) achieves 60 FPS even at "Extreme"*
+*On modern hardware (i5 10th gen+), 60 FPS holds even at Extreme.*
+
+---
+
+## 🗺️ Roadmap
+
+**v0.2.2** (Current) — Helper Class Update  
+✅ Shorthand script API · ✅ KeyCode & MouseButton · ✅ Vector2/Vector3 · ✅ Mathf · ✅ Timer & Cooldown · ✅ Utility helpers
+
+**v0.3.0** — Audio system · Particle effects · Scene save/load · Static object optimization · Continuous collision detection
+
+**v0.4.0** — UI system · Animation · State machine component · Physics constraints · Tilemap support
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Areas of focus:
-- Audio system implementation
-- Particle effects optimization
-- Documentation & examples
-- Bug fixes & performance improvements
+Contributions are welcome — especially in these areas: audio system, particle effects, documentation, bug fixes, and renderer plugin improvements.
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
----
-
-## 📄 License
-
-MIT License - feel free to use in commercial projects
+See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
 ---
 
@@ -462,11 +413,9 @@ MIT License - feel free to use in commercial projects
 
 - **GitHub:** https://github.com/Soubhik1000/kernelplay
 - **NPM:** https://www.npmjs.com/package/kernelplay-js
-- **Documentation:** https://soubhik-rjs.github.io/kernelplay-js-demo/docs/
-- **Discord:** [Join our community](#)
+- **Docs:** https://soubhik-rjs.github.io/kernelplay-js-demo/docs/
+<!-- - **Discord:** [Join the community](#) -->
 
 ---
 
-Built with ❤️ by **Soubhik Mukherjee** and contributors
-
-*KernelPlayJS - Production-ready performance, Unity-inspired API*
+Built with ❤️ by **Soubhik Mukherjee** · *KernelPlayJS — Production speed, Unity feel*
