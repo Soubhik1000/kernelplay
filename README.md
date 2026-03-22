@@ -169,6 +169,62 @@ this.instantiate(Bullet, x, y);
 this.destroy(); // entity goes back to the pool, not the garbage collector
 ```
 
+### Bullet Prefab (Auto-pooled)
+
+```js
+// Do not use Entity Object for the Bullet prefab if it will be instantiated.
+// It now contains data only for ECS.
+
+export function Bullet(entity, x = 100, y = 100) {
+    entity.name = "Bullet";
+    entity.tag = "bullet";
+
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 0.2, y: 0.2 }
+    }));
+
+    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+        mass: 1,
+        gravityScale: 1,
+        drag: 1,
+        useGravity: false
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({
+        isTrigger: true
+    }));
+
+    entity.addComponent("renderer", new BoxRenderComponent({color:"#00ff11", zIndex:-20}));
+    entity.addComponent("bulletscript", new BulletScript());
+}
+
+class BulletScript extends ScriptComponent {
+  constructor(direction) {
+    super();
+    this.direction = direction;
+    this.lifetime = 2.0; // seconds
+  }
+
+  update(dt) {
+    this.transform.position.x += this.direction.x * 500 * dt;
+    this.transform.position.y += this.direction.y * 500 * dt;
+    
+    this.lifetime -= dt;
+    if (this.lifetime <= 0) {
+      this.entity.destroy(); // Returns to pool automatically
+    }
+  }
+
+  onTriggerEnter(other) {
+    if (other.tag === "enemy") {
+      other.destroy();
+      this.entity.destroy(); // Both return to pool
+    }
+  }
+}
+```
+
 This is what lets bullet-hell games run at 60 FPS. The GC never sees a thing.
 
 ---
@@ -263,11 +319,11 @@ this.entity.destroy()                            →  this.destroy()
 this.entity.hasTag("wall")                       →  this.hasTag("wall")
 this.entity.scene.findByTag("wall")              →  this.findByTag("wall")
 this.entity.scene.findAllByTag("wall")           →  this.findAllByTag("wall")
-this.entity.scene.raycast(Mouse.x, Mouse.y)     →  this.raycast(Mouse.x, Mouse.y)
-this.entity.scene.pick(Mouse.x, Mouse.y)        →  this.pick(Mouse.x, Mouse.y)
+this.entity.scene.raycast(Mouse.x, Mouse.y)      →  this.raycast(Mouse.x, Mouse.y)
+this.entity.scene.pick(Mouse.x, Mouse.y)         →  this.pick(Mouse.x, Mouse.y)
 this.entity.scene                                →  this.scene
 this.entity.scene.game                           →  this.game
-this.entity.scene.game.camera                   →  this.camera
+this.entity.scene.game.camera                    →  this.camera
 ```
 
 ### KeyCode & MouseButton
@@ -341,6 +397,20 @@ RGBToHex(255, 0, 0)             // → "#ff0000"
 ```
 
 ---
+
+### Raycasting
+
+```js
+const hit = this.raycast(Mouse.x, Mouse.y, {
+  layerMask: Layers.Enemy,
+  tag: "boss",
+  ignore: this.entity
+});
+
+if (hit) {
+  console.log("Hit:", hit.entity.name);
+}
+```
 
 ## 🏷️ Tags, Layers & Raycasting
 
