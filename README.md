@@ -334,9 +334,8 @@ update(dt) {
 ### Utility Functions
 
 ```js
-RandomRange(1, 10)              // random float between 1 and 10
-CheckOverlap(rectA, rectB)      // quick AABB overlap check
-GetDistance(entityA, entityB)   // world-space distance between two entities
+Random.range(1, 10);            // random float between 1 and 10
+Random.int(1, 10);              // random int between 1 and 10
 HexToRGB("#ff0000")             // → { r: 255, g: 0, b: 0 }
 RGBToHex(255, 0, 0)             // → "#ff0000"
 ```
