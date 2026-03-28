@@ -17,7 +17,7 @@ export class Game {
     this.canvas = new Canvas(this.config);
     this.ctx = this.canvas.ctx;
 
-    this.camera = new Camera2D(this.config.width, this.config.height);
+    // this.camera = new Camera2D(this.config.width, this.config.height);
 
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
 

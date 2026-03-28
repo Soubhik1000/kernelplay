@@ -13,6 +13,7 @@ export class Level1 extends Scene {
     
     wall.getComponent('renderer').color = '#ff0000';
     player.getComponent("playerController").wall = wall;
+    // player.id = 100;
     wall.getComponent("transform").scale.y = 1.5;
     wall.getComponent("transform").scale.x = 5;
     // wall.getComponent("transform").rotation.z = 0.5;

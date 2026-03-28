@@ -9,7 +9,8 @@ export class ScriptComponent extends Component {
 
   // Called once when entity enters scene
   start() {
-    this.camera = this.entity.scene.game.camera;
+    // this.camera = this.entity.scene.game.camera;
+    this.camera = this.entity.scene.getPrimaryCamera();
     this.game = this.entity.scene.game;
     this.scene = this.entity.scene;
   }
@@ -33,6 +34,14 @@ export class ScriptComponent extends Component {
 
   hasTag(tag){
     return this.entity.hasTag(tag);
+  }
+
+  findById(id) {
+    return this.entity.scene.findById(id);
+  }
+
+  findByName(name) {
+    return this.entity.scene.findByName(name);
   }
 
   findByTag(tag){

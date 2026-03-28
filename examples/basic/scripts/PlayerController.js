@@ -118,6 +118,14 @@ export class PlayerController extends ScriptComponent {
             this.destroy();
         }
 
+        if(Keyboard.wasPressed(KeyCode.K)){
+            const wall = this.findById(3);
+            wall.getComponent("transform").position.x += 100;
+            console.log(wall.getComponent("transform").position.x);
+            // console.log(this.entity.id);
+            
+        }
+
         if(Keyboard.wasPressed(KeyCode.O)){
             // this.primarycamera.target = this.entity;
             this.primarycamera.setTarget(this.entity);
@@ -198,9 +206,10 @@ export class PlayerController extends ScriptComponent {
         // console.log("Player hit:", other.name);
         // this.rb.velocity.y = 0; // simple resolution
         this.isGround = true;
+        // console.log("Player onTriggerEnter:", other.name, other.id);
     }
 
     onTriggerEnter(other) {
-        console.log("Player onTriggerEnter:", other.name);
+        console.log("Player onTriggerEnter:", other.name, other.id);
     }
 }
