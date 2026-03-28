@@ -17,6 +17,7 @@ export class PlayerController extends ScriptComponent {
     onStart(){
         console.log('onStart player');
         this.isGround = false;
+        this.primarycamera = this.entity.scene.getPrimaryCamera();
 
         // console.log(this.entity.scene.game.camera);
         // this.camera = this.entity.scene.game.camera;
@@ -72,6 +73,10 @@ export class PlayerController extends ScriptComponent {
         // Camera follows player automatically
         // this.camera.x = transform.position.x - this.camera.width / 2;
         // this.camera.y = transform.position.y - this.camera.height / 2;
+
+        if(transform.position.y > 1000){
+            transform.setPosition(100, 100);
+        }
                 
 
         if (Keyboard.isPressed("q")) transform.rotation.z -= 2 * dt;
@@ -113,6 +118,14 @@ export class PlayerController extends ScriptComponent {
             this.destroy();
         }
 
+        if(Keyboard.wasPressed(KeyCode.O)){
+            this.primarycamera.shake(20, 0.5);
+            // this.primarycamera.zoom = 2.0;  // 2x zoom
+
+            console.log("shake");
+            
+        }
+
         // if(Mouse.isPressed(0)){
         //     // console.log(Mouse.x, Mouse.y);
         //     this.entity.getComponent().position.x = Mouse.x;
@@ -138,9 +151,14 @@ export class PlayerController extends ScriptComponent {
 
         // if (Mouse.wasPressed('0')) {
         if (Mouse.wasPressed(MouseButton.Left)) {
+            // Convert mouse to world coordinates
+            const worldPos = this.primarycamera.screenToWorld(Mouse.x, Mouse.y);
+            console.log("Mouse in world:", worldPos, "Mouse:", Mouse.x,Mouse.y);
+
             // const hit = this.entity.scene.raycast(Mouse.x, Mouse.y);
 
-            const hit = this.raycast(Mouse.x, Mouse.y);
+            // const hit = this.raycast(Mouse.x, Mouse.y);
+            const hit = this.raycast(worldPos.x, worldPos.y);
 
             // const hit = this.entity.scene.pick(Mouse.x, Mouse.y);
 

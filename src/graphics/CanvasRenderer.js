@@ -9,7 +9,7 @@ export class CanvasRenderer extends Renderer {
         this.camera = game.camera;
         this.debugPhysics = game.config.debugPhysics;
         // console.log(game.config);
-        
+
 
         // Fill background on init
         this.ctx.fillStyle = game.config.backgroundColor;
@@ -106,11 +106,22 @@ export class CanvasRenderer extends Renderer {
 
         ctx.clearRect(0, 0, width, height);
 
-        const camera = this.camera;
+        // const camera = this.camera;
+        // 🔥 GET CAMERA
+        const camera = scene.getPrimaryCamera();
+        if (!camera) {
+            // console.warn("No camera found in scene");
+            return;
+        }
+
         const cameraBounds = camera.viewBounds;
 
         ctx.save();
-        ctx.translate(-camera.x, -camera.y);
+        // ctx.translate(-camera.x, -camera.y);
+
+        // 🔥 APPLY CAMERA TRANSFORM
+        ctx.translate(-cameraBounds.x, -cameraBounds.y);
+        ctx.scale(camera.zoom, camera.zoom);
 
         // 🔥 CHANGED: Use spatial grid query instead of looping all renderers
         const visibleRenderers = scene._getVisibleRenderers(cameraBounds);
@@ -148,7 +159,7 @@ export class CanvasRenderer extends Renderer {
         }
 
         // 🔥 ADD THIS: Debug draw colliders
-        if (this.debugPhysics) {            
+        if (this.debugPhysics) {
             this.drawColliders(ctx, scene);
         }
 

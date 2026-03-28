@@ -20,11 +20,13 @@ export class Scene {
     this._colliders3D = [];
     this._renderers = [];
     this._meshes = []; // 🔥 ADD THIS
+    this._cameras = [];
 
     this._renderGrid2D = new Map();     // for rendering
     this._grid2D = new Map();
     this._grid3D = new Map();
     this._gridCellSize = 128; // adjust as needed
+    this.primaryCamera = null;
   }
 
   addEntity(entity) {
@@ -61,6 +63,13 @@ export class Scene {
     while (this._accumulator >= this.fixedTimeStep) {
       this._physicsStep(this.fixedTimeStep);
       this._accumulator -= this.fixedTimeStep;
+    }
+
+    // 🔥 UPDATE CAMERAS
+    for (const camera of this._cameras) {
+      if (camera.entity.active) {
+        camera.update(dt);
+      }
     }
 
     // Update all entities
@@ -431,6 +440,12 @@ export class Scene {
 
       case "mesh":
         this._meshes.push(component);
+
+      case "camera":
+        this._cameras.push(component);
+        if (component.isPrimary) {
+          this.primaryCamera = component;
+        }
         break;
     }
   }
@@ -794,7 +809,7 @@ export class Scene {
           //     if (rbA) rbA.velocity.z = 0;
           //   }
           // }
-          
+
           if (!isTrigger) {
             const overlapX =
               Math.min(boundsA.x + boundsA.width, boundsB.x + boundsB.width) -
@@ -807,7 +822,7 @@ export class Scene {
             const overlapZ =
               Math.min(boundsA.z + boundsA.depth, boundsB.z + boundsB.depth) -
               Math.max(boundsA.z, boundsB.z);
-              
+
             if (overlapX <= overlapY && overlapX <= overlapZ) {
               posA.x += posA.x < posB.x ? -overlapX - EPS : overlapX + EPS;
               cA.transform._dirty = true;  // 🔥 ADD THIS
@@ -818,7 +833,7 @@ export class Scene {
               const centerA = posA.y;
               const centerB = posB.y;
               // console.log(centerA , centerB);
-              
+
               if (centerA > centerB) {
                 // A is ABOVE B (landing on top)
                 posA.y += overlapY + EPS;
@@ -1000,6 +1015,9 @@ export class Scene {
     return visible;
   }
 
+  getPrimaryCamera() {
+    return this.primaryCamera || (this._cameras.length > 0 ? this._cameras[0] : null);
+  }
 
   _clearGrid() {
     this._grid2D.clear();

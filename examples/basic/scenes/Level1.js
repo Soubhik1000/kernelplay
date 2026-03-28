@@ -1,6 +1,7 @@
 import { Scene } from "../../../src/core/Scene.js";
 import { Player } from "../prefabs/Player.js";
 import { Wall } from "../prefabs/Wall.js";
+import { CameraComponent, Entity, TransformComponent } from "../../../src/index.js";
 // import { Cube } from "../prefabs/Cube.js";
 // import { Cube1 } from "../prefabs/Cube1.js";
 // import { Bullet } from "../prefabs/Bullet.js";
@@ -20,7 +21,21 @@ export class Level1 extends Scene {
     wall1.getComponent("transform").scale.x = 3;
     wall1.getComponent("transform").scale.y = 4;
 
+
+    // Simple static camera
+    const camera = new Entity("MainCamera");
+    camera.addComponent("transform", new TransformComponent({
+      position: { x: 400, y: 300, z: 10 }
+    }));
+    camera.addComponent("camera", new CameraComponent({
+      width: 800,
+      height: 600,
+      isPrimary: true,
+      target: player,
+    }));
+
     // this.addEntity(new Bullet(100, 150));
+    this.addEntity(camera);
     this.addEntity(player);
     
     this.addEntity(wall1);

@@ -241,5 +241,127 @@ addDebugCollider(entity) {
   collider.debugMesh = debugBox; // Store reference
 }
 
+WebGL2DRenderer.js (PixiJS):
+render(scene) {
+  // 🔥 GET CAMERA
+  const camera = scene.getPrimaryCamera();
+  if (!camera) return;
+  
+  const cameraBounds = camera.viewBounds;
+  
+  // 🔥 APPLY CAMERA TO STAGE
+  this.stage.position.set(-cameraBounds.x * camera.zoom, -cameraBounds.y * camera.zoom);
+  this.stage.scale.set(camera.zoom, camera.zoom);
+  
+  // Get visible renderers
+  const visibleRenderers = scene._getVisibleRenderers(cameraBounds);
+  
+  for (const renderer of visibleRenderers) {
+    if (!renderer.object) continue;
+    
+    const t = renderer.entity.getComponent("transform");
+    renderer.object.position.set(t.position.x, t.position.y);
+    renderer.object.rotation = t.rotation.z;
+    renderer.object.scale.set(t.scale.x, t.scale.y);
+  }
+}
+
+
+
+
+ThreeRenderer.js:
+render(scene) {
+  // 🔥 GET CAMERA COMPONENT
+  const cameraComponent = scene.getPrimaryCamera();
+  
+  if (cameraComponent) {
+    // Sync Three.js camera with camera component
+    this.camera.position.set(
+      cameraComponent.position.x,
+      cameraComponent.position.y,
+      cameraComponent.position.z
+    );
+    
+    // If camera has a target, look at it
+    if (cameraComponent.target) {
+      const targetPos = cameraComponent.target.getComponent("transform").position;
+      this.camera.lookAt(targetPos.x, targetPos.y, targetPos.z);
+    }
+  }
+  
+  // Sync ECS → Three objects
+  for (const entity of scene.entities) {
+    const t = entity.getComponent("transform");
+    const mesh = entity.getComponent("mesh");
+    
+    if (!t || !mesh) continue;
+    
+    mesh.object.position.set(t.position.x, t.position.y, t.position.z);
+    mesh.object.rotation.set(t.rotation.x, t.rotation.y, t.rotation.z);
+    mesh.object.scale.set(t.scale.x, t.scale.y, t.scale.z);
+  }
+  
+  this.renderer.render(this.scene3D, this.camera);
+}
+
+
+Usage:
+class GameScene extends Scene {
+  init() {
+    // Create player
+    const player = new Player(400, 300);
+    this.addEntity(player);
+    
+    // Create camera that follows player
+    const camera = new Entity("MainCamera");
+    camera.addComponent("transform", new TransformComponent({
+      position: { x: 400, y: 300, z: 0 }
+    }));
+    
+    camera.addComponent("camera", new CameraComponent({
+      width: this.game.config.width,
+      height: this.game.config.height,
+      target: player,        // 🔥 Follow this entity
+      followSpeed: 5,        // Smooth follow
+      offset: { x: 0, y: -50, z: 0 },  // Slightly above player
+      bounds: {              // Don't show outside level
+        minX: 0,
+        maxX: 2000,
+        minY: 0,
+        maxY: 1500
+      },
+      isPrimary: true
+    }));
+    
+    this.addEntity(camera);
+  }
+}
+
+// Zoom in/out
+camera.getComponent("camera").zoom = 2.0;  // 2x zoom
+
+// Smooth zoom
+class CameraController extends ScriptComponent {
+  update(dt) {
+    const cam = this.entity.getComponent("camera");
+    
+    if (Keyboard.isDown("=")) {
+      cam.zoom = Math.min(3, cam.zoom + dt);
+    }
+    if (Keyboard.isDown("-")) {
+      cam.zoom = Math.max(0.5, cam.zoom - dt);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 npx vite build

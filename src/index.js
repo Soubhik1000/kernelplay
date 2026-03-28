@@ -32,6 +32,7 @@ export { TransformComponent } from "./core/components/TransformComponent.js";
 export { BoxRenderComponent } from "./core/components/BoxRenderComponent.js";
 export { ColliderComponent } from "./core/components/ColliderComponent.js";
 export { ScriptComponent } from "./core/components/ScriptComponent.js";
+export { CameraComponent } from "./core/components/CameraComponent.js";
 
 // physics components
 export { RigidbodyComponent } from "./core/physics/RigidbodyComponent.js";
