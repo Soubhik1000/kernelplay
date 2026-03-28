@@ -1,5 +1,7 @@
 export class Entity {
+  static _nextId = 1;
   constructor(name = "Entity", tag = "Untagged") {
+    this.id = Entity._nextId++;
     this.name = name;
     this.components = {};
     this._componentCache = Object.create(null);

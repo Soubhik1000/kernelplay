@@ -31,7 +31,7 @@ export class Level1 extends Scene {
       width: 800,
       height: 600,
       isPrimary: true,
-      target: player,
+      // target: player,
     }));
 
     // this.addEntity(new Bullet(100, 150));

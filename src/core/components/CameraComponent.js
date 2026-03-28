@@ -69,6 +69,11 @@ export class CameraComponent extends Component {
         this.position.z = this.transform.position.z;
       }
     }
+
+    // 🔥 ADD THIS - Apply camera shake
+    if (this._shakeDuration && this._shakeTime < this._shakeDuration) {
+        this._applyShake(dt);
+    }
     
     // Apply bounds clamping
     if (this.bounds) {
@@ -140,7 +145,7 @@ export class CameraComponent extends Component {
   
   // Shake effect
   shake(intensity = 10, duration = 0.3) {
-    console.log("dddd.....");
+    // console.log("dddd.....");
     
     this._shakeIntensity = intensity;
     this._shakeDuration = duration;

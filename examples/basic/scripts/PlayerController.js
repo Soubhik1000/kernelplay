@@ -119,6 +119,8 @@ export class PlayerController extends ScriptComponent {
         }
 
         if(Keyboard.wasPressed(KeyCode.O)){
+            // this.primarycamera.target = this.entity;
+            this.primarycamera.setTarget(this.entity);
             this.primarycamera.shake(20, 0.5);
             // this.primarycamera.zoom = 2.0;  // 2x zoom
 

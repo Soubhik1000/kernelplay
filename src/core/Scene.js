@@ -405,6 +405,14 @@ export class Scene {
     return this.addEntity(entity);
   }
 
+  findById(id) {
+    return this.entities.find(e => e.id === id) || null;
+  }
+
+  findByName(name) {
+    return this.entities.find(e => e.name === name) || null;
+  }
+
   findByTag(tag) {
     return this.entities.find(e => e.tag === tag) || null;
   }
