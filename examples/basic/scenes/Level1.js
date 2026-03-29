@@ -25,6 +25,7 @@ export class Level1 extends Scene {
 
     // Simple static camera
     const camera = new Entity("MainCamera");
+    camera.id = 100;
     camera.addComponent("transform", new TransformComponent({
       position: { x: 400, y: 300, z: 10 }
     }));

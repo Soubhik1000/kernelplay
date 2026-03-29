@@ -46,8 +46,9 @@ export class PlayerController extends ScriptComponent {
         // if (Keyboard.isPressed("ArrowUp")) rb.velocity.y = -200;
         // if (Keyboard.isPressed("ArrowDown")) rb.velocity.y = 200;
 
-        if (Keyboard.isPressed(KeyCode.ArrowRight)) rb.addForce(800, 0);
-        if (Keyboard.isPressed(KeyCode.ArrowLeft)) rb.addForce(-800, 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowRight)) rb.addForce(800, 0);
+        if (Keyboard.isPressed(KeyCode.ArrowRight)) rb.addForce(this.force, 0);
+        if (Keyboard.isPressed(KeyCode.ArrowLeft)) rb.addForce(-this.force, 0);
         if (Keyboard.isPressed(KeyCode.W)) rb.addForce(0, -30, "impulse");
         // if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
@@ -157,6 +158,19 @@ export class PlayerController extends ScriptComponent {
 
             // const wall = this.findAllByTag("wall");
             // wall[1].getComponent('transform').position.x = 0;
+
+            // this.enemy.destroy();
+            //         if (this.enemy) {
+            //             // console.log(this.enemy);
+            //   const enemyPos = this.enemy.getComponent("transform").position;
+            //   console.log("Enemy at:", enemyPos.x);
+            // }
+            
+            // this.camera1.setTarget(this.entity);
+            // this.camera1.getComponent("camera").setTarget();
+            console.log(this.enemypos);
+            
+            
         }
 
         // if (Mouse.wasPressed('0')) {

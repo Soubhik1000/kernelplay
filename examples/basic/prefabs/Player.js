@@ -2,6 +2,7 @@ import { Entity } from "../../../src/index.js";
 import {BoxRenderComponent, ColliderComponent} from "../../../src/index.js";
 import { PlayerController } from "../scripts/PlayerController.js";
 import { Layers } from "../../../src/index.js";
+import { ref } from "../../../src/index.js";
 
 // import { WebGLBoxRender2D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
@@ -31,7 +32,12 @@ export function Player(x = 100, y = 100) {
     player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
 
-    player.addComponent("playerController", new PlayerController());
+    player.addComponent("playerController", new PlayerController({
+        enemy: ref(5),
+        force: 800,
+        camera1: ref(100),
+        enemypos: ref(5).getComponent("transform"),
+    }));
 
     return player;
 }

@@ -12,6 +12,8 @@ export { Layers } from "./core/constants/Layers.js";
 
 export { Entity } from "./core/Entity.js";
 export { Component } from "./core/Component.js";
+export { ref } from "./core/EntityReference.js";
+export { EntityReference } from "./core/EntityReference.js";
 
 // uitls
 export { KeyCode } from "./utils/KeyCode.js";
