@@ -26,7 +26,8 @@ export class AnimatorComponent extends Component {
   }
   
   init() {
-    this.sprite = this.entity.getComponent("sprite");
+    // this.sprite = this.entity.getComponent("sprite");
+    this.sprite = this.entity.getComponent("renderer");
     
     if (!this.sprite) {
       console.warn("AnimatorComponent requires SpriteComponent");

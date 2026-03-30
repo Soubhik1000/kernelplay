@@ -9,6 +9,7 @@ import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
 
 import { SpriteComponent } from "../../../src/index.js";
+import { AnimatorComponent } from "../../../src/index.js";
 
 export function Player(x = 100, y = 100) {
     const player = new Entity("Player", "player");
@@ -34,12 +35,57 @@ export function Player(x = 100, y = 100) {
     // player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
 
-    player.addComponent("sprite", new SpriteComponent({
-        image: "assets/player.png",
-        width: 32,
-        height: 32,
+    player.addComponent("renderer", new SpriteComponent({
+        image: "./assets/player_sheet.png",
+        // sourceX: 6,
+        // sourceY: 12,
+        // sourceWidth: 50,
+        // sourceHeight: 50,
+        width: 50,
+        height: 50,
         anchor: { x: 0.5, y: 0.5 },
-        zIndex: 10
+        zIndex: 10,
+        // alpha: 1
+    }));
+
+    // Animator component
+    player.addComponent("animator", new AnimatorComponent({
+        animations: {
+            idle: {
+                frames: [0, 2],      // Frame indices
+                frameRate: 2,              // 8 FPS
+                loop: true,
+                gridWidth: 4,              // 8 frames per row
+                frameWidth: 64,
+                frameHeight: 64
+            },
+            walk: {
+                frames: [8, 9, 10, 11],
+                frameRate: 4,
+                loop: true,
+                gridWidth: 4,
+                frameWidth: 64,
+                frameHeight: 64
+            },
+            jump: {
+                frames: [9],
+                frameRate: 1,
+                loop: false,              // Don't loop jump
+                gridWidth: 4,
+                frameWidth: 64,
+                frameHeight: 64
+            },
+            attack: {
+                frames: [12, 13, 14, 15],
+                frameRate: 4,
+                loop: false,
+                gridWidth: 4,
+                frameWidth: 64,
+                frameHeight: 64
+            }
+        },
+        defaultAnimation: "attack",
+        autoPlay: true
     }));
 
     player.addComponent("playerController", new PlayerController({

@@ -25,8 +25,10 @@ export class SpriteComponent extends Component {
     this.height = height;
     this.sourceX = sourceX;
     this.sourceY = sourceY;
-    this.sourceWidth = sourceWidth || width;
-    this.sourceHeight = sourceHeight || height;
+    // this.sourceWidth = sourceWidth || width;
+    // this.sourceHeight = sourceHeight || height;
+    this.sourceWidth = sourceWidth ?? null;
+    this.sourceHeight = sourceHeight ?? null;
     this.anchor = anchor;
     this.flipX = flipX;
     this.flipY = flipY;
@@ -37,11 +39,14 @@ export class SpriteComponent extends Component {
     // Internal
     this._imageElement = null;
     this._loaded = false;
+    this._dirty = true; // 🔥 renderer dirty
+    this.batchable = false;
   }
   
   init() {
     this.transform = this.entity.getComponent("transform");
     this.loadImage();
+    this._cachedBounds = { x: 0, y: 0, width: 0, height: 0 };
   }
   
   loadImage() {
@@ -51,6 +56,12 @@ export class SpriteComponent extends Component {
       this._imageElement = new Image();
       this._imageElement.onload = () => {
         this._loaded = true;
+
+        if (this.sourceWidth === null)
+            this.sourceWidth = this._imageElement.width;
+
+        if (this.sourceHeight === null)
+            this.sourceHeight = this._imageElement.height;
       };
       this._imageElement.onerror = () => {
         console.error(`Failed to load image: ${this.image}`);
@@ -61,8 +72,26 @@ export class SpriteComponent extends Component {
       this._loaded = this._imageElement.complete;
     }
   }
+
+  getBounds() {
+    const t = this.transform;
+
+    // 🔥 Only recalculate if dirty
+    if (t._dirty || this._dirty) {
+      const w = this.width * t.scale.x;
+      const h = this.height * t.scale.y;
+
+      this._cachedBounds.x = t.position.x - w * 0.5;
+      this._cachedBounds.y = t.position.y - h * 0.5;
+      this._cachedBounds.width = w;
+      this._cachedBounds.height = h;
+    }
+
+    return this._cachedBounds; // 🔥 Reuse same object
+  }
   
   render(ctx) {
+    
     if (!this._loaded || !this._imageElement) return;
     if (!this.transform) return;
     
@@ -80,6 +109,7 @@ export class SpriteComponent extends Component {
       scale.y * (this.flipY ? -1 : 1)
     );
     
+    
     // Anchor offset
     const offsetX = -this.width * this.anchor.x;
     const offsetY = -this.height * this.anchor.y;
@@ -87,6 +117,7 @@ export class SpriteComponent extends Component {
     // Alpha
     ctx.globalAlpha = this.alpha;
     
+    // console.log("hi");
     // Draw sprite
     ctx.drawImage(
       this._imageElement,
@@ -129,4 +160,6 @@ export class SpriteComponent extends Component {
   static fromJSON(data) {
     return new SpriteComponent(data);
   }
+
+
 }

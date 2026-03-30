@@ -34,7 +34,7 @@ const game = new MyGame({
   height: 600,
   fps: 90,
   backgroundColor: "#eeeeee",
-  // debugPhysics: true
+  debugPhysics: true
 });
 
 game.start();

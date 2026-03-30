@@ -12,6 +12,7 @@ export class BoxRenderComponent extends Component {
     this.zIndex = zIndex; // 🔥 ADD THIS
 
     this._dirty = true; // 🔥 renderer dirty
+    this.batchable = true;
   }
 
   init() {

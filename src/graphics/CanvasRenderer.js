@@ -166,7 +166,81 @@ export class CanvasRenderer extends Renderer {
         ctx.restore(); // 🔥 Don't forget this!
     }
 
+    // render(scene) {
+    //     const { width, height } = scene.game.config;
+    //     const ctx = this.ctx;
+
+    //     ctx.clearRect(0, 0, width, height);
+
+    //     const camera = scene.getPrimaryCamera();
+    //     if (!camera) return;
+
+    //     const cameraBounds = camera.viewBounds;
+
+    //     ctx.save();
+
+    //     // 🔥 Camera transform
+    //     ctx.translate(-cameraBounds.x, -cameraBounds.y);
+    //     ctx.scale(camera.zoom, camera.zoom);
+
+    //     // 🔥 Get visible renderers (spatial optimized)
+    //     const visibleRenderers = scene._getVisibleRenderers(cameraBounds);
+
+    //     // 🔥 Z-SORT (VERY IMPORTANT)
+    //     if (visibleRenderers.length > 1) {
+    //         visibleRenderers.sort((a, b) => {
+    //             const aZ = a.entity?.zIndex ?? a.zIndex ?? 0;
+    //             const bZ = b.entity?.zIndex ?? b.zIndex ?? 0;
+    //             return aZ - bZ;
+    //         });
+    //     }
+
+    //     // 🔥 SPLIT PIPELINES
+    //     const groups = new Map();   // batchable (color)
+    //     const nonBatch = [];        // sprites, text, etc.
+
+    //     for (const r of visibleRenderers) {
+
+    //         // 🔥 Detect batchable
+    //         const isBatchable = r.color !== undefined && r.batchable !== false;
+
+    //         if (!isBatchable) {
+    //             nonBatch.push(r);
+    //             continue;
+    //         }
+
+    //         // 🔥 Group by color
+    //         if (!groups.has(r.color)) {
+    //             groups.set(r.color, []);
+    //         }
+
+    //         groups.get(r.color).push(r);
+    //     }
+
+    //     // 🔵 PASS 1: Batched shapes
+    //     for (const [color, batch] of groups) {
+    //         ctx.fillStyle = color;
+
+    //         for (const r of batch) {
+    //             r.render(ctx);
+    //         }
+    //     }
+
+    //     // 🟢 PASS 2: Non-batched (sprites, etc.)
+    //     for (const r of nonBatch) {
+    //         r.render(ctx);
+    //     }
+
+    //     // 🔥 Debug
+    //     if (this.debugPhysics) {
+    //         this.drawColliders(ctx, scene);
+    //     }
+
+    //     ctx.restore();
+    // }
+
     // 🔥 ADD THIS METHOD
+    
     drawColliders(ctx, scene) {
         ctx.strokeStyle = "#00FF00"; // Green for normal colliders
         ctx.lineWidth = 2;
