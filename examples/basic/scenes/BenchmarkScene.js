@@ -3,6 +3,7 @@ import { Scene, Entity, Keyboard } from "../../../src/index.js";
 import { BoxRenderComponent, ColliderComponent } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
+import { CameraComponent } from "../../../src/index.js";
 
 export class BenchmarkScene extends Scene {
     init() {
@@ -38,6 +39,19 @@ export class BenchmarkScene extends Scene {
             density: 5000 // spread area
         };
 
+        const camera = new Entity("MainCamera");
+        camera.id = 100;
+        camera.addComponent("transform", new TransformComponent({
+            position: { x: 400, y: 300, z: 10 }
+        }));
+        camera.addComponent("camera", new CameraComponent({
+            width: 800,
+            height: 600,
+            isPrimary: true,
+        }));
+        this.camera = camera.getComponent('transform');
+        this.addEntity(camera);
+
         // 🔥 Create initial entities
         this.rebuildScene();
 
@@ -48,7 +62,7 @@ export class BenchmarkScene extends Scene {
     setupSettingsListener() {
         // Check for settings updates from HTML UI
         window.benchmarkSettings = this.settings;
-        
+
         window.updateBenchmarkSettings = (newSettings) => {
             this.settings = { ...this.settings, ...newSettings };
             this.rebuildScene();
@@ -120,6 +134,7 @@ export class BenchmarkScene extends Scene {
     }
 
     update(dt) {
+        // this.camera = this.getPrimaryCamera();
         const updateStart = performance.now();
 
         super.update(dt);
@@ -152,7 +167,7 @@ export class BenchmarkScene extends Scene {
             this.fps = Math.round((this.frames * 1000) / (now - this.lastTime));
             this.frames = 0;
             this.lastTime = now;
-            
+
             // Reset GC spike counter every second
             if (this.gcSpikes > 0) {
                 console.log(`⚠️ ${this.gcSpikes} GC spikes detected in last second`);
@@ -162,10 +177,10 @@ export class BenchmarkScene extends Scene {
 
         // 🔥 Camera controls
         const speed = 500;
-        if (Keyboard.isPressed("ArrowLeft")) this.game.camera.x -= speed * dt;
-        if (Keyboard.isPressed("ArrowRight")) this.game.camera.x += speed * dt;
-        if (Keyboard.isPressed("ArrowUp")) this.game.camera.y -= speed * dt;
-        if (Keyboard.isPressed("ArrowDown")) this.game.camera.y += speed * dt;
+        if (Keyboard.isPressed("ArrowLeft")) this.camera.position.x -= speed * dt;
+        if (Keyboard.isPressed("ArrowRight")) this.camera.position.x += speed * dt;
+        if (Keyboard.isPressed("ArrowUp")) this.camera.position.y -= speed * dt;
+        if (Keyboard.isPressed("ArrowDown")) this.camera.position.y += speed * dt;
 
         // 🔥 Update visible count
         this.visibleCount = this._visibleCount || 0;
@@ -184,7 +199,7 @@ export class BenchmarkScene extends Scene {
 
         // 🔥 Draw enhanced stats overlay
         this.ctx.save();
-        
+
         // Background panel
         this.ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         this.ctx.fillRect(10, 10, 320, 260);
@@ -211,8 +226,8 @@ export class BenchmarkScene extends Scene {
         this.ctx.fillText(`Avg Frame: ${this.avgFrameTime.toFixed(2)}ms`, 20, 110);
 
         // CPU usage
-        const cpuColor = this.cpuUsage > 90 ? "#FF0000" : 
-                        this.cpuUsage > 70 ? "#FFFF00" : "#00FF00";
+        const cpuColor = this.cpuUsage > 90 ? "#FF0000" :
+            this.cpuUsage > 70 ? "#FFFF00" : "#00FF00";
         this.ctx.fillStyle = cpuColor;
         this.ctx.fillText(`CPU Usage: ${this.cpuUsage.toFixed(1)}%`, 20, 130);
 
@@ -225,13 +240,14 @@ export class BenchmarkScene extends Scene {
         this.ctx.fillText(`Total Entities: ${this.entities.length}`, 20, 175);
         this.ctx.fillText(`Visible: ${this.visibleCount}`, 20, 195);
         this.ctx.fillText(`Physics: ${this._rigidbody2D.length}`, 20, 215);
-        
+
         // Camera position
         this.ctx.fillStyle = "#888888";
         this.ctx.font = "12px monospace";
         this.ctx.fillText(
-            `Cam: (${Math.round(this.game.camera.x)}, ${Math.round(this.game.camera.y)})`, 
-            20, 
+            // `Cam: (${Math.round(this.game.camera.x)}, ${Math.round(this.game.camera.y)})`,
+            `Cam: (${Math.round(this.camera.position.x)}, ${Math.round(this.camera.position.y)})`,
+            20,
             240
         );
 
