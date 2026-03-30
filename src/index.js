@@ -35,6 +35,9 @@ export { BoxRenderComponent } from "./core/components/BoxRenderComponent.js";
 export { ColliderComponent } from "./core/components/ColliderComponent.js";
 export { ScriptComponent } from "./core/components/ScriptComponent.js";
 export { CameraComponent } from "./core/components/CameraComponent.js";
+export { SpriteComponent } from "./core/components/SpriteComponent.js";
+export { AnimatorComponent } from "./core/components/AnimatorComponent.js";
+export { Spritesheet } from "./utils/Spritesheet.js";
 
 // physics components
 export { RigidbodyComponent } from "./core/physics/RigidbodyComponent.js";

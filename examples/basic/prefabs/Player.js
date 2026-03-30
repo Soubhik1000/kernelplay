@@ -1,5 +1,5 @@
 import { Entity } from "../../../src/index.js";
-import {BoxRenderComponent, ColliderComponent} from "../../../src/index.js";
+import { BoxRenderComponent, ColliderComponent } from "../../../src/index.js";
 import { PlayerController } from "../scripts/PlayerController.js";
 import { Layers } from "../../../src/index.js";
 import { ref } from "../../../src/index.js";
@@ -8,6 +8,8 @@ import { ref } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
 
+import { SpriteComponent } from "../../../src/index.js";
+
 export function Player(x = 100, y = 100) {
     const player = new Entity("Player", "player");
     player.layer = Layers.Player;
@@ -15,8 +17,8 @@ export function Player(x = 100, y = 100) {
 
     // player.addComponent("position", new PositionComponent(x, y));
     player.addComponent("transform", new TransformComponent({
-        position: {x, y},
-        scale: {x: 1, y: 1}
+        position: { x, y },
+        scale: { x: 1, y: 1 }
     }));
 
     player.addComponent("rigidbody2d", new Rigidbody2DComponent({
@@ -29,8 +31,16 @@ export function Player(x = 100, y = 100) {
     // player.addComponent("velocity", new VelocityComponent());
     player.addComponent("collider", new ColliderComponent());
 
-    player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
+    // player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
+
+    player.addComponent("sprite", new SpriteComponent({
+        image: "assets/player.png",
+        width: 32,
+        height: 32,
+        anchor: { x: 0.5, y: 0.5 },
+        zIndex: 10
+    }));
 
     player.addComponent("playerController", new PlayerController({
         enemy: ref(5),
