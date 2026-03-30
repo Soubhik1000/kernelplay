@@ -36,6 +36,7 @@ export function Player(x = 100, y = 100) {
         enemy: ref(5),
         force: 800,
         camera1: ref(100),
+        camera2: ref(101),
         enemypos: ref(5).getComponent("transform"),
     }));
 

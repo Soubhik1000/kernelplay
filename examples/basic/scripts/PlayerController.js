@@ -129,11 +129,11 @@ export class PlayerController extends ScriptComponent {
 
         if(Keyboard.wasPressed(KeyCode.O)){
             // this.primarycamera.target = this.entity;
-            this.primarycamera.setTarget(this.entity);
-            this.primarycamera.shake(20, 0.5);
+            this.camera.setTarget(this.entity);
+            this.camera.shake(20, 0.5);
             // this.primarycamera.zoom = 2.0;  // 2x zoom
 
-            console.log("shake");
+            console.log(this.camera);
             
         }
 
@@ -171,6 +171,19 @@ export class PlayerController extends ScriptComponent {
             console.log(this.enemypos);
             
             
+        }
+
+        if(Keyboard.wasPressed(KeyCode.L)){
+            // this.camera1.getComponent("camera").isPrimary = false;
+            // this.camera2.getComponent("camera").isPrimary = true;
+
+            // // 🔥 Update scene's primary camera reference
+            // this.entity.scene.primaryCamera = this.camera2.getComponent("camera");
+            // this.camera = this.camera2.getComponent("camera");
+
+            // console.log(this.camera1.getComponent("camera"), this.camera2.getComponent("camera"));   
+
+            this.setPrimaryCamera(this.camera2);
         }
 
         // if (Mouse.wasPressed('0')) {

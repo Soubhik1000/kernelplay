@@ -36,8 +36,21 @@ export class Level1 extends Scene {
       // target: player,
     }));
 
+    const camera2 = new Entity("Camera2");
+    camera2.id = 101;
+    camera2.addComponent("transform", new TransformComponent({
+      position: { x: 0, y: 0, z: 10 }
+    }));
+    camera2.addComponent("camera", new CameraComponent({
+      width: 800,
+      height: 600,
+      isPrimary: false,
+      // target: player,
+    }));
+
     // this.addEntity(new Bullet(100, 150));
     this.addEntity(camera);
+    this.addEntity(camera2);
     this.addEntity(player);
     
     this.addEntity(wall1);

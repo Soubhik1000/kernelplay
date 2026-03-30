@@ -10,11 +10,11 @@ export class ScriptComponent extends Component {
     // 🔥 Store all props directly on the instance
     this._props = props;
     this._references = new Map();
-    
+
     // Inject all props as instance properties
     for (const [key, value] of Object.entries(props)) {
       this[key] = value;
-      
+
       // Track EntityReferences for auto-resolution
       if (value instanceof EntityReference) {
         this._references.set(key, value);
@@ -24,7 +24,7 @@ export class ScriptComponent extends Component {
 
   // 🔥 Auto-resolve all entity references when attached
   onAttach() {
-    
+
   }
 
   // Called once when entity enters scene
@@ -35,21 +35,21 @@ export class ScriptComponent extends Component {
     this.scene = this.entity.scene;
 
     if (!this.entity.scene) return;
-    
+
     for (const [key, ref] of this._references) {
       this[key] = ref.resolve(this.entity.scene);
     }
   }
 
   // Called every frame
-  update(dt) {}
+  update(dt) { }
   // Lifecycle hooks (override these)
-  onStart() {}
-  update(dt) {}
-  lateUpdate(dt) {}
-  onCollision(other) {}
-  onTriggerEnter(other) {}
-  onDestroy() {}
+  onStart() { }
+  update(dt) { }
+  lateUpdate(dt) { }
+  onCollision(other) { }
+  onTriggerEnter(other) { }
+  onDestroy() { }
 
   // Called when collision happens
   // onCollision(other) {}
@@ -60,12 +60,19 @@ export class ScriptComponent extends Component {
   //   return entity;
   // }
 
-  instantiate(entity, ...args){
+  
+  setPrimaryCamera(camera) {
+    const cam = camera.getComponent("camera");
+    this.entity.scene.setPrimaryCamera(cam);
+    this.camera = cam;
+  }
+
+  instantiate(entity, ...args) {
     this.entity.scene.spawn(entity, ...args);
     return entity;
   }
 
-  hasTag(tag){
+  hasTag(tag) {
     return this.entity.hasTag(tag);
   }
 
@@ -77,30 +84,30 @@ export class ScriptComponent extends Component {
     return this.entity.scene.findByName(name);
   }
 
-  findByTag(tag){
+  findByTag(tag) {
     return this.entity.scene.findByTag(tag);
   }
 
-  findAllByTag(tag){
+  findAllByTag(tag) {
     return this.entity.scene.findAllByTag(tag);
   }
 
-  raycast(MouseX, MouseY){
+  raycast(MouseX, MouseY) {
     return this.entity.scene.raycast(MouseX, MouseY);
   }
 
-  pick(MouseX, MouseY){
+  pick(MouseX, MouseY) {
     return this.entity.scene.pick(MouseX, MouseY);
   }
 
-  destroy(){
+  destroy() {
     this.entity.destroy();
   }
 
   // 🔥 Serialize props
   toJSON() {
     const data = { type: this.constructor.name };
-    
+
     for (const [key, value] of Object.entries(this._props)) {
       if (value instanceof EntityReference) {
         data[key] = { entityId: value.entityId };
@@ -108,24 +115,24 @@ export class ScriptComponent extends Component {
         data[key] = value;
       }
     }
-    
+
     return data;
   }
-  
+
   // 🔥 Deserialize props
   static fromJSON(data) {
     const props = {};
-    
+
     for (const [key, value] of Object.entries(data)) {
       if (key === 'type') continue;
-      
+
       if (value && typeof value === 'object' && value.entityId !== undefined) {
         props[key] = new EntityReference(value.entityId);
       } else {
         props[key] = value;
       }
     }
-    
+
     return new this(props);
   }
 

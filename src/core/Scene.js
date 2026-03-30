@@ -405,6 +405,17 @@ export class Scene {
     return this.addEntity(entity);
   }
 
+  setPrimaryCamera(cameraComponent) {
+    // Disable old primary camera
+    if (this.primaryCamera) {
+      this.primaryCamera.isPrimary = false;
+    }
+
+    // Set new primary camera
+    this.primaryCamera = cameraComponent;
+    cameraComponent.isPrimary = true;
+  }
+
   findById(id) {
     return this.entities.find(e => e.id === id) || null;
   }
