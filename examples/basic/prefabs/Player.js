@@ -19,7 +19,7 @@ export function Player(x = 100, y = 100) {
     // player.addComponent("position", new PositionComponent(x, y));
     player.addComponent("transform", new TransformComponent({
         position: { x, y },
-        scale: { x: 1, y: 1 }
+        scale: { x: 1.4, y: 1.4 }
     }));
 
     player.addComponent("rigidbody2d", new Rigidbody2DComponent({
@@ -30,7 +30,7 @@ export function Player(x = 100, y = 100) {
     }));
 
     // player.addComponent("velocity", new VelocityComponent());
-    player.addComponent("collider", new ColliderComponent());
+    player.addComponent("collider", new ColliderComponent({width: 20, height: 45}));
 
     // player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
@@ -61,7 +61,7 @@ export function Player(x = 100, y = 100) {
             },
             walk: {
                 frames: [8, 9, 10, 11],
-                frameRate: 4,
+                frameRate: 6,
                 loop: true,
                 gridWidth: 4,
                 frameWidth: 64,
@@ -84,13 +84,14 @@ export function Player(x = 100, y = 100) {
                 frameHeight: 64
             }
         },
-        defaultAnimation: "attack",
+        defaultAnimation: "idle",
         autoPlay: true
     }));
 
     player.addComponent("playerController", new PlayerController({
         enemy: ref(5),
-        force: 800,
+        force: 400,
+        speed: 100,
         camera1: ref(100),
         camera2: ref(101),
         enemypos: ref(5).getComponent("transform"),
