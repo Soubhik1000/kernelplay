@@ -9,13 +9,13 @@ import { CameraComponent, Entity, TransformComponent } from "../../../src/index.
 export class Level1 extends Scene {
   init() {
     const player = Player(100, 100);
-    const wall = new Wall(300, 260);
+    const wall = new Wall(670, 260);
     
     wall.getComponent('renderer').color = '#ff0000';
     player.getComponent("playerController").wall = wall;
     // player.id = 100;
     wall.getComponent("transform").scale.y = 1.5;
-    wall.getComponent("transform").scale.x = 5;
+    wall.getComponent("transform").scale.x = 20;
     // wall.getComponent("transform").rotation.z = 0.5;
     
     const wall1 = new Wall(100, 400);
