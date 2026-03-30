@@ -3,20 +3,18 @@ import { Component } from "../Component.js";
 export class AudioSource extends Component {
     constructor({
         clip = null,
-        loop = false,
-        playOnStart = false,
         volume = 1,
-        playbackRate = 1
+        loop = false,
+        playOnStart = false
     } = {}) {
         super();
 
         this.clip = clip;
+        this.volume = volume;
         this.loop = loop;
         this.playOnStart = playOnStart;
-        this.volume = volume;
-        this.playbackRate = playbackRate;
 
-        this._audioInstance = null;
+        this._instances = [];
     }
 
     init() {
@@ -29,28 +27,48 @@ export class AudioSource extends Component {
         }
     }
 
+    // 🔊 play default clip
     play() {
         if (!this.clip) return;
 
-        this._audioInstance = this.entity.scene.game.audio.play(this.clip, {
-            volume: this.volume,
-            loop: this.loop,
-            playbackRate: this.playbackRate,
+        if (this.loop) {
+            return this.playLoop(this.clip);
+        } else {
+            return this.playOneShot(this.clip);
+        }
+    }
+
+    // 🔥 SFX (overlapping)
+    playOneShot(clip, options = {}) {
+        const audio = this.entity.scene.game.audio.play(clip, {
+            volume: options.volume ?? this.volume,
             position: this.transform?.position
         });
+
+        this._instances.push(audio);
+
+        // cleanup
+        audio.onended = () => {
+            this._instances = this._instances.filter(a => a !== audio);
+        };
+
+        return audio;
     }
 
-    stop() {
-        if (this._audioInstance) {
-            this._audioInstance.pause();
-            this._audioInstance = null;
-        }
+    // 🎵 Looping sound (music / ambient)
+    playLoop(clip, options = {}) {
+        const audio = this.entity.scene.game.audio.playLoop(clip, {
+            volume: options.volume ?? this.volume
+        });
+
+        this._instances.push(audio);
+        return audio;
     }
 
-    setVolume(v) {
-        this.volume = v;
-        if (this._audioInstance) {
-            this._audioInstance.volume = v;
+    stopAll() {
+        for (const a of this._instances) {
+            a.pause();
         }
+        this._instances = [];
     }
 }

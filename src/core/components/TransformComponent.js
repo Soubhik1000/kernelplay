@@ -30,6 +30,14 @@ export class TransformComponent extends Component {
     });
   }
 
+  getPosition() {
+    return {
+        x: this._position.x,
+        y: this._position.y,
+        z: this._position.z
+    };
+  }
+
   // 🔒 read-only references
   get position() { return this._position; }
   get rotation() { return this._rotation; }

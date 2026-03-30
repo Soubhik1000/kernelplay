@@ -99,8 +99,8 @@ export function Player(x = 100, y = 100) {
     }));
 
     player.addComponent("audio", new AudioSource({
-        clip: "/assets/jump.wav",
-        volume: 1
+        // clip: "./assets/jump.mp3",
+        volume: 0.15
     }));
 
     return player;

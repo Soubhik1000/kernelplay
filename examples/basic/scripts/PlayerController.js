@@ -21,6 +21,7 @@ export class PlayerController extends ScriptComponent {
 
         this.animator = this.entity.getComponent("animator");
         this.sprite = this.entity.getComponent("renderer");
+        this.audio = this.entity.getComponent("audio");
 
         // console.log(this.entity.scene.game.camera);
         // this.camera = this.entity.scene.game.camera;
@@ -30,9 +31,11 @@ export class PlayerController extends ScriptComponent {
         this.animator.onAnimationEnd = (animName) => {
             if (animName === "attack") {
                 this.animator.play("idle");
+                this.audio.stopAll();
             }
             if (animName === "jump") {
                 this.animator.play("idle");
+                this.audio.stopAll();
             }
         };
     }
@@ -117,7 +120,15 @@ export class PlayerController extends ScriptComponent {
                 rb.addForce(0, -600, "impulse");
                 this.isGround = false;
                 if (!this.animator.isAnimationPlaying("jump")) {
+                    this.audio.stopAll();
                     this.animator.play("jump");
+
+                    // this.audio.clip = "./assets/jump.mp3";
+                    // this.audio.play();
+
+                    this.audio.playOneShot('./assets/jump.mp3')
+
+                    // console.log(this.entity.scene.game.audio.listener);
                 }
             }
         }
@@ -127,10 +138,17 @@ export class PlayerController extends ScriptComponent {
             if (isMoving && rb.isGrounded) {
                 if (!this.animator.isAnimationPlaying("walk")) {
                     this.animator.play("walk");
+
+                    this.audio.stopAll();
+                    this.audio.clip = './assets/run.mp3';
+                    this.audio.loop = true;
+                    this.audio.volume = 0.5;
+                    this.audio.play();
                 }
             } else {
                 if (!this.animator.isAnimationPlaying("idle")) {
                     this.animator.play("idle");
+                    this.audio.stopAll();
                 }
             }
         }
@@ -209,8 +227,9 @@ export class PlayerController extends ScriptComponent {
 
             // this.camera1.setTarget(this.entity);
             // this.camera1.getComponent("camera").setTarget();
-            console.log(this.enemypos);
+            // console.log(this.camera1.getComponent("transform").getPosition());
 
+            // this.camera1.getComponent("transform").position.x = 0;
 
         }
 
