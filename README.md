@@ -3,7 +3,7 @@
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
 Built on an Entity–Component architecture, KernelPlayJS is fast, flexible, and surprisingly fun to use.
 
-> **v0.2.2-alpha** · MIT License · Built by Soubhik Mukherjee
+> **v0.2.3-alpha** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
@@ -60,6 +60,202 @@ The core engine ships with Canvas 2D — **zero external dependencies**. When yo
 npm install @kernelplay/pixi-renderer    # Pixi.js — GPU-accelerated 2D sprites & effects
 npm install @kernelplay/three-renderer   # Three.js — full 3D with lights, meshes, shadows
 ```
+
+---
+
+## 🎥 CameraComponent (New in v0.2.3)
+
+No more hassle with manual game camera handling.
+
+### ❌ Old Way (Manual Camera)
+Previously, you had to manually sync the camera with the player:
+
+```js
+// Camera follows player manually
+this.camera.x = transform.position.x - this.camera.width / 2;
+this.camera.y = transform.position.y - this.camera.height / 2;
+```
+
+---
+
+### ✅ New Way (Camera as a GameObject)
+
+Now, the camera is just another `Entity` in your scene.
+
+```js
+class GameScene extends Scene {
+  init() {
+    // Create player
+    const player = new Player(400, 300);
+    this.addEntity(player);
+    
+    // Create camera entity
+    const camera = new Entity("MainCamera");
+
+    camera.addComponent("transform", new TransformComponent({
+      position: { x: 400, y: 300, z: 0 }
+    }));
+    
+    camera.addComponent("camera", new CameraComponent({
+      width: this.game.config.width,
+      height: this.game.config.height,
+
+      // 🔥 Follow system
+      target: player,
+      followSpeed: 5,
+
+      // Offset from target
+      offset: { x: 0, y: -50, z: 0 },
+
+      // Level bounds (prevents showing outside world)
+      bounds: {
+        minX: 0,
+        maxX: 2000,
+        minY: 0,
+        maxY: 1500
+      },
+
+      isPrimary: true
+    }));
+    
+    this.addEntity(camera);
+  }
+}
+```
+
+---
+
+## 🎮 Using Camera in Scripts
+
+```js
+export class PlayerController extends ScriptComponent {
+  onStart() {
+    // Get primary camera
+    this.primaryCamera = this.entity.scene.getPrimaryCamera();
+  }
+
+  update(dt) {
+    // Shortcut access
+    this.camera;
+  }
+}
+```
+
+---
+
+## 🧠 CameraComponent Methods
+
+```js
+// Set follow target
+this.camera.setTarget(this.entity);
+
+// Screen shake effect
+this.camera.shake(20, 0.5);
+
+// Convert screen → world coordinates
+const worldPos = this.camera.screenToWorld(Mouse.x, Mouse.y);
+
+// Convert world → screen coordinates
+const screenPos = this.camera.worldToScreen(pos.x, pos.y);
+
+// Check if a position is visible
+this.camera.isInView(x, y);
+```
+
+---
+
+## 🎥 Multiple Cameras Setup
+
+```js
+// Camera 1 (Primary)
+const camera1 = new Entity("MainCamera");
+camera1.id = 100;
+
+camera1.addComponent("transform", new TransformComponent({
+  position: { x: 400, y: 300, z: 10 }
+}));
+
+camera1.addComponent("camera", new CameraComponent({
+  width: 800,
+  height: 600,
+  isPrimary: true
+}));
+
+// Camera 2
+const camera2 = new Entity("Camera2");
+camera2.id = 101;
+
+camera2.addComponent("transform", new TransformComponent({
+  position: { x: 0, y: 0, z: 10 }
+}));
+
+camera2.addComponent("camera", new CameraComponent({
+  width: 800,
+  height: 600,
+  isPrimary: false
+}));
+```
+
+---
+
+## 🔄 Switching Between Cameras
+
+```js
+// Inside ScriptComponent
+this.setPrimaryCamera(this.camera2);
+```
+
+---
+
+## ⚡ Prop Injection System
+
+`ScriptComponent` now supports **automatic prop injection**.
+
+You can directly pass references and values — no manual lookup needed.
+
+### 🔗 Setup
+
+```js
+import { ref } from "kernelplay-js";
+
+player.addComponent("playerController", new PlayerController({
+  enemy: ref(5),
+  force: 800,
+  camera1: ref(100),
+  camera2: ref(101),
+}));
+```
+
+---
+
+### 🚀 Usage
+
+```js
+// Use injected values directly
+if (Keyboard.isPressed(KeyCode.ArrowRight)) {
+  rb.addForce(this.force, 0);
+}
+
+// Switch camera
+this.setPrimaryCamera(this.camera2);
+
+// Destroy referenced entity
+this.enemy.destroy();
+
+// Change camera target
+this.camera2.getComponent("camera").setTarget(this.enemy);
+```
+
+---
+
+## ✨ Summary
+
+- Camera is now a full **Entity**
+- Built-in **smooth follow system**
+- Supports **multiple cameras**
+- Easy **camera switching**
+- Powerful **prop injection system**
+- Cleaner, modular, and scalable 🎯
 
 ---
 
@@ -307,8 +503,6 @@ The same ECS, scripts, physics, and input work across all three. Switching rende
 
 ---
 
-## 🛠️ Helper Classes (New in v0.2.2)
-
 Writing game logic just got cleaner. No more drilling through `this.entity.scene.game...` chains every single time.
 
 ### Shorthand API
@@ -461,7 +655,7 @@ Tested on **i3 7th Gen, 8GB RAM** — a deliberately modest machine:
 
 ## 🗺️ Roadmap
 
-**v0.2.2** (Current) — Helper Class Update  
+**v0.2.3** (Current) — Helper Class Update  
 ✅ Shorthand script API · ✅ KeyCode & MouseButton · ✅ Vector2/Vector3 · ✅ Mathf · ✅ Timer & Cooldown · ✅ Utility helpers
 
 **v0.3.0** — Audio system · Particle effects · Scene save/load · Static object optimization · Continuous collision detection
