@@ -5,6 +5,7 @@ import { CameraComponent, Entity, TransformComponent } from "../../../src/index.
 // import { Cube } from "../prefabs/Cube.js";
 // import { Cube1 } from "../prefabs/Cube1.js";
 // import { Bullet } from "../prefabs/Bullet.js";
+import { AudioListener } from "../../../src/index.js";
 
 export class Level1 extends Scene {
   init() {
@@ -29,6 +30,7 @@ export class Level1 extends Scene {
     camera.addComponent("transform", new TransformComponent({
       position: { x: 400, y: 300, z: 10 }
     }));
+    camera.addComponent("audioListener", new AudioListener());
     camera.addComponent("camera", new CameraComponent({
       width: 800,
       height: 600,

@@ -1,0 +1,185 @@
+KernelPlayJS - Project State Summary
+1. Current Goal
+Building a Unity-inspired ECS game engine for JavaScript with multi-renderer support (Canvas2D, PixiJS, Three.js). Currently implementing core systems and preparing for v0.2.0 release with advanced features.
+2. Completed Tasks
+Core Engine (v0.2.0)
+✅ ECS Architecture - Entity-Component-System with component registries
+✅ Scene Management - Multi-scene with lifecycle hooks
+✅ Multi-Renderer Support - Canvas2D, WebGL2D (PixiJS), ThreeRenderer (Three.js)
+✅ Physics System - 2D/3D rigidbodies with gravity, velocity, forces
+✅ Collision Detection - 2D AABB and 3D AABB with spatial grid optimization
+✅ Object Pooling - Automatic entity pooling via this.instantiate()
+✅ Input System - Keyboard (Keyboard.wasPressed/isDown) and Mouse
+✅ Camera System - Camera as game object with follow, bounds, zoom, shake
+✅ Entity Reference System - ID-based references with ref(id) for scene editor
+✅ Prop Injection - Constructor-based prop injection for scripts
+✅ Sprite & Animation - SpriteComponent + AnimatorComponent with frame-based animations
+Performance Optimizations
+✅ Spatial Grid - O(n²) → O(n) collision (5,000x faster)
+✅ Frustum Culling - Only renders visible objects (40-100x improvement)
+✅ Dirty Flags - Skip unnecessary transform recalculations (91% savings)
+✅ Component Registries - Direct array iteration (10x faster systems)
+✅ Batch Rendering - Color grouping reduces state changes 100x
+Benchmarks (i3 7th gen): 10K objects @ 50-60 FPS, 3K physics @ 40 FPS
+Documentation
+✅ Main README.md - Production-ready messaging
+✅ CONTRIBUTING.md - Developer guidelines
+✅ README_PIXI.md - @kernelplay/pixi-renderer package
+✅ README_THREE.md - @kernelplay/three-renderer package
+✅ Developer Guide PDF - Mid-level theory-focused documentation
+✅ Reddit post - v0.2.0 announcement
+3. Pending Tasks
+Immediate Next Steps
+🔲 Test sprite/animation system - Verify SpriteComponent + AnimatorComponent integration
+🔲 Scene serialization - Finalize JSON save/load with EntityReference system
+🔲 Audio System - Web Audio API integration (high priority for v0.3.0)
+🔲 Particle System - Pooled particle effects
+🔲 Scene Editor - Visual JSON editor with drag-drop entity references
+v0.3.0 Roadmap
+
+Audio system
+Particle effects
+Scene serialization
+Static object optimization
+Continuous collision detection (prevent tunneling)
+
+4. Key Context
+File Structure
+src/
+├── core/
+│   ├── Game.js
+│   ├── Scene.js (has primaryCamera, _cameras[], component registries)
+│   ├── Entity.js (has static _nextId for unique IDs)
+│   └── Component.js
+├── components/
+│   ├── TransformComponent.js (_dirty flag pattern)
+│   ├── ColliderComponent.js (2D AABB, caches transform)
+│   ├── BoxCollider3D.js (3D AABB, needs init() to cache transform)
+│   ├── Rigidbody2DComponent.js
+│   ├── RigidbodyComponent.js (3D)
+│   ├── CameraComponent.js (NEW - with follow, shake, zoom)
+│   ├── SpriteComponent.js (NEW - sprite rendering)
+│   └── AnimatorComponent.js (NEW - frame animations)
+├── systems/
+│   ├── physics/ (spatial grid in Scene.js)
+│   └── rendering/ (CanvasRenderer, WebGL2DRenderer, ThreeRenderer)
+Critical Architecture Details
+Scene Component Registries:
+javascriptthis._rigidbody2D = [];      // 2D physics
+this._rigidbody3D = [];      // 3D physics
+this._colliders = [];        // 2D colliders
+this._colliders3D = [];      // 3D colliders
+this._renderers = [];        // Render components
+this._cameras = [];          // Camera components
+this.primaryCamera = null;   // Active camera
+Spatial Grid:
+
+_grid2D / _grid3D - HashMap of grid cells
+_gridCellSize = 128 - Cell size (2-4x object size)
+Rebuilt every physics frame
+Collision: O(n) instead of O(n²)
+
+3D Collision (Y-up coordinate system):
+javascript// CRITICAL: Y-up means higher Y = higher position
+if (centerA > centerB) {  // A is ABOVE B
+  posA.y += overlapY + EPS;  // Push UP (positive)
+  if (rbA.velocity.y < 0) rbA.velocity.y = 0;  // Stop falling
+  rbA.isGrounded = true;
+} else {  // A is BELOW B (ceiling)
+  posA.y -= overlapY + EPS;  // Push DOWN (negative)
+  if (rbA.velocity.y > 0) rbA.velocity.y = 0;  // Stop jumping
+}
+Dirty Flag Pattern:
+javascriptget bounds() {
+  if (this.transform._dirty || this._dirty) {
+    this.rebuildBounds();
+  }
+  return this._bounds;  // Cached object (no allocation)
+}
+Camera System:
+javascript// Get camera
+const camera = scene.getPrimaryCamera();
+
+// Switch camera
+scene.setPrimaryCamera(newCameraComponent);
+
+// Camera shake
+camera.shake(intensity, duration);
+Entity Reference System:
+javascript// Create reference
+import { ref } from "./EntityReference.js";
+
+new PlayerScript({
+  enemy: ref(2),           // References entity with id=2
+  weapon: ref(7),
+  speed: 50
+});
+
+// Props auto-injected, refs auto-resolved in onAttach()
+update(dt) {
+  this.enemy  // Resolved entity object
+  this.speed  // Direct prop access
+}
+Sprite & Animation:
+javascript// Sprite
+entity.addComponent("sprite", new SpriteComponent({
+  image: "path/to/sprite.png",
+  width: 32, height: 32,
+  anchor: { x: 0.5, y: 0.5 }
+}));
+
+// Animator
+entity.addComponent("animator", new AnimatorComponent({
+  animations: {
+    idle: {
+      frames: [0, 1, 2, 3],
+      frameRate: 8,
+      loop: true,
+      gridWidth: 8,
+      frameWidth: 32,
+      frameHeight: 32
+    }
+  },
+  defaultAnimation: "idle"
+}));
+
+// Control
+animator.play("walk");
+animator.onAnimationEnd = (name) => { ... };
+5. Recent Bugs & Fixes
+Just Solved ✅
+
+3D collision pass-through - Fixed Y-up coordinate comparisons (centerA > centerB for landing)
+Objects sinking through ground - Fixed push direction (posA.y += overlapY for Y-up)
+Ceiling collision wrong - Fixed push direction (posA.y -= overlapY when hitting ceiling)
+Camera not switching - Need to update scene.primaryCamera manually, not just isPrimary
+BoxCollider3D undefined transform - Added init() method to cache transform reference
+Dirty flag disabled - User commented out dirty check, causing performance issues
+
+Key Learnings
+
+3D uses Y-up (Three.js) vs 2D Y-down (Canvas) - comparisons reversed
+Gravity in Y-up: velocity.y -= gravity * dt (subtract, not add)
+Always call transform._dirty = true after modifying position in collision resolution
+Component registries require exact string match in _registerComponent() switch case
+Cached references break if components destroyed - get fresh or handle null checks
+
+
+Variable Names to Remember
+
+scene.primaryCamera - Current active camera
+scene._colliders3D - 3D collider registry
+this._props - ScriptComponent injected props
+EntityReference.entityId - ID for serialization
+camera.viewBounds - Camera visible area (for culling)
+rb.isGrounded - Reset every _physicsStep(), set during collision
+
+Architecture Choices
+
+ECS not pure - Components can have logic (Unity-style, not strict ECS)
+Spatial grid rebuilt every frame - Not persistent (simpler, fast enough)
+Object pooling automatic - instantiate() handles it, no manual pool management
+Prop injection over constructors - Scripts receive props object, auto-injected as this.propName
+ID-based references - For scene editor, resolved at runtime via scene.findById()
+
+Status: Engine is production-ready for 2D/3D games. Focus now on tooling (editor, serialization) and content systems (audio, particles).

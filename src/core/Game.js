@@ -7,6 +7,7 @@ import { SceneManager } from "./SceneManager.js";
 import { Canvas } from "../graphics/Canvas.js";
 import { CanvasRenderer } from "../graphics/CanvasRenderer.js";
 import { Camera2D } from "./components/Camera2D.js";
+import { AudioManager } from "./AudioManager.js";
 
 export class Game {
   constructor(options = {}) {
@@ -18,6 +19,7 @@ export class Game {
     this.ctx = this.canvas.ctx;
 
     // this.camera = new Camera2D(this.config.width, this.config.height);
+    this.audio = new AudioManager();
 
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
 

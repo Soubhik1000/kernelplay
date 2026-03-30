@@ -10,6 +10,7 @@ import { Rigidbody2DComponent } from "../../../src/index.js";
 
 import { SpriteComponent } from "../../../src/index.js";
 import { AnimatorComponent } from "../../../src/index.js";
+import { AudioSource } from "../../../src/index.js";
 
 export function Player(x = 100, y = 100) {
     const player = new Entity("Player", "player");
@@ -30,7 +31,7 @@ export function Player(x = 100, y = 100) {
     }));
 
     // player.addComponent("velocity", new VelocityComponent());
-    player.addComponent("collider", new ColliderComponent({width: 20, height: 45}));
+    player.addComponent("collider", new ColliderComponent({ width: 20, height: 45 }));
 
     // player.addComponent("renderer", new BoxRenderComponent({color:"#FF0000", zIndex:-10}));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
@@ -95,6 +96,11 @@ export function Player(x = 100, y = 100) {
         camera1: ref(100),
         camera2: ref(101),
         enemypos: ref(5).getComponent("transform"),
+    }));
+
+    player.addComponent("audio", new AudioSource({
+        clip: "/assets/jump.wav",
+        volume: 1
     }));
 
     return player;
