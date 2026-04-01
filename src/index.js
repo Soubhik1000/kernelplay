@@ -40,6 +40,7 @@ export { AnimatorComponent } from "./core/components/AnimatorComponent.js";
 export { Spritesheet } from "./utils/Spritesheet.js";
 export { AudioSource } from "./core/components/AudioSource.js";
 export { AudioListener } from "./core/components/AudioListener.js";
+export { FPSCounterComponent } from "./core/components/FPSCounterComponent.js";
 
 // physics components
 export { RigidbodyComponent } from "./core/physics/RigidbodyComponent.js";

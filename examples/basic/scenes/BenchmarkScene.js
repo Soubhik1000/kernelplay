@@ -160,20 +160,20 @@ export class BenchmarkScene extends Scene {
         this.cpuUsage = Math.min(100, (this.frameTime / 16.67) * 100);
 
         // 🔥 FPS calculation
-        this.frames++;
-        const now = performance.now();
+        // this.frames++;
+        // const now = performance.now();
 
-        if (now >= this.lastTime + 1000) {
-            this.fps = Math.round((this.frames * 1000) / (now - this.lastTime));
-            this.frames = 0;
-            this.lastTime = now;
+        // if (now >= this.lastTime + 1000) {
+        //     this.fps = Math.round((this.frames * 1000) / (now - this.lastTime));
+        //     this.frames = 0;
+        //     this.lastTime = now;
 
-            // Reset GC spike counter every second
-            if (this.gcSpikes > 0) {
-                console.log(`⚠️ ${this.gcSpikes} GC spikes detected in last second`);
-            }
-            this.gcSpikes = 0;
-        }
+        //     // Reset GC spike counter every second
+        //     if (this.gcSpikes > 0) {
+        //         console.log(`⚠️ ${this.gcSpikes} GC spikes detected in last second`);
+        //     }
+        //     this.gcSpikes = 0;
+        // }
 
         // 🔥 Camera controls
         const speed = 500;
@@ -193,6 +193,21 @@ export class BenchmarkScene extends Scene {
 
     render() {
         const { width, height } = this.game.config;
+
+        this.frames++;
+        const now = performance.now();
+
+        if (now >= this.lastTime + 1000) {
+            this.fps = Math.round((this.frames * 1000) / (now - this.lastTime));
+            this.frames = 0;
+            this.lastTime = now;
+
+            // Reset GC spike counter every second
+            if (this.gcSpikes > 0) {
+                console.log(`⚠️ ${this.gcSpikes} GC spikes detected in last second`);
+            }
+            this.gcSpikes = 0;
+        }
 
         // 🔥 Render via parent (uses optimized renderer)
         super.render(this.game.renderer);

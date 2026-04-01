@@ -121,12 +121,12 @@ export class PlayerController extends ScriptComponent {
                 this.isGround = false;
                 if (!this.animator.isAnimationPlaying("jump")) {
                     this.audio.stopAll();
-                    this.animator.play("jump");
+                    // this.animator.play("jump");
 
                     // this.audio.clip = "./assets/jump.mp3";
                     // this.audio.play();
 
-                    this.audio.playOneShot('./assets/jump.mp3')
+                    // this.audio.playOneShot('./assets/jump.mp3')
 
                     // console.log(this.entity.scene.game.audio.listener);
                 }
@@ -139,11 +139,11 @@ export class PlayerController extends ScriptComponent {
                 if (!this.animator.isAnimationPlaying("walk")) {
                     this.animator.play("walk");
 
-                    this.audio.stopAll();
-                    this.audio.clip = './assets/run.mp3';
-                    this.audio.loop = true;
-                    this.audio.volume = 0.5;
-                    this.audio.play();
+                    // this.audio.stopAll();
+                    // this.audio.clip = './assets/run.mp3';
+                    // this.audio.loop = true;
+                    // this.audio.volume = 0.5;
+                    // this.audio.play();
                 }
             } else {
                 if (!this.animator.isAnimationPlaying("idle")) {
