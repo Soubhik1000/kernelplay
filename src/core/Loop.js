@@ -3,13 +3,13 @@ export class Loop {
     this.update = update;
     this.render = render;
 
+    this.targetFPS = fps;
+    this.frameInterval = 1000 / fps;
+
+    this.lastRenderTime = 0;
+
     this.running = false;
-
-    this.fps = fps;
-    this.frameDuration = 1000 / fps; // ms per update step
-
     this.lastTime = 0;
-    this.accumulator = 0;
 
     this._tick = this._tick.bind(this);
   }
@@ -19,7 +19,6 @@ export class Loop {
 
     this.running = true;
     this.lastTime = performance.now();
-    this.accumulator = 0;
 
     requestAnimationFrame(this._tick);
   }
@@ -28,29 +27,59 @@ export class Loop {
     this.running = false;
   }
 
+  // _tick(currentTime) {
+  //   if (!this.running) return;
+
+  //   let dt = (currentTime - this.lastTime) / 1000;
+
+  //   // 🛡️ tab fix
+  //   if (dt > 1) dt = 0;
+
+  //   this.lastTime = currentTime;
+
+  //   if (this.update) this.update(dt);
+  //   if (this.render) this.render();
+
+  //   requestAnimationFrame(this._tick);
+  // }
+
+  // _tick(currentTime) {
+  //   if (!this.running) return;
+
+  //   const dt = (currentTime - this.lastTime) / 1000;
+  //   this.lastTime = currentTime;
+
+  //   if (this.update) this.update(dt);
+
+  //   // 🔥 throttle render
+  //   if (currentTime - this.lastRenderTime >= this.frameInterval) {
+  //     this.lastRenderTime += this.frameInterval;
+
+  //     if (this.render) this.render();
+  //   }
+
+  //   requestAnimationFrame(this._tick);
+  // }
+
   _tick(currentTime) {
     if (!this.running) return;
 
-    // 🔥 Calculate delta
-    let deltaTime = currentTime - this.lastTime;
-
-    // 🛡️ Prevent spiral of death (tab switch / lag spike)
-    if (deltaTime > 100) deltaTime = 100;
-
+    const dt = (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
-    this.accumulator += deltaTime;
 
-    // 🔁 Fixed update loop
-    while (this.accumulator >= this.frameDuration) {
-      const dtSeconds = this.frameDuration / 1000;
+    if (this.update) this.update(dt);
 
-      if (this.update) this.update(dtSeconds);
-
-      this.accumulator -= this.frameDuration;
+    // 🛡️ tab switch fix
+    if (currentTime - this.lastRenderTime > 1000) {
+      this.lastRenderTime = currentTime;
     }
 
-    // 🎨 Render (runs every frame, smooth)
-    if (this.render) this.render();
+    // 🔥 stable FPS throttle
+    if (currentTime - this.lastRenderTime >= this.frameInterval) {
+      this.lastRenderTime += this.frameInterval;
+
+      if (this.render) this.render();
+    }
 
     requestAnimationFrame(this._tick);
   }

@@ -83,6 +83,20 @@ export class Level1 extends Scene {
     
     super.update(dt);
     
+    // this.frames++;
+    // const now = performance.now();
+
+    // if (now >= this.lastTime + 1000) {
+    //   this.fps = this.frames;
+    //   this.frames = 0;
+    //   this.lastTime = now;
+    // }
+    
+  }
+
+  render() {
+    super.render(this.game.renderer);
+
     this.frames++;
     const now = performance.now();
 
@@ -91,11 +105,6 @@ export class Level1 extends Scene {
       this.frames = 0;
       this.lastTime = now;
     }
-    
-  }
-
-  render() {
-    super.render(this.game.renderer);
 
     this.ctx.save();
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.85)";

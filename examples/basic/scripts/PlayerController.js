@@ -121,7 +121,7 @@ export class PlayerController extends ScriptComponent {
                 this.isGround = false;
                 if (!this.animator.isAnimationPlaying("jump")) {
                     this.audio.stopAll();
-                    // this.animator.play("jump");
+                    this.animator.play("jump");
 
                     // this.audio.clip = "./assets/jump.mp3";
                     // this.audio.play();
