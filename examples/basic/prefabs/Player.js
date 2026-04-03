@@ -9,8 +9,93 @@ import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
 
 import { SpriteComponent } from "../../../src/index.js";
-import { AnimatorComponent } from "../../../src/index.js";
+import { AnimatorComponent, AnimationClip, AnimatorController } from "../../../src/index.js";
 import { AudioSource } from "../../../src/index.js";
+
+
+const idleClip = new AnimationClip({
+    name: "idle",
+    frames: [0, 2],
+    frameRate: 2,
+    loop: true,
+    gridWidth: 4,
+    frameWidth: 64,
+    frameHeight: 64,
+});
+
+const walkClip = new AnimationClip({
+    name: "walk",
+    frames: [8, 9, 10, 11],
+    frameRate: 6,
+    loop: true,
+    gridWidth: 4,
+    frameWidth: 64,
+    frameHeight: 64,
+});
+
+const jumpClip = new AnimationClip({
+    name: "jump",
+    frames: [9],
+    frameRate: 1,
+    loop: false,   // plays once
+    // length: 0.5, 
+    gridWidth: 4,
+    frameWidth: 64,
+    frameHeight: 64,
+});
+
+const controller = new AnimatorController()
+  .addParameter("speed", "float", 0)
+  .addParameter("isGrounded", "bool", false)  // ← add this
+  .addParameter("jump", "trigger")
+
+  .addState("idle", idleClip)
+  .addState("walk", walkClip)
+  .addState("jump", jumpClip)
+
+  // idle → walk: must be moving AND grounded
+  .addTransition("idle", "walk", {
+    conditions: [
+      { param: "speed", op: ">", value: 0.1 },
+      { param: "isGrounded", op: "true" },   // ← grounded check
+    ],
+    hasExitTime: false,
+    duration: 0,
+  })
+
+  // walk → idle: stopped OR not grounded
+  .addTransition("walk", "idle", {
+    conditions: [
+      { param: "speed", op: "<=", value: 0.1 },
+    ],
+    hasExitTime: false,
+    duration: 0,
+  })
+
+  // walk → jump if leaves ground (e.g. walks off a ledge)
+  .addTransition("walk", "jump", {
+    conditions: [
+      { param: "isGrounded", op: "false" },  // ← fell off ledge
+    ],
+    hasExitTime: false,
+    duration: 0,
+  })
+
+  // AnyState → jump on trigger
+  .addAnyStateTransition("jump", {
+    conditions: [{ param: "jump", op: "trigger" }],
+    hasExitTime: false,
+    priority: 10,
+  })
+
+  // jump → idle only when grounded again
+  .addTransition("jump", "idle", {
+    conditions: [
+      { param: "isGrounded", op: "true" },   // ← wait for landing
+    ],
+    hasExitTime: false,
+    duration: 0,
+  });
 
 export function Player(x = 100, y = 100) {
     const player = new Entity("Player", "player");
@@ -40,8 +125,8 @@ export function Player(x = 100, y = 100) {
         image: "./assets/player_sheet.png",
         // sourceX: 6,
         // sourceY: 12,
-        // sourceWidth: 50,
-        // sourceHeight: 50,
+        sourceWidth: 64,
+        sourceHeight: 64,
         width: 50,
         height: 50,
         anchor: { x: 0.5, y: 0.5 },
@@ -49,45 +134,47 @@ export function Player(x = 100, y = 100) {
         // alpha: 1
     }));
 
+    player.addComponent("animator", new AnimatorComponent({ controller }));
+
     // Animator component
-    player.addComponent("animator", new AnimatorComponent({
-        animations: {
-            idle: {
-                frames: [0, 2],      // Frame indices
-                frameRate: 2,              // 8 FPS
-                loop: true,
-                gridWidth: 4,              // 8 frames per row
-                frameWidth: 64,
-                frameHeight: 64
-            },
-            walk: {
-                frames: [8, 9, 10, 11],
-                frameRate: 6,
-                loop: true,
-                gridWidth: 4,
-                frameWidth: 64,
-                frameHeight: 64
-            },
-            jump: {
-                frames: [9],
-                frameRate: 1,
-                loop: false,              // Don't loop jump
-                gridWidth: 4,
-                frameWidth: 64,
-                frameHeight: 64
-            },
-            attack: {
-                frames: [12, 13, 14, 15],
-                frameRate: 4,
-                loop: false,
-                gridWidth: 4,
-                frameWidth: 64,
-                frameHeight: 64
-            }
-        },
-        defaultAnimation: "idle",
-        autoPlay: true
-    }));
+    // player.addComponent("animator", new AnimatorComponent({
+    //     animations: {
+    //         idle: {
+    //             frames: [0, 2],      // Frame indices
+    //             frameRate: 2,              // 8 FPS
+    //             loop: true,
+    //             gridWidth: 4,              // 8 frames per row
+    //             frameWidth: 64,
+    //             frameHeight: 64
+    //         },
+    //         walk: {
+    //             frames: [8, 9, 10, 11],
+    //             frameRate: 6,
+    //             loop: true,
+    //             gridWidth: 4,
+    //             frameWidth: 64,
+    //             frameHeight: 64
+    //         },
+    //         jump: {
+    //             frames: [9],
+    //             frameRate: 1,
+    //             loop: false,              // Don't loop jump
+    //             gridWidth: 4,
+    //             frameWidth: 64,
+    //             frameHeight: 64
+    //         },
+    //         attack: {
+    //             frames: [12, 13, 14, 15],
+    //             frameRate: 4,
+    //             loop: false,
+    //             gridWidth: 4,
+    //             frameWidth: 64,
+    //             frameHeight: 64
+    //         }
+    //     },
+    //     defaultAnimation: "idle",
+    //     autoPlay: true
+    // }));
 
     player.addComponent("playerController", new PlayerController({
         enemy: ref(5),

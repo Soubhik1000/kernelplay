@@ -6,6 +6,7 @@ import { Layers } from "../../../src/index.js";
 import { KeyCode } from "../../../src/index.js";
 import { MouseButton } from "../../../src/index.js";
 
+
 // import * as PIXI from "pixi.js";
 
 export class PlayerController extends ScriptComponent {
@@ -44,7 +45,7 @@ export class PlayerController extends ScriptComponent {
         const rb = this.entity.getComponent("rigidbody2d");
         const transform = this.entity.getComponent("transform");
 
-        const isMoving = Keyboard.isPressed(KeyCode.ArrowLeft) || Keyboard.isPressed(KeyCode.ArrowRight);
+        // const isMoving = Keyboard.isPressed(KeyCode.ArrowLeft) || Keyboard.isPressed(KeyCode.ArrowRight);
 
         // const renderer = this.entity.getComponent("renderer");
         // console.log(transform.position);
@@ -76,6 +77,12 @@ export class PlayerController extends ScriptComponent {
             rb.velocity.x = -this.speed;
             this.sprite.flipX = true;
         }
+
+        // Drive animator — speed parameter only
+        const isMoving = rb.velocity.x !== 0;
+        this.animator.setParameter("speed", isMoving ? 1 : 0);
+        this.animator.setParameter("isGrounded", rb.isGrounded);  // ← this line
+
         if (Keyboard.isPressed(KeyCode.W)) rb.addForce(0, -30, "impulse");
         // if (Keyboard.isPressed("ArrowDown")) rb.addForce(0, 800);
 
@@ -119,39 +126,42 @@ export class PlayerController extends ScriptComponent {
             if (Keyboard.isPressed(KeyCode.Space)) {
                 rb.addForce(0, -600, "impulse");
                 this.isGround = false;
-                if (!this.animator.isAnimationPlaying("jump")) {
-                    this.audio.stopAll();
-                    this.animator.play("jump");
+                // this.animator.play("jump");
+                this.animator.setTrigger("jump");
 
-                    // this.audio.clip = "./assets/jump.mp3";
-                    // this.audio.play();
+                // if (!this.animator.isAnimationPlaying("jump")) {
+                //     this.audio.stopAll();
+                //     this.animator.play("jump");
 
-                    // this.audio.playOneShot('./assets/jump.mp3')
+                //     // this.audio.clip = "./assets/jump.mp3";
+                //     // this.audio.play();
 
-                    // console.log(this.entity.scene.game.audio.listener);
-                }
+                //     // this.audio.playOneShot('./assets/jump.mp3')
+
+                //     // console.log(this.entity.scene.game.audio.listener);
+                // }
             }
         }
 
         // Animation state machine
-        if (!this.animator.isAnimationPlaying("attack") && !this.animator.isAnimationPlaying("jump")) {
-            if (isMoving && rb.isGrounded) {
-                if (!this.animator.isAnimationPlaying("walk")) {
-                    this.animator.play("walk");
+        // if (!this.animator.isAnimationPlaying("attack") && !this.animator.isAnimationPlaying("jump")) {
+        //     if (isMoving && rb.isGrounded) {
+        //         if (!this.animator.isAnimationPlaying("walk")) {
+        //             this.animator.play("walk");
 
-                    // this.audio.stopAll();
-                    // this.audio.clip = './assets/run.mp3';
-                    // this.audio.loop = true;
-                    // this.audio.volume = 0.5;
-                    // this.audio.play();
-                }
-            } else {
-                if (!this.animator.isAnimationPlaying("idle")) {
-                    this.animator.play("idle");
-                    this.audio.stopAll();
-                }
-            }
-        }
+        //             // this.audio.stopAll();
+        //             // this.audio.clip = './assets/run.mp3';
+        //             // this.audio.loop = true;
+        //             // this.audio.volume = 0.5;
+        //             // this.audio.play();
+        //         }
+        //     } else {
+        //         if (!this.animator.isAnimationPlaying("idle")) {
+        //             this.animator.play("idle");
+        //             this.audio.stopAll();
+        //         }
+        //     }
+        // }
 
 
         if (Keyboard.isPressed("g")) {
@@ -189,7 +199,7 @@ export class PlayerController extends ScriptComponent {
         if (Keyboard.wasPressed(KeyCode.O)) {
             // this.primarycamera.target = this.entity;
             this.camera.setTarget(this.entity);
-            this.camera.shake(20, 0.5);
+            // this.camera.shake(20, 0.5);
             // this.primarycamera.zoom = 2.0;  // 2x zoom
 
             console.log(this.camera);

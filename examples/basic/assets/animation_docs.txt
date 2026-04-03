@@ -1,0 +1,658 @@
+# KernelPlayJS — Animation System
+
+Full reference for `AnimationClip`, `AnimatorController`, and `AnimatorComponent`.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [AnimationClip](#animationclip)
+- [AnimatorController](#animatorcontroller)
+- [AnimatorComponent](#animatorcomponent)
+- [Parameters & Conditions](#parameters--conditions)
+- [Transitions](#transitions)
+- [Callbacks](#callbacks)
+- [3D Property Animation](#3d-property-animation)
+- [Static Animation](#static-animation)
+- [Legacy Shorthand](#legacy-shorthand)
+- [Full Example — Platformer Player](#full-example--platformer-player)
+
+---
+
+## Overview
+
+The animation system has three layers:
+
+```
+AnimationClip        — pure data (frames, tracks, timing)
+AnimatorController   — state machine (states, transitions, parameters)
+AnimatorComponent    — runtime (attached to entity, drives sprite or 3D properties)
+```
+
+You create clips, register them as states in a controller, then attach the controller to an `AnimatorComponent` on your entity. The component evaluates transitions automatically every frame based on parameters you feed it.
+
+---
+
+## AnimationClip
+
+A pure data object describing a single animation. Has no logic of its own.
+
+### Constructor
+
+```javascript
+import { AnimationClip } from "./components/AnimationClip.js";
+
+const clip = new AnimationClip({
+  name:        "walk",     // string — clip identifier
+  frameRate:   12,         // frames per second
+  loop:        true,       // loop when finished
+  length:      null,       // seconds — auto-calculated if null
+
+  // 2D sprite sheet options
+  frames:      [],         // array of frame indices or { x, y, w, h } objects
+  gridWidth:   1,          // number of columns in the sprite sheet
+  frameWidth:  32,         // width of one frame in pixels
+  frameHeight: 32,         // height of one frame in pixels
+
+  // 3D / property animation
+  tracks:      {},         // { "component.property": [ {time, value}, ... ] }
+});
+```
+
+### Frame formats
+
+**Numeric index** — KernelPlayJS calculates the source rect from the grid:
+
+```javascript
+// sprite sheet with 8 columns, 32x32 frames
+const walkClip = new AnimationClip({
+  frames:     [8, 9, 10, 11, 12, 13],
+  gridWidth:  8,
+  frameWidth:  32,
+  frameHeight: 32,
+  frameRate:  12,
+  loop:       true,
+});
+```
+
+**Explicit rect** — give exact pixel coordinates per frame:
+
+```javascript
+const walkClip = new AnimationClip({
+  frames: [
+    { x: 0,   y: 32, w: 32, h: 32 },
+    { x: 32,  y: 32, w: 32, h: 32 },
+    { x: 64,  y: 32, w: 32, h: 32 },
+  ],
+  frameRate: 12,
+  loop: true,
+});
+```
+
+### Manual length
+
+For single-frame clips or clips you want to hold longer than the frames dictate:
+
+```javascript
+const jumpClip = new AnimationClip({
+  frames:    [16],   // single frame
+  frameRate: 10,
+  loop:      false,
+  length:    0.5,    // hold for 0.5 seconds regardless of frame count
+});
+```
+
+### Methods
+
+```javascript
+// Get source rect for a frame index — used internally by AnimatorComponent
+clip.getFrameRect(frameIndex);
+// returns { x, y, w, h } or null
+
+// Sample a property track at a given time (linear interpolation)
+clip.sampleTrack("transform.position.x", 0.75);
+// returns interpolated value or null
+
+// Serialization
+clip.toJSON();
+AnimationClip.fromJSON(data);
+```
+
+---
+
+## AnimatorController
+
+The state machine. Holds states, transitions, and parameters. No entity needed — it is just data + logic.
+
+### Constructor
+
+```javascript
+import { AnimatorController } from "./components/AnimatorController.js";
+
+const controller = new AnimatorController();
+```
+
+### addState(name, clip, options)
+
+Register a clip as a named state.
+
+```javascript
+controller.addState("idle", idleClip);
+
+// With options
+controller.addState("walk", walkClip, {
+  speed:  1.5,    // play clip faster (multiplies frameRate)
+  mirror: false,  // reserved for future flip support
+  tag:    "locomotion",  // optional tag for grouping
+});
+```
+
+The first state added automatically becomes `entryState` (the default starting state).
+
+### addParameter(name, type, defaultValue)
+
+Parameters drive transitions. Four types: `"bool"`, `"float"`, `"int"`, `"trigger"`.
+
+```javascript
+controller.addParameter("speed",      "float",   0);
+controller.addParameter("isGrounded", "bool",    false);
+controller.addParameter("jump",       "trigger", false);
+controller.addParameter("health",     "int",     100);
+```
+
+A **trigger** is a bool that resets itself to `false` automatically after it fires a transition.
+
+### addTransition(from, to, options)
+
+Add a transition between two states.
+
+```javascript
+controller.addTransition("idle", "walk", {
+  conditions:  [],      // array of condition objects (see below)
+  hasExitTime: false,   // if true, transition waits until exitTime is reached
+  exitTime:    1.0,     // normalized time (0–1) within clip before transition fires
+  duration:    0,       // crossfade seconds (0 = instant)
+  priority:    0,       // higher = evaluated first
+});
+```
+
+### addAnyStateTransition(to, options)
+
+Fires from any state — useful for jump, hurt, death.
+
+```javascript
+controller.addAnyStateTransition("jump", {
+  conditions:  [{ param: "jump", op: "trigger" }],
+  hasExitTime: false,
+  priority:    10,
+});
+```
+
+### setParameter / setTrigger / getParameter
+
+```javascript
+controller.setParameter("speed", 3.5);
+controller.setParameter("isGrounded", true);
+controller.setTrigger("jump");          // sets trigger = true, consumed on next transition
+controller.resetTrigger("jump");        // manually reset without firing
+controller.getParameter("speed");       // returns current value
+```
+
+### Serialization
+
+```javascript
+controller.toJSON();
+AnimatorController.fromJSON(data, clipFromJSON);
+```
+
+---
+
+## AnimatorComponent
+
+The runtime component. Attach it to an entity. It updates every frame, evaluates transitions, and applies frames to `SpriteComponent` or properties via tracks.
+
+### Constructor
+
+```javascript
+import { AnimatorComponent } from "./components/AnimatorComponent.js";
+
+entity.addComponent("animator", new AnimatorComponent({
+  controller:       myController,  // AnimatorController instance
+  autoPlay:         true,          // enter entryState on init()
+  speed:            1.0,           // global playback speed multiplier
+}));
+```
+
+### play(stateName, reset)
+
+Immediately jump to a state. Bypasses transition conditions.
+
+```javascript
+animator.play("idle");
+animator.play("walk");
+
+// Don't restart if already in this state
+animator.play("walk", false);
+```
+
+### crossFade(stateName, duration)
+
+Smoothly transition to a state over `duration` seconds.
+
+```javascript
+animator.crossFade("idle", 0.15);  // 150ms blend
+animator.crossFade("run",  0.2);
+```
+
+### setParameter(name, value)
+
+Feed a value to the controller — drives automatic transitions.
+
+```javascript
+animator.setParameter("speed",      rb.velocity.x !== 0 ? 1 : 0);
+animator.setParameter("isGrounded", rb.isGrounded);
+animator.setParameter("health",     this.health);
+```
+
+### setTrigger(name)
+
+Fire a one-shot trigger. Consumed automatically after the transition fires.
+
+```javascript
+animator.setTrigger("jump");
+animator.setTrigger("attack");
+animator.setTrigger("hurt");
+```
+
+### stop / pause / resume
+
+```javascript
+animator.stop();    // stop playback, hold current frame
+animator.pause();   // same as stop
+animator.resume();  // continue from where it stopped
+```
+
+### Getters
+
+```javascript
+animator.currentState   // string — current state name
+animator.isPlaying      // bool
+animator.isInState("walk")  // bool — true if currently in named state
+animator.getParameter("speed")  // returns parameter value
+```
+
+---
+
+## Parameters & Conditions
+
+Conditions are objects with three fields: `param`, `op`, `value`.
+
+| op        | type    | description                              |
+|-----------|---------|------------------------------------------|
+| `"true"`  | bool    | param is true                            |
+| `"false"` | bool    | param is false                           |
+| `">"`     | float/int | param greater than value               |
+| `"<"`     | float/int | param less than value                  |
+| `">="`    | float/int | param greater than or equal to value   |
+| `"<="`    | float/int | param less than or equal to value      |
+| `"=="`    | any     | param equals value                       |
+| `"!="`    | any     | param does not equal value               |
+| `"trigger"` | trigger | fires and auto-resets                  |
+
+```javascript
+// Multiple conditions — ALL must be true for transition to fire
+.addTransition("idle", "walk", {
+  conditions: [
+    { param: "speed",      op: ">",    value: 0.1 },
+    { param: "isGrounded", op: "true"             },
+  ],
+})
+```
+
+---
+
+## Transitions
+
+### Instant transition (most common)
+
+```javascript
+.addTransition("idle", "walk", {
+  conditions:  [{ param: "speed", op: ">", value: 0.1 }],
+  hasExitTime: false,
+  duration:    0,
+})
+```
+
+### Wait for clip to finish (hasExitTime)
+
+```javascript
+// Transition after 95% of the clip has played
+.addTransition("jump", "idle", {
+  hasExitTime: true,
+  exitTime:    0.95,
+  duration:    0,
+})
+```
+
+### Wait for clip to finish AND condition
+
+```javascript
+.addTransition("jump", "idle", {
+  conditions:  [{ param: "isGrounded", op: "true" }],
+  hasExitTime: false,  // condition alone is enough
+  duration:    0,
+})
+```
+
+### Crossfade transition
+
+```javascript
+.addTransition("walk", "run", {
+  conditions: [{ param: "speed", op: ">", value: 5 }],
+  duration:   0.15,  // 150ms blend between states
+})
+```
+
+### AnyState transition (trigger, hurt, death)
+
+```javascript
+// Fires from any state — highest priority
+.addAnyStateTransition("death", {
+  conditions: [{ param: "isDead", op: "true" }],
+  priority:   100,
+})
+```
+
+---
+
+## Callbacks
+
+```javascript
+const animator = entity.getComponent("animator");
+
+// Fires when entering a new state
+animator.onStateEnter = (stateName) => {
+  if (stateName === "jump") rb.addForce(0, -600, "impulse");
+  if (stateName === "attack") this.hitbox.enabled = true;
+};
+
+// Fires when exiting a state
+animator.onStateExit = (stateName) => {
+  if (stateName === "attack") this.hitbox.enabled = false;
+};
+
+// Fires when a non-looping clip finishes
+animator.onAnimationEnd = (stateName) => {
+  if (stateName === "death") this.entity.destroy();
+  if (stateName === "attack") animator.play("idle");
+};
+```
+
+---
+
+## 3D Property Animation
+
+No sprite needed. Tracks drive any component property directly using dot-path notation: `"componentKey.property.subproperty"`.
+
+```javascript
+const bobClip = new AnimationClip({
+  name:   "bob",
+  loop:   true,
+  length: 1.5,
+  tracks: {
+    "transform.position.y": [
+      { time: 0.0,  value: 0   },
+      { time: 0.75, value: 1.5 },
+      { time: 1.5,  value: 0   },
+    ],
+  },
+});
+
+const spinClip = new AnimationClip({
+  name:   "spin",
+  loop:   true,
+  length: 2.0,
+  tracks: {
+    "transform.rotation.y": [
+      { time: 0.0, value: 0            },
+      { time: 2.0, value: Math.PI * 2  },
+    ],
+  },
+});
+
+// Animate alpha on a sprite
+const fadeClip = new AnimationClip({
+  name:   "fade",
+  loop:   false,
+  length: 1.0,
+  tracks: {
+    "sprite.alpha": [
+      { time: 0.0, value: 1 },
+      { time: 1.0, value: 0 },
+    ],
+  },
+});
+```
+
+Track values are linearly interpolated between keyframes. Supported value types: `number`, `{ x, y, z }` vectors, arrays.
+
+```javascript
+// Animate a full position vector
+const moveClip = new AnimationClip({
+  name:   "move",
+  loop:   false,
+  length: 2.0,
+  tracks: {
+    "transform.position": [
+      { time: 0.0, value: { x: 0,   y: 0,  z: 0  } },
+      { time: 1.0, value: { x: 100, y: 50, z: 0  } },
+      { time: 2.0, value: { x: 200, y: 0,  z: 0  } },
+    ],
+  },
+});
+```
+
+Attach exactly like 2D — no sprite component required:
+
+```javascript
+const ac = new AnimatorController()
+  .addState("bob", bobClip);
+
+entity.addComponent("animator", new AnimatorComponent({ controller: ac }));
+```
+
+---
+
+## Static Animation
+
+A "static animation" is a clip with a single frame used to set a pose or hold a visual state.
+
+```javascript
+// Single frame — holds at that frame forever (loop: true means it just stays)
+const crouchClip = new AnimationClip({
+  name:      "crouch",
+  frames:    [24],      // frame 24 on the sprite sheet
+  frameRate: 1,
+  loop:      true,
+  gridWidth:  8,
+  frameWidth:  32,
+  frameHeight: 32,
+});
+
+controller.addState("crouch", crouchClip);
+```
+
+For 3D, a static animation holds a transform at a fixed value:
+
+```javascript
+const openDoorClip = new AnimationClip({
+  name:   "open",
+  loop:   false,
+  length: 0.0001,  // near-zero length
+  tracks: {
+    "transform.rotation.y": [
+      { time: 0, value: Math.PI / 2 },  // 90 degrees — held
+    ],
+  },
+});
+```
+
+Or use `play()` directly and `stop()` to freeze on a frame:
+
+```javascript
+animator.play("crouch");
+animator.stop();   // freezes on the first frame of crouch immediately
+```
+
+---
+
+## Legacy Shorthand
+
+If you don't need a state machine, pass `animations` and `defaultAnimation` directly. A simple controller is built for you automatically — all existing code keeps working with zero changes.
+
+```javascript
+entity.addComponent("animator", new AnimatorComponent({
+  animations: {
+    idle: {
+      frames:      [0, 1, 2, 3],
+      frameRate:   8,
+      loop:        true,
+      gridWidth:   8,
+      frameWidth:  32,
+      frameHeight: 32,
+    },
+    walk: {
+      frames:      [8, 9, 10, 11],
+      frameRate:   12,
+      loop:        true,
+      gridWidth:   8,
+      frameWidth:  32,
+      frameHeight: 32,
+    },
+  },
+  defaultAnimation: "idle",
+}));
+
+// Manual control — no parameters needed
+animator.play("walk");
+animator.play("idle");
+```
+
+No transitions are added in this mode — you call `play()` yourself.
+
+---
+
+## Full Example — Platformer Player
+
+```javascript
+import { AnimationClip }      from "./components/AnimationClip.js";
+import { AnimatorController } from "./components/AnimatorController.js";
+import { AnimatorComponent }  from "./components/AnimatorComponent.js";
+import { ScriptComponent }    from "./core/ScriptComponent.js";
+
+export class PlayerScript extends ScriptComponent {
+  onAttach() {
+    this.rb       = this.entity.getComponent("rigidbody2d");
+    this.sprite   = this.entity.getComponent("sprite");
+    this.animator = this.entity.getComponent("animator");
+
+    // Callbacks
+    this.animator.onStateEnter = (state) => {
+      if (state === "hurt") this.rb.addForce(0, -300, "impulse");
+    };
+    this.animator.onAnimationEnd = (state) => {
+      if (state === "hurt") this.animator.play("idle");
+    };
+  }
+
+  update(dt) {
+    this.rb.velocity.x = 0;
+
+    if (Keyboard.isPressed(KeyCode.ArrowRight)) {
+      this.rb.velocity.x  = 200;
+      this.sprite.flipX   = false;
+    }
+    if (Keyboard.isPressed(KeyCode.ArrowLeft)) {
+      this.rb.velocity.x  = -200;
+      this.sprite.flipX   = true;
+    }
+
+    // Feed parameters every frame
+    this.animator.setParameter("speed",      this.rb.velocity.x !== 0 ? 1 : 0);
+    this.animator.setParameter("isGrounded", this.rb.isGrounded);
+
+    // Jump
+    if (this.rb.isGrounded && Keyboard.isPressed(KeyCode.Space)) {
+      this.rb.addForce(0, -600, "impulse");
+      this.animator.setTrigger("jump");
+    }
+  }
+
+  takeDamage() {
+    this.animator.setTrigger("hurt");
+  }
+}
+
+// ── Build clips ───────────────────────────────────────────────────────────────
+
+const GRID = { gridWidth: 8, frameWidth: 32, frameHeight: 32 };
+
+const idleClip = new AnimationClip({ name: "idle",  frames: [0,1,2,3],         frameRate: 8,  loop: true,  ...GRID });
+const walkClip = new AnimationClip({ name: "walk",  frames: [8,9,10,11,12,13], frameRate: 12, loop: true,  ...GRID });
+const jumpClip = new AnimationClip({ name: "jump",  frames: [16],              frameRate: 10, loop: false, length: 0.5, ...GRID });
+const hurtClip = new AnimationClip({ name: "hurt",  frames: [24,25],           frameRate: 10, loop: false, ...GRID });
+
+// ── Build controller ──────────────────────────────────────────────────────────
+
+const controller = new AnimatorController()
+  .addParameter("speed",      "float",   0)
+  .addParameter("isGrounded", "bool",    false)
+  .addParameter("jump",       "trigger")
+  .addParameter("hurt",       "trigger")
+
+  .addState("idle", idleClip)
+  .addState("walk", walkClip)
+  .addState("jump", jumpClip)
+  .addState("hurt", hurtClip)
+
+  // idle ↔ walk (grounded only)
+  .addTransition("idle", "walk", {
+    conditions:  [{ param: "speed", op: ">", value: 0.1 }, { param: "isGrounded", op: "true" }],
+    hasExitTime: false, duration: 0,
+  })
+  .addTransition("walk", "idle", {
+    conditions:  [{ param: "speed", op: "<=", value: 0.1 }],
+    hasExitTime: false, duration: 0,
+  })
+
+  // walk → jump if falls off ledge
+  .addTransition("walk", "jump", {
+    conditions:  [{ param: "isGrounded", op: "false" }],
+    hasExitTime: false, duration: 0,
+  })
+
+  // jump → idle on landing
+  .addTransition("jump", "idle", {
+    conditions:  [{ param: "isGrounded", op: "true" }],
+    hasExitTime: false, duration: 0,
+  })
+
+  // AnyState → jump (trigger, high priority)
+  .addAnyStateTransition("jump", {
+    conditions: [{ param: "jump", op: "trigger" }],
+    hasExitTime: false, priority: 10,
+  })
+
+  // AnyState → hurt (trigger, highest priority)
+  .addAnyStateTransition("hurt", {
+    conditions: [{ param: "hurt", op: "trigger" }],
+    hasExitTime: false, priority: 20,
+  });
+
+// ── Attach to entity ──────────────────────────────────────────────────────────
+
+entity.addComponent("sprite",   new SpriteComponent({ image: "./assets/player.png", width: 32, height: 32 }));
+entity.addComponent("animator", new AnimatorComponent({ controller }));
+entity.addComponent("script",   new PlayerScript());
+```
