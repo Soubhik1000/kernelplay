@@ -69,7 +69,7 @@ export class Level1 extends Scene {
     this.addEntity(new Wall(200, 100));
     this.addEntity(new Wall(300, 100, true));
     this.addEntity(wall);
-    this.addEntity(new Grass(400, 400));
+    // this.addEntity(new Grass(400, 400));
 
     // Three
     // let ground = new Cube1(0,-4,0);
