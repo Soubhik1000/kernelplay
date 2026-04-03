@@ -1,6 +1,7 @@
 import { Scene } from "../../../src/core/Scene.js";
 import { Player } from "../prefabs/Player.js";
 import { Wall } from "../prefabs/Wall.js";
+import { Grass } from "../prefabs/Grass.js";
 import { CameraComponent, Entity, TransformComponent, FPSCounterComponent } from "../../../src/index.js";
 // import { Cube } from "../prefabs/Cube.js";
 // import { Cube1 } from "../prefabs/Cube1.js";
@@ -68,6 +69,7 @@ export class Level1 extends Scene {
     this.addEntity(new Wall(200, 100));
     this.addEntity(new Wall(300, 100, true));
     this.addEntity(wall);
+    this.addEntity(new Grass(400, 400));
 
     // Three
     // let ground = new Cube1(0,-4,0);
