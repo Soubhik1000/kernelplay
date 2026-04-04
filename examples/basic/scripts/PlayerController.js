@@ -124,6 +124,8 @@ export class PlayerController extends ScriptComponent {
 
 
         if (rb.isGrounded) {
+            // console.log('hi');
+            
             if (Keyboard.isPressed(KeyCode.Space)) {
                 rb.addForce(0, -600, "impulse");
                 this.isGround = false;

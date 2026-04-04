@@ -17,13 +17,13 @@ export class RigidbodyComponent extends Component {
 
     // Pure data — physics engine writes to these
     this.velocity = { x: 0, y: 0, z: 0 };
-    this.force    = { x: 0, y: 0, z: 0 };
+    this.force = { x: 0, y: 0, z: 0 };
     this.isGrounded = false;
   }
 
   // Thin wrapper — delegates to physics engine
   addForce(x, y, z = 0, mode = "force") {
-    this.entity?.scene?.physics?.addForce(this, x, y, z, mode);
+    this.entity?.scene?.game?.physics?.addForce(this, x, y, z, mode);
   }
 
   addImpulse(x, y, z = 0) {

@@ -13,7 +13,7 @@ export class Physics2D extends PhysicsEngine {
   }
 
   step(scene, dt) {
-    console.log(scene);
+    // console.log(scene);
     
     const gravity = scene.game?.config?.gravity ?? 980;
 
@@ -21,7 +21,7 @@ export class Physics2D extends PhysicsEngine {
     for (const rb of scene._rigidbodies) {
     //   if (rb.isKinematic || !rb.entity.active) continue;
       if (rb.isKinematic) continue;
-console.log('hi');
+// console.log('hi');
 
       rb.isGrounded = false;
 
@@ -52,7 +52,7 @@ console.log('hi');
     this._handleCollisions(scene);
   }
 
-  addForce(rb, x, y, z = 0, mode = "force") {
+  addForce(rb, x, y, mode = "force") {
     if (mode === "impulse") {
       rb.velocity.x += x / rb.mass;
       rb.velocity.y += y / rb.mass;

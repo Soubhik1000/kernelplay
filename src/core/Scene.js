@@ -921,7 +921,7 @@ export class Scene {
   // _physicsStep becomes:
 
   _physicsStep(dt) {
-    this.physics?.step(this, dt);
+    this.game.physics?.step(this, dt);
   }
 
   _recycleEntity(entity) {
