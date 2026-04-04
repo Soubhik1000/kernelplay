@@ -6,7 +6,7 @@ import { ref } from "../../../src/index.js";
 
 // import { WebGLBoxRender2D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
-import { Rigidbody2DComponent } from "../../../src/index.js";
+import { Rigidbody2DComponent, RigidbodyComponent } from "../../../src/index.js";
 
 import { SpriteComponent } from "../../../src/index.js";
 import { AnimatorComponent, AnimationClip, AnimatorController } from "../../../src/index.js";
@@ -108,7 +108,14 @@ export function Player(x = 100, y = 100) {
         scale: { x: 1.4, y: 1.4 }
     }));
 
-    player.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    // player.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    //     mass: 1,
+    //     gravityScale: 1,
+    //     drag: 1,
+    //     // useGravity: false
+    // }));
+
+    player.addComponent("rigidbody", new RigidbodyComponent({
         mass: 1,
         gravityScale: 1,
         drag: 1,

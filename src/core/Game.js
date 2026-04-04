@@ -8,6 +8,7 @@ import { Canvas } from "../graphics/Canvas.js";
 import { CanvasRenderer } from "../graphics/CanvasRenderer.js";
 import { Camera2D } from "./components/Camera2D.js";
 import { AudioManager } from "./AudioManager.js";
+import { Physics2D } from "./physics/Physics2D.js";
 
 export class Game {
   constructor(options = {}) {
@@ -20,6 +21,13 @@ export class Game {
 
     // this.camera = new Camera2D(this.config.width, this.config.height);
     this.audio = new AudioManager();
+
+    // In constructor, after renderer init:
+    this.physics = options.physics || new Physics2D();
+
+    // In SceneManager.startScene (or wherever scene.game is injected):
+    // scene.physics = this.game.physics;
+    this.physics.init(this);
 
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
 
@@ -34,10 +42,10 @@ export class Game {
       update: (dt) => {
         Time.update(dt, performance.now());
         dt = Math.min(dt, 0.05);
-        
+
         this.update(dt);
         this.sceneManager.update(dt);
-        
+
         Keyboard.update();
         Mouse.update();
       },
@@ -62,13 +70,13 @@ export class Game {
 
   init() {
     // console.log("init");
-    
+
     // this.renderer.init(this);
     // console.log("init");
     // await this.renderer.init(this);
   }
-  update(dt) {}
-  render() {}
+  update(dt) { }
+  render() { }
 
   start() {
     this.init();

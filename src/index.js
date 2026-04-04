@@ -16,6 +16,9 @@ export { ref } from "./core/EntityReference.js";
 export { EntityReference } from "./core/EntityReference.js";
 export { AnimatorController } from "./graphics/AnimatorController.js";
 export { AnimationClip } from "./graphics/AnimationClip.js";
+export { Physics2D } from "./core/physics/Physics2D.js";
+export { Physics3D } from "./core/physics/Physics3D.js";
+export { PhysicsEngine } from "./core/physics/PhysicsEngine.js";
 
 // uitls
 export { KeyCode } from "./utils/KeyCode.js";

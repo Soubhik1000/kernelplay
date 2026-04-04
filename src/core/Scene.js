@@ -27,6 +27,7 @@ export class Scene {
     this._grid3D = new Map();
     this._gridCellSize = 128; // adjust as needed
     this.primaryCamera = null;
+    this._rigidbodies = [];
   }
 
   addEntity(entity) {
@@ -435,11 +436,13 @@ export class Scene {
   _registerComponent(type, component) {
     switch (type) {
       case "rigidbody2d":
-        this._rigidbody2D.push(component);
+        // this._rigidbody2D.push(component);
+        this._rigidbodies.push(component);
         break;
 
       case "rigidbody":
-        this._rigidbody3D.push(component);
+        // this._rigidbody3D.push(component);
+        this._rigidbodies.push(component);
         break;
 
       case "collider":
@@ -474,10 +477,12 @@ export class Scene {
 
     switch (type) {
       case "rigidbody2d":
-        list = this._rigidbody2D;
+        // list = this._rigidbody2D;
+        list = this._rigidbodies;
         break;
       case "rigidbody":
-        list = this._rigidbody3D;
+        // list = this._rigidbody3D;
+        list = this._rigidbodies;
         break;
       case "collider":
         list = this._colliders;
@@ -885,32 +890,38 @@ export class Scene {
     }
   }
 
+  // _physicsStep(dt) {
+  //   const gravity = this.game?.config?.gravity ?? 980;
+
+  //   // for (const entity of this.entities) {
+  //   //   const r2b = entity.getComponent("rigidbody2d");
+  //   //   if (r2b) r2b.isGrounded = false;
+  //   //   if (r2b) r2b.integrate(dt, gravity);
+
+  //   //   const rb3d = entity.getComponent("rigidbody");
+  //   //   if (rb3d) rb3d.isGrounded = false;
+  //   //   if (rb3d) rb3d.integrate(dt, gravity);
+  //   // }
+
+  //   // 🔥 Direct loop over rigidbodies
+  //   for (const rb of this._rigidbody2D) {
+  //     rb.isGrounded = false;
+  //     rb.integrate(dt, gravity);
+  //   }
+
+  //   for (const rb of this._rigidbody3D) {
+  //     rb.isGrounded = false;
+  //     rb.integrate(dt, gravity);
+  //   }
+
+  //   this._handleCollisions();
+
+  // }
+
+  // _physicsStep becomes:
+
   _physicsStep(dt) {
-    const gravity = this.game?.config?.gravity ?? 980;
-
-    // for (const entity of this.entities) {
-    //   const r2b = entity.getComponent("rigidbody2d");
-    //   if (r2b) r2b.isGrounded = false;
-    //   if (r2b) r2b.integrate(dt, gravity);
-
-    //   const rb3d = entity.getComponent("rigidbody");
-    //   if (rb3d) rb3d.isGrounded = false;
-    //   if (rb3d) rb3d.integrate(dt, gravity);
-    // }
-
-    // 🔥 Direct loop over rigidbodies
-    for (const rb of this._rigidbody2D) {
-      rb.isGrounded = false;
-      rb.integrate(dt, gravity);
-    }
-
-    for (const rb of this._rigidbody3D) {
-      rb.isGrounded = false;
-      rb.integrate(dt, gravity);
-    }
-
-    this._handleCollisions();
-
+    this.physics?.step(this, dt);
   }
 
   _recycleEntity(entity) {

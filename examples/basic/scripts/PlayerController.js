@@ -42,7 +42,8 @@ export class PlayerController extends ScriptComponent {
     }
 
     update(dt) {
-        const rb = this.entity.getComponent("rigidbody2d");
+        // const rb = this.entity.getComponent("rigidbody2d");
+        const rb = this.entity.getComponent("rigidbody");
         const transform = this.entity.getComponent("transform");
 
         // const isMoving = Keyboard.isPressed(KeyCode.ArrowLeft) || Keyboard.isPressed(KeyCode.ArrowRight);
