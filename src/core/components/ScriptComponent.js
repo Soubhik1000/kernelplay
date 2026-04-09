@@ -68,8 +68,7 @@ export class ScriptComponent extends Component {
   }
 
   instantiate(entity, ...args) {
-    this.entity.scene.spawn(entity, ...args);
-    return entity;
+    return this.entity.scene.spawn(entity, ...args);
   }
 
   hasTag(tag) {
