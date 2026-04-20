@@ -98,6 +98,44 @@ function PlayerAnimatorController() {
 
 }
 
+function CoinAnimatorController() {
+    const clip = new AnimationClip({
+        name: "clip",
+        frames: [0, 1, 2, 3, 4, 5],
+        frameRate: 10,
+        loop: true,
+        gridWidth: 6,
+        frameWidth: 200,
+        frameHeight: 200,
+    });
+
+    return new AnimatorController().addState("clip", clip);
+}
+
+function EnemyAnimatorController() {
+    // const walkClip = new AnimationClip({
+    //     name: "walk",
+    //     frames: [20],
+    //     frameRate: 6,
+    //     loop: false,
+    //     gridWidth: 4,
+    //     frameWidth: 70,
+    //     frameHeight: 70,
+    // });
+
+    const walkClip = new AnimationClip({
+        frames: [
+            { x: 7, y: 320, w: 70, h: 65 },
+            { x: 80, y: 320, w: 70, h: 65 },
+            { x: 155, y: 300, w: 70, h: 65 },
+            { x: 225, y: 305, w: 70, h: 65 },
+        ],
+        frameRate: 6,
+        loop: true,
+    });
+
+    return new AnimatorController().addState("walk", walkClip);
+}
 
 class Camera extends Entity {
     constructor(x, y, width, height) {
@@ -164,8 +202,8 @@ class PlayerScript extends ScriptComponent {
             console.log("Coin Collected");
         }
 
-        if(this.rb.isGrounded){
-            if(other.name === "Enemy"){
+        if (this.rb.isGrounded) {
+            if (other.name === "Enemy") {
                 // console.log("Enemy Kill");
                 other.destroy();
             }
@@ -315,17 +353,18 @@ function Coin(entity, x, y) {
         // useGravity: false
     }));
 
-    entity.addComponent("collider", new ColliderComponent({ width: 50, height: 100 }));
-    entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
-    // entity.addComponent("renderer", new SpriteComponent({
-    //     image: "./assets/ground_sprites.png",
-    //     sourceX: 19,
-    //     sourceY: 350,
-    //     sourceWidth: 150,
-    //     sourceHeight: 130,
-    //     width: 110,
-    //     height: 80,
-    // }));
+    entity.addComponent("collider", new ColliderComponent({ width: 40, height: 70 }));
+    // entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
+    entity.addComponent("renderer", new SpriteComponent({
+        image: "./assets/coin.png",
+        sourceX: 3,
+        sourceY: 0,
+        sourceWidth: 200,
+        sourceHeight: 200,
+        width: 50,
+        height: 50,
+    }));
+    entity.addComponent("animator", new AnimatorComponent({ controller: CoinAnimatorController() }));
 }
 
 function Enemy(entity, x, y) {
@@ -344,40 +383,41 @@ function Enemy(entity, x, y) {
     }));
 
     entity.addComponent("collider", new ColliderComponent());
-    entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
-    // entity.addComponent("renderer", new SpriteComponent({
-    //     image: "./assets/ground_sprites.png",
-    //     sourceX: 19,
-    //     sourceY: 350,
-    //     sourceWidth: 150,
-    //     sourceHeight: 130,
-    //     width: 110,
-    //     height: 80,
-    // }));
+    // entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
+    entity.addComponent("renderer", new SpriteComponent({
+        image: "./assets/platformer_enemies.png",
+        // sourceX: 19,
+        // sourceY: 350,
+        sourceWidth: 150,
+        sourceHeight: 130,
+        width: 50,
+        height: 50,
+    }));
+    entity.addComponent("animator", new AnimatorComponent({ controller: EnemyAnimatorController() }));
     entity.addComponent('script', new EnemyScript({
         player: ref(200)
     }));
 }
 
 class EnemyScript extends ScriptComponent {
-    
+
     // Chase settings
     speed = 100;
     stoppingDistance = 10;
-    detectionRadius = 200; 
-    
+    detectionRadius = 200;
+
     // Patrol Settings
-    patrolSpeed = 40;       
-    patrolDistance = 150;   
+    patrolSpeed = 40;
+    patrolDistance = 150;
 
     onStart() {
         this.animator = this.entity.getComponent("animator");
         this.sprite = this.entity.getComponent("renderer");
         this.rb = this.entity.getComponent("rigidbody2d");
         this.transform = this.entity.getComponent("transform");
-        
+
         this.startX = this.transform.position.x;
-        this.movingRight = true; 
+        this.movingRight = true;
 
         // --- NEW: QoL Anti-Stuck Variables ---
         this.lastX = this.transform.position.x;
@@ -399,12 +439,12 @@ class EnemyScript extends ScriptComponent {
         const absoluteDistX = Math.abs(playerPos.x - enemyPos.x);
 
         if (trueDistance > this.detectionRadius) {
-            
+
             // 1. PATROL STATE
             this.handlePatrol(dt);
-            
+
         } else if (absoluteDistX > this.stoppingDistance) {
-            
+
             // 2. CHASE STATE
             // Reset the stuck timer so it doesn't accidentally trigger while chasing
             this.stuckTimer = 0;
@@ -414,13 +454,13 @@ class EnemyScript extends ScriptComponent {
             } else {
                 this.rb.velocity.x = -this.speed;
             }
-            
+
         } else {
-            
+
             // 3. ATTACK RANGE
             this.rb.velocity.x = 0;
             this.stuckTimer = 0;
-            
+
         }
 
         this.updateAnimator();
@@ -432,9 +472,9 @@ class EnemyScript extends ScriptComponent {
 
         // --- QoL FEATURE 1: The Standard Distance Leash ---
         if (currentX > this.startX + this.patrolDistance) {
-            this.movingRight = false; 
+            this.movingRight = false;
         } else if (currentX < this.startX - this.patrolDistance) {
-            this.movingRight = true;  
+            this.movingRight = true;
         }
 
         // --- QoL FEATURE 2: The Anti-Stuck Wall Bump ---
@@ -444,14 +484,14 @@ class EnemyScript extends ScriptComponent {
         // If we moved less than 0.1 pixels, we are blocked by a rock/wall!
         if (distanceMoved < 0.1) {
             this.stuckTimer += dt;
-            
+
             // If we are stuck for more than 0.1 seconds, turn around!
             if (this.stuckTimer > 0.1) {
                 this.movingRight = !this.movingRight; // Flip direction
                 this.stuckTimer = 0;                  // Reset timer
-                
+
                 // Reset the anchor point so it patrols this new, smaller area
-                this.startX = currentX; 
+                this.startX = currentX;
             }
         } else {
             // We are walking normally, reset the timer!
@@ -470,14 +510,28 @@ class EnemyScript extends ScriptComponent {
     }
 
     updateAnimator() {
+        // 1. Send the speed to the animator (if you still use it)
         if (this.animator) {
             this.animator.setParameter("speedX", this.rb.velocity.x);
         }
+
+        // 2. Flip the sprite based on the exact physics velocity!
+        if (this.sprite) {
+            if (this.rb.velocity.x > 0) {
+                // Moving right, draw normally
+                this.sprite.flipX = true; 
+            } else if (this.rb.velocity.x < 0) {
+                // Moving left, flip the image!
+                this.sprite.flipX = false;  
+            }
+            // Notice there is no "else" for 0. 
+            // If the velocity is 0, it just stays facing whatever direction it was already looking!
+        }
     }
 
-    onCollision(other){
-        if(other.name === "Player"){
-            if(!other.getComponent("rigidbody2d").isGrounded){
+    onCollision(other) {
+        if (other.name === "Player") {
+            if (!other.getComponent("rigidbody2d").isGrounded) {
                 other.destroy();
             }
         }
@@ -493,9 +547,9 @@ class Level extends Scene {
         this.addEntity(player);
         this.addEntity(new BackGround(0, 300));
 
-        this.spawn(Coin, 300, 200);
+        this.spawn(Coin, 250, 200);
         this.spawn(Enemy, -300, 200);
-        this.spawn(Enemy, 200, 200);
+        // this.spawn(Enemy, 200, 200);
 
         this.spawn(Ground, 0, 550, 30, 1);
 
