@@ -9,7 +9,7 @@ import {
 } from "../../src/index.js";
 import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/index.js";
 import { Keyboard, KeyCode } from "../../src/index.js";
-import { Mathf, Vector2 } from "../../src/index.js";
+import { Mathf, Vector2, degToRad } from "../../src/index.js";
 
 function PlayerAnimatorController() {
     const idleClip = new AnimationClip({
@@ -112,18 +112,8 @@ function CoinAnimatorController() {
     return new AnimatorController().addState("clip", clip);
 }
 
-function EnemyAnimatorController() {
-    // const walkClip = new AnimationClip({
-    //     name: "walk",
-    //     frames: [20],
-    //     frameRate: 6,
-    //     loop: false,
-    //     gridWidth: 4,
-    //     frameWidth: 70,
-    //     frameHeight: 70,
-    // });
-
-    const walkClip = new AnimationClip({
+function EnemyAnimatorController(animation) {
+    const walkClip_1 = new AnimationClip({
         frames: [
             { x: 7, y: 320, w: 70, h: 65 },
             { x: 80, y: 320, w: 70, h: 65 },
@@ -134,7 +124,24 @@ function EnemyAnimatorController() {
         loop: true,
     });
 
-    return new AnimatorController().addState("walk", walkClip);
+    const walkClip_2 = new AnimationClip({
+        frames: [
+            { x: 13, y: 435, w: 125, h: 65 },
+            { x: 565, y: 435, w: 125, h: 65 },
+            { x: 150, y: 435, w: 125, h: 65 },
+            { x: 704, y: 435, w: 125, h: 65 },
+        ],
+        frameRate: 6,
+        loop: true,
+    });
+
+    if (animation === 1) {
+        return new AnimatorController().addState("walk", walkClip_1);
+    }else if (animation === 2) {
+        return new AnimatorController().addState("walk", walkClip_2);
+    }else{
+        return new AnimatorController().addState("walk", walkClip_1); 
+    }
 }
 
 class Camera extends Entity {
@@ -367,12 +374,13 @@ function Coin(entity, x, y) {
     entity.addComponent("animator", new AnimatorComponent({ controller: CoinAnimatorController() }));
 }
 
-function Enemy(entity, x, y) {
+function Enemy(entity, x, y, animation) {
     entity.name = "Enemy";
     // entity.zIndex = 1;
     entity.addComponent("transform", new TransformComponent({
         position: { x, y },
-        scale: { x: 1, y: 1 }
+        scale: { x: 1, y: 1 },
+        // rotation: {z: animation === 1?degToRad(0):degToRad(180)}
     }));
 
     entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
@@ -382,7 +390,7 @@ function Enemy(entity, x, y) {
         // useGravity: false
     }));
 
-    entity.addComponent("collider", new ColliderComponent());
+    entity.addComponent("collider", new ColliderComponent({width: animation === 1?50:70, height: animation === 1?50:40}));
     // entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
     entity.addComponent("renderer", new SpriteComponent({
         image: "./assets/platformer_enemies.png",
@@ -390,12 +398,13 @@ function Enemy(entity, x, y) {
         // sourceY: 350,
         sourceWidth: 150,
         sourceHeight: 130,
-        width: 50,
-        height: 50,
+        width: animation === 1?50:85,
+        height: animation === 1?50:40,
     }));
-    entity.addComponent("animator", new AnimatorComponent({ controller: EnemyAnimatorController() }));
+    entity.addComponent("animator", new AnimatorComponent({ controller: EnemyAnimatorController(animation) }));
     entity.addComponent('script', new EnemyScript({
-        player: ref(200)
+        player: ref(200),
+        anime: animation
     }));
 }
 
@@ -515,6 +524,8 @@ class EnemyScript extends ScriptComponent {
             this.animator.setParameter("speedX", this.rb.velocity.x);
         }
 
+        if(this.anime === 2) this.sprite.flipY = true; 
+
         // 2. Flip the sprite based on the exact physics velocity!
         if (this.sprite) {
             if (this.rb.velocity.x > 0) {
@@ -548,8 +559,8 @@ class Level extends Scene {
         this.addEntity(new BackGround(0, 300));
 
         this.spawn(Coin, 250, 200);
-        this.spawn(Enemy, -300, 200);
-        // this.spawn(Enemy, 200, 200);
+        this.spawn(Enemy, -300, 200, 2);
+        this.spawn(Enemy, 200, 200, 1);
 
         this.spawn(Ground, 0, 550, 30, 1);
 
@@ -605,7 +616,7 @@ const game = new MyGame({
     height: 600,
     fps: 60,
     backgroundColor: "#eeeeee",
-    debugPhysics: true
+    // debugPhysics: true
 });
 
 game.start();
