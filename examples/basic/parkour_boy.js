@@ -1,4 +1,4 @@
-import { BoxRenderComponent, Entity, Game, ref, Scene } from "../../src/index.js";
+import { BoxRenderComponent, Entity, Game, Random, ref, Scene } from "../../src/index.js";
 import {
     TransformComponent,
     CameraComponent,
@@ -130,7 +130,7 @@ class PlayerScript extends ScriptComponent {
         this.transform = this.entity.getComponent("transform");
     }
 
-    update() {
+    update(dt) {
         this.rb.velocity.x = 0;
 
         if (Keyboard.isPressed(KeyCode.ArrowRight)) {
@@ -154,6 +154,16 @@ class PlayerScript extends ScriptComponent {
         }
 
         this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710)
+    }
+
+    onCollision(other) {
+        if (other.name == "Coin") {
+            // other.destroy();
+            other.getComponent('transform').position.x = Random.range(-600, 600);
+            other.getComponent("transform").position.y = 0;
+            console.log("Coin Collected");
+
+        }
     }
 }
 
@@ -226,36 +236,134 @@ function Ground(entity, x, y, w, h) {
 
 function Platform(entity, x, y) {
     entity.name = "Ground";
+    entity.zIndex = -99;
     entity.addComponent("transform", new TransformComponent({
         position: { x, y },
         scale: { x: 1, y: 1 }
     }));
 
-    entity.addComponent("collider", new ColliderComponent({ width: 130, height: 65 }));
+    entity.addComponent("collider", new ColliderComponent({ width: 100, height: 55 }));
     entity.addComponent("renderer", new SpriteComponent({
         image: "./assets/ground_sprites.png",
         sourceX: 3,
         sourceY: 35,
         sourceWidth: 230,
         sourceHeight: 150,
-        width: 150,
-        height: 90,
+        width: 120,
+        height: 80,
     }));
 }
 
-function PlatformS(entity, x, y) {
+function PlatformLong(entity, x, y) {
     entity.name = "Ground";
+    entity.zIndex = -99;
     entity.addComponent("transform", new TransformComponent({
         position: { x, y },
         scale: { x: 1, y: 1 }
     }));
 
-    entity.addComponent("collider", new ColliderComponent());
+    entity.addComponent("collider", new ColliderComponent({ width: 200, height: 45 }));
     entity.addComponent("renderer", new SpriteComponent({
         image: "./assets/ground_sprites.png",
-        width: 500,
-        height: 300,
+        sourceX: 3,
+        sourceY: 215,
+        sourceWidth: 350,
+        sourceHeight: 130,
+        width: 220,
+        height: 80,
     }));
+}
+
+function PlatformShot(entity, x, y) {
+    entity.name = "Ground";
+    entity.zIndex = -99;
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 1, y: 1 }
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({ width: 80, height: 40 }));
+    entity.addComponent("renderer", new SpriteComponent({
+        image: "./assets/ground_sprites.png",
+        sourceX: 19,
+        sourceY: 350,
+        sourceWidth: 150,
+        sourceHeight: 130,
+        width: 110,
+        height: 80,
+    }));
+}
+
+function Coin(entity, x, y) {
+    entity.name = "Coin";
+    // entity.zIndex = 1;
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 0.6, y: 0.6 }
+    }));
+
+    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+        mass: 1,
+        gravityScale: 1,
+        drag: 1,
+        // useGravity: false
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({ width: 50, height: 100 }));
+    entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
+    // entity.addComponent("renderer", new SpriteComponent({
+    //     image: "./assets/ground_sprites.png",
+    //     sourceX: 19,
+    //     sourceY: 350,
+    //     sourceWidth: 150,
+    //     sourceHeight: 130,
+    //     width: 110,
+    //     height: 80,
+    // }));
+}
+
+function Enemy(entity, x, y) {
+    entity.name = "Enemy";
+    // entity.zIndex = 1;
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 1, y: 1 }
+    }));
+
+    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+        mass: 1,
+        gravityScale: 1,
+        drag: 1,
+        // useGravity: false
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({ width: 50, height: 100 }));
+    entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
+    // entity.addComponent("renderer", new SpriteComponent({
+    //     image: "./assets/ground_sprites.png",
+    //     sourceX: 19,
+    //     sourceY: 350,
+    //     sourceWidth: 150,
+    //     sourceHeight: 130,
+    //     width: 110,
+    //     height: 80,
+    // }));
+    entity.addComponent('script', new EnemyScript({
+        speed: 200
+    }));
+}
+
+class EnemyScript extends ScriptComponent {
+    onStart() {
+        this.animator = this.entity.getComponent("animator");
+        this.sprite = this.entity.getComponent("renderer");
+        this.rb = this.entity.getComponent("rigidbody2d");
+        this.transform = this.entity.getComponent("transform");
+    }
+
+    update(dt) {
+
+    }
 }
 
 class Level extends Scene {
@@ -267,9 +375,38 @@ class Level extends Scene {
         this.addEntity(player);
         this.addEntity(new BackGround(0, 300));
 
+        this.spawn(Coin, 300, 200)
+
         this.spawn(Ground, 0, 550, 30, 1);
-        this.spawn(PlatformS, 400, 300)
-        this.spawn(Platform, 0, 450)
+
+        // --- LEFT SIDE: The Start ---
+        // A basic staircase to get the player off the ground
+        this.spawn(Platform, -600, 480);       // First jump
+        this.spawn(PlatformShot, -450, 410);   // A shorter, slightly trickier jump
+        this.spawn(PlatformLong, -250, 350);   // A nice long resting platform
+
+        // --- MIDDLE: The Split Path ---
+        // Upper path (Requires precision)
+        this.spawn(PlatformShot, 0, 270);
+        // Lower path (Easier drop-down, closer to the ground)
+        this.spawn(Platform, 0, 430);
+
+        // --- RIGHT SIDE: The Ascent ---
+        // Continuing from the lower path
+        this.spawn(PlatformLong, 250, 480);
+        this.spawn(Platform, 450, 410);
+
+        // Continuing from the upper path
+        this.spawn(Platform, 250, 320);
+        this.spawn(PlatformShot, 400, 280);
+        this.spawn(PlatformShot, 300, 100);
+        // this.spawn(PlatformShot, -300, 100);    
+        this.spawn(PlatformLong, 0, 70);
+
+        // --- THE GOAL / PEAK ---
+        // A high point at the far right of the map
+        this.spawn(PlatformLong, 580, 180);
+        this.spawn(PlatformShot, -300, 100);
 
         // Camera follow
         camera.getComponent("camera").setTarget(player);
