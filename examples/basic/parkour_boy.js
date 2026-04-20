@@ -9,6 +9,7 @@ import {
 } from "../../src/index.js";
 import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/index.js";
 import { Keyboard, KeyCode } from "../../src/index.js";
+import { Mathf } from "../../src/index.js";
 
 function PlayerAnimatorController() {
     const idleClip = new AnimationClip({
@@ -126,6 +127,7 @@ class PlayerScript extends ScriptComponent {
         this.animator = this.entity.getComponent("animator");
         this.sprite = this.entity.getComponent("renderer");
         this.rb = this.entity.getComponent("rigidbody2d");
+        this.transform = this.entity.getComponent("transform");
     }
 
     update() {
@@ -151,6 +153,7 @@ class PlayerScript extends ScriptComponent {
             }
         }
 
+        this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710)
     }
 }
 
@@ -192,8 +195,8 @@ class Player extends Entity {
     }
 }
 
-class BackGround extends Entity{
-    constructor(x, y){
+class BackGround extends Entity {
+    constructor(x, y) {
         super("BackGround");
         this.zIndex = -100;
 
@@ -221,6 +224,40 @@ function Ground(entity, x, y, w, h) {
     // entity.addComponent("renderer", new BoxRenderComponent({ color: "green" }));
 }
 
+function Platform(entity, x, y) {
+    entity.name = "Ground";
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 1, y: 1 }
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({ width: 130, height: 65 }));
+    entity.addComponent("renderer", new SpriteComponent({
+        image: "./assets/ground_sprites.png",
+        sourceX: 3,
+        sourceY: 35,
+        sourceWidth: 230,
+        sourceHeight: 150,
+        width: 150,
+        height: 90,
+    }));
+}
+
+function PlatformS(entity, x, y) {
+    entity.name = "Ground";
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+        scale: { x: 1, y: 1 }
+    }));
+
+    entity.addComponent("collider", new ColliderComponent());
+    entity.addComponent("renderer", new SpriteComponent({
+        image: "./assets/ground_sprites.png",
+        width: 500,
+        height: 300,
+    }));
+}
+
 class Level extends Scene {
     init() {
         const camera = new Camera(0, 0, this.game.config.width, this.game.config.height);
@@ -231,6 +268,8 @@ class Level extends Scene {
         this.addEntity(new BackGround(0, 300));
 
         this.spawn(Ground, 0, 550, 30, 1);
+        this.spawn(PlatformS, 400, 300)
+        this.spawn(Platform, 0, 450)
 
         // Camera follow
         camera.getComponent("camera").setTarget(player);
@@ -255,7 +294,7 @@ const game = new MyGame({
     height: 600,
     fps: 60,
     backgroundColor: "#eeeeee",
-    // debugPhysics: true
+    debugPhysics: true
 });
 
 game.start();
