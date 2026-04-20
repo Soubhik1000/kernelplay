@@ -9,7 +9,7 @@ import {
 } from "../../src/index.js";
 import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/index.js";
 import { Keyboard, KeyCode } from "../../src/index.js";
-import { Mathf } from "../../src/index.js";
+import { Mathf, Vector2 } from "../../src/index.js";
 
 function PlayerAnimatorController() {
     const idleClip = new AnimationClip({
@@ -157,12 +157,18 @@ class PlayerScript extends ScriptComponent {
     }
 
     onCollision(other) {
-        if (other.name == "Coin") {
+        if (other.name === "Coin") {
             // other.destroy();
             other.getComponent('transform').position.x = Random.range(-600, 600);
             other.getComponent("transform").position.y = 0;
             console.log("Coin Collected");
+        }
 
+        if(this.rb.isGrounded){
+            if(other.name === "Enemy"){
+                // console.log("Enemy Kill");
+                other.destroy();
+            }
         }
     }
 }
@@ -337,7 +343,7 @@ function Enemy(entity, x, y) {
         // useGravity: false
     }));
 
-    entity.addComponent("collider", new ColliderComponent({ width: 50, height: 100 }));
+    entity.addComponent("collider", new ColliderComponent());
     entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
     // entity.addComponent("renderer", new SpriteComponent({
     //     image: "./assets/ground_sprites.png",
@@ -349,20 +355,132 @@ function Enemy(entity, x, y) {
     //     height: 80,
     // }));
     entity.addComponent('script', new EnemyScript({
-        speed: 200
+        player: ref(200)
     }));
 }
 
 class EnemyScript extends ScriptComponent {
+    
+    // Chase settings
+    speed = 100;
+    stoppingDistance = 10;
+    detectionRadius = 200; 
+    
+    // Patrol Settings
+    patrolSpeed = 40;       
+    patrolDistance = 150;   
+
     onStart() {
         this.animator = this.entity.getComponent("animator");
         this.sprite = this.entity.getComponent("renderer");
         this.rb = this.entity.getComponent("rigidbody2d");
         this.transform = this.entity.getComponent("transform");
+        
+        this.startX = this.transform.position.x;
+        this.movingRight = true; 
+
+        // --- NEW: QoL Anti-Stuck Variables ---
+        this.lastX = this.transform.position.x;
+        this.stuckTimer = 0;
     }
 
     update(dt) {
+        if (!this.player || !this.player.getComponent("transform")) {
+            this.handlePatrol(dt);
+            this.updateAnimator();
+            return;
+        }
 
+        const playerPos = this.player.getComponent("transform").position;
+        const enemyPos = this.transform.position;
+
+        // Using your custom Vector2 class for clean math!
+        const trueDistance = Vector2.distance(playerPos, enemyPos);
+        const absoluteDistX = Math.abs(playerPos.x - enemyPos.x);
+
+        if (trueDistance > this.detectionRadius) {
+            
+            // 1. PATROL STATE
+            this.handlePatrol(dt);
+            
+        } else if (absoluteDistX > this.stoppingDistance) {
+            
+            // 2. CHASE STATE
+            // Reset the stuck timer so it doesn't accidentally trigger while chasing
+            this.stuckTimer = 0;
+
+            if (playerPos.x > enemyPos.x) {
+                this.rb.velocity.x = this.speed;
+            } else {
+                this.rb.velocity.x = -this.speed;
+            }
+            
+        } else {
+            
+            // 3. ATTACK RANGE
+            this.rb.velocity.x = 0;
+            this.stuckTimer = 0;
+            
+        }
+
+        this.updateAnimator();
+    }
+
+    // Pass 'dt' into handlePatrol so we can use our stuck timer!
+    handlePatrol(dt) {
+        const currentX = this.transform.position.x;
+
+        // --- QoL FEATURE 1: The Standard Distance Leash ---
+        if (currentX > this.startX + this.patrolDistance) {
+            this.movingRight = false; 
+        } else if (currentX < this.startX - this.patrolDistance) {
+            this.movingRight = true;  
+        }
+
+        // --- QoL FEATURE 2: The Anti-Stuck Wall Bump ---
+        // Calculate how far we ACTUALLY moved since the last frame
+        const distanceMoved = Math.abs(currentX - this.lastX);
+
+        // If we moved less than 0.1 pixels, we are blocked by a rock/wall!
+        if (distanceMoved < 0.1) {
+            this.stuckTimer += dt;
+            
+            // If we are stuck for more than 0.1 seconds, turn around!
+            if (this.stuckTimer > 0.1) {
+                this.movingRight = !this.movingRight; // Flip direction
+                this.stuckTimer = 0;                  // Reset timer
+                
+                // Reset the anchor point so it patrols this new, smaller area
+                this.startX = currentX; 
+            }
+        } else {
+            // We are walking normally, reset the timer!
+            this.stuckTimer = 0;
+        }
+
+        // Save our current position for the next frame's check
+        this.lastX = currentX;
+
+        // Apply the velocity
+        if (this.movingRight) {
+            this.rb.velocity.x = this.patrolSpeed;
+        } else {
+            this.rb.velocity.x = -this.patrolSpeed;
+        }
+    }
+
+    updateAnimator() {
+        if (this.animator) {
+            this.animator.setParameter("speedX", this.rb.velocity.x);
+        }
+    }
+
+    onCollision(other){
+        if(other.name === "Player"){
+            if(!other.getComponent("rigidbody2d").isGrounded){
+                other.destroy();
+            }
+        }
     }
 }
 
@@ -375,7 +493,9 @@ class Level extends Scene {
         this.addEntity(player);
         this.addEntity(new BackGround(0, 300));
 
-        this.spawn(Coin, 300, 200)
+        this.spawn(Coin, 300, 200);
+        this.spawn(Enemy, -300, 200);
+        this.spawn(Enemy, 200, 200);
 
         this.spawn(Ground, 0, 550, 30, 1);
 
