@@ -13,6 +13,7 @@ import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/
 import { Keyboard, KeyCode } from "../../src/index.js";
 import { Mathf, Vector2, degToRad } from "../../src/index.js";
 
+// This is player animation controller, which defines the animation states and transitions based on parameters set by the PlayerScript.
 function PlayerAnimatorController() {
     const idleClip = new AnimationClip({
         name: "idle",
@@ -38,8 +39,7 @@ function PlayerAnimatorController() {
         name: "jump",
         frames: [9],
         frameRate: 1,
-        loop: true,   // plays once
-        // length: 0.5, 
+        loop: true,    
         gridWidth: 4,
         frameWidth: 64,
         frameHeight: 64,
@@ -47,7 +47,7 @@ function PlayerAnimatorController() {
 
     return new AnimatorController()
         .addParameter("speed", "float", 0)
-        .addParameter("isGrounded", "bool", false)  // ← add this
+        .addParameter("isGrounded", "bool", false)
         .addParameter("jump", "trigger")
 
         .addState("idle", idleClip)
@@ -100,6 +100,7 @@ function PlayerAnimatorController() {
 
 }
 
+// This is a simpler animator controller for the coins, which just loops through a spinning animation.
 function CoinAnimatorController() {
     const clip = new AnimationClip({
         name: "clip",
@@ -114,6 +115,7 @@ function CoinAnimatorController() {
     return new AnimatorController().addState("clip", clip);
 }
 
+// This is a simpler animator controller for the enemies, which just loops through a walking animation. It takes a 'skin' parameter to choose between two different enemy spritesheets.
 function EnemyAnimatorController(skin) {
     const walkClip_1 = new AnimationClip({
         frames: [
@@ -146,6 +148,7 @@ function EnemyAnimatorController(skin) {
     }
 }
 
+// Main Camera
 class Camera extends Entity {
     constructor(x, y, width, height) {
         super("MainCamera");
@@ -290,22 +293,18 @@ class Player extends Entity {
             mass: 1,
             gravityScale: 1,
             drag: 1,
-            // useGravity: false
         }));
 
         this.addComponent("collider", new ColliderComponent({ width: 20, height: 45 }));
 
         this.addComponent("renderer", new SpriteComponent({
             image: "./assets/player_sheet.png",
-            // sourceX: 6,
-            // sourceY: 12,
             sourceWidth: 64,
             sourceHeight: 64,
             width: 50,
             height: 50,
             anchor: { x: 0.5, y: 0.5 },
             zIndex: 10,
-            // alpha: 1
         }));
 
         this.addComponent("animator", new AnimatorComponent({ controller: PlayerAnimatorController() }));
@@ -343,7 +342,6 @@ function Ground(entity, x, y, w, h) {
     }));
 
     entity.addComponent("collider", new ColliderComponent());
-    // entity.addComponent("renderer", new BoxRenderComponent({ color: "green" }));
 }
 
 function Platform(entity, x, y) {
@@ -418,11 +416,10 @@ function Coin(entity, x, y) {
         mass: 1,
         gravityScale: 1,
         drag: 1,
-        // useGravity: false
     }));
 
     entity.addComponent("collider", new ColliderComponent({ width: 40, height: 70 }));
-    // entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
+
     entity.addComponent("renderer", new SpriteComponent({
         image: "./assets/coin.png",
         sourceX: 3,
@@ -437,7 +434,6 @@ function Coin(entity, x, y) {
 
 function Enemy(entity, x, y, skin) {
     entity.name = "Enemy";
-    // entity.zIndex = 1;
     entity.addComponent("transform", new TransformComponent({
         position: { x, y },
         scale: { x: 1, y: 1 },
@@ -452,11 +448,8 @@ function Enemy(entity, x, y, skin) {
     }));
 
     entity.addComponent("collider", new ColliderComponent({ width: skin === 1 ? 50 : 70, height: skin === 1 ? 50 : 40 }));
-    // entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
     entity.addComponent("renderer", new SpriteComponent({
         image: "./assets/platformer_enemies.png",
-        // sourceX: 19,
-        // sourceY: 350,
         sourceWidth: 150,
         sourceHeight: 130,
         width: skin === 1 ? 50 : 85,
@@ -489,7 +482,7 @@ class EnemyScript extends ScriptComponent {
         this.startX = this.transform.position.x;
         this.movingRight = true;
 
-        // --- NEW: QoL Anti-Stuck Variables ---
+        // --- QoL Anti-Stuck Variables ---
         this.lastX = this.transform.position.x;
         this.stuckTimer = 0;
     }
@@ -540,7 +533,7 @@ class EnemyScript extends ScriptComponent {
     handlePatrol(dt) {
         const currentX = this.transform.position.x;
 
-        // --- NEW: Global World Bounds ---
+        // --- Global World Bounds ---
         // If they hit the right edge of the world
         if (currentX >= 710) {
             this.transform.position.x = 710; // Clamp it so they don't fall off
@@ -602,8 +595,6 @@ class EnemyScript extends ScriptComponent {
                 // Moving left, flip the image!
                 this.sprite.flipX = false;
             }
-            // Notice there is no "else" for 0. 
-            // If the velocity is 0, it just stays facing whatever direction it was already looking!
         }
     }
 
@@ -660,13 +651,8 @@ class Level extends Scene {
 
         this.spawn(PlayerCorpse, 800, 0);
 
-        // this.spawn(Enemy, -300, 200, 2);
-        // this.spawn(Enemy, 600, 200, 1);
-
         // --- SPAWN 10 COINS ---
         for (let i = 0; i < 10; i++) {
-            // Generate random coordinates 
-            // (Adjust the Y range so they don't spawn floating too high or inside the floor!)
             let randomX = Random.int(-710, 710);
             let randomY = Random.int(100, 300);
 
@@ -685,34 +671,21 @@ class Level extends Scene {
             this.spawn(Enemy, randomX, randomY, randomSkin);
         }
 
+        // Ground Collider
         this.spawn(Ground, 0, 550, 35, 1);
 
-        // --- LEFT SIDE: The Start ---
-        // A basic staircase to get the player off the ground
-        this.spawn(Platform, -600, 480);       // First jump
-        this.spawn(PlatformShot, -450, 410);   // A shorter, slightly trickier jump
-        this.spawn(PlatformLong, -250, 350);   // A nice long resting platform
-
-        // --- MIDDLE: The Split Path ---
-        // Upper path (Requires precision)
+        // All Platforms
+        this.spawn(Platform, -600, 480);      
+        this.spawn(PlatformShot, -450, 410);  
+        this.spawn(PlatformLong, -250, 350);  
         this.spawn(PlatformShot, 0, 270);
-        // Lower path (Easier drop-down, closer to the ground)
         this.spawn(Platform, 0, 430);
-
-        // --- RIGHT SIDE: The Ascent ---
-        // Continuing from the lower path
         this.spawn(PlatformLong, 250, 480);
         this.spawn(Platform, 450, 410);
-
-        // Continuing from the upper path
         this.spawn(Platform, 250, 320);
         this.spawn(PlatformShot, 400, 280);
         this.spawn(PlatformShot, 300, 100);
-        // this.spawn(PlatformShot, -300, 100);    
         this.spawn(PlatformLong, 0, 70);
-
-        // --- THE GOAL / PEAK ---
-        // A high point at the far right of the map
         this.spawn(PlatformLong, 580, 180);
         this.spawn(PlatformShot, -300, 100);
 
