@@ -236,11 +236,17 @@ class PlayerScript extends ScriptComponent {
             volume: 0.1,
         });
     }
+    coinSound() {
+        this.audio.stopAll();
+        this.audio.playOneShot('./assets/coin.wav', {
+            volume: 1,
+        });
+    }
     hitSound() {
         this.audio.playOneShot('./assets/lose.wav', {
             volume: 0.5,
             position: this.transform.position
-        })
+        });
     }
 
     getKill() {
@@ -253,9 +259,11 @@ class PlayerScript extends ScriptComponent {
 
     onCollision(other) {
         if (other.name === "Coin") {
+            this.coinSound();
             other.getComponent('transform').position.x = Random.range(-600, 600);
             other.getComponent("transform").position.y = 0;
             console.log("Coin Collected");
+            this.scene.score += 1;
         }
 
         if (this.rb.isGrounded) {
@@ -263,6 +271,7 @@ class PlayerScript extends ScriptComponent {
                 other.getComponent('transform').position.x = Random.range(-600, 600);
                 other.getComponent("transform").position.y = 0;
                 console.log("Enemy Kill");
+                this.scene.score += 2;
             }
         }
     }
@@ -635,6 +644,13 @@ function PlayerCorpse(entity, x, y) {
 
 class Level extends Scene {
     init() {
+
+        this.ctx = this.game.renderer.ctx;
+        this.fps = 0;
+        this.frames = 0;
+        this.lastTime = performance.now();
+        this.score = 0;
+
         const camera = new Camera(0, 0, this.game.config.width, this.game.config.height);
         this.addEntity(camera);
 
@@ -703,6 +719,30 @@ class Level extends Scene {
         // Camera follow
         camera.getComponent("camera").setTarget(player);
     }
+
+    render() {
+    super.render(this.game.renderer);
+
+    this.frames++;
+    const now = performance.now();
+
+    if (now >= this.lastTime + 1000) {
+      this.fps = this.frames;
+      this.frames = 0;
+      this.lastTime = now;
+    }
+
+    this.ctx.save();
+    this.ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    this.ctx.font = "20px monospace";
+    this.ctx.fillText(`FPS: ${this.fps}`, 715, 20);
+
+    this.ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    this.ctx.font = "20px monospace";
+    this.ctx.fillText(`Score: ${this.score}`, 10, 20);
+
+    this.ctx.restore();
+  }
 }
 
 // ---------------------------
