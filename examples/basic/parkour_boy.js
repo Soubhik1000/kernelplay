@@ -6,6 +6,8 @@ import {
     SpriteComponent,
     ScriptComponent,
     ColliderComponent,
+    AudioListener,
+    AudioSource
 } from "../../src/index.js";
 import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/index.js";
 import { Keyboard, KeyCode } from "../../src/index.js";
@@ -112,7 +114,7 @@ function CoinAnimatorController() {
     return new AnimatorController().addState("clip", clip);
 }
 
-function EnemyAnimatorController(animation) {
+function EnemyAnimatorController(skin) {
     const walkClip_1 = new AnimationClip({
         frames: [
             { x: 7, y: 320, w: 70, h: 65 },
@@ -135,12 +137,12 @@ function EnemyAnimatorController(animation) {
         loop: true,
     });
 
-    if (animation === 1) {
+    if (skin === 1) {
         return new AnimatorController().addState("walk", walkClip_1);
-    }else if (animation === 2) {
+    } else if (skin === 2) {
         return new AnimatorController().addState("walk", walkClip_2);
-    }else{
-        return new AnimatorController().addState("walk", walkClip_1); 
+    } else {
+        return new AnimatorController().addState("walk", walkClip_1);
     }
 }
 
@@ -152,6 +154,8 @@ class Camera extends Entity {
         this.addComponent("transform", new TransformComponent({
             position: { x, y }
         }))
+
+        this.addComponent("audioListener", new AudioListener());
 
         this.addComponent('camera', new CameraComponent({
             width,
@@ -173,6 +177,10 @@ class PlayerScript extends ScriptComponent {
         this.sprite = this.entity.getComponent("renderer");
         this.rb = this.entity.getComponent("rigidbody2d");
         this.transform = this.entity.getComponent("transform");
+        this.audio = this.entity.getComponent("audio");
+
+        this._isRunningSoundPlaying = false;
+        this._isJumping = false;
     }
 
     update(dt) {
@@ -190,20 +198,61 @@ class PlayerScript extends ScriptComponent {
         const isMoving = this.rb.velocity.x !== 0;
         this.animator.setParameter("speed", isMoving ? 1 : 0);
         this.animator.setParameter("isGrounded", this.rb.isGrounded);
-
+        
         if (this.rb.isGrounded) {
+            if (this._isJumping) this._isJumping = false;
             if (Keyboard.isPressed(KeyCode.Space)) {
                 this.rb.addForce(0, -600, "impulse");
                 this.animator.setTrigger("jump");
+                this.jumpSound();
+                this._isJumping = true;
             }
         }
 
         this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710)
+
+        if (isMoving && this.rb.isGrounded) {
+            if (!this._isRunningSoundPlaying) {
+                this.runSound();
+                this._isRunningSoundPlaying = true;
+                console.log("running");
+            }
+        } else {
+            if (this._isRunningSoundPlaying) {
+                if(!this._isJumping) this.audio.stopAll();
+                this._isRunningSoundPlaying = false;
+            }
+        }
+    }
+
+    runSound() {
+        this.audio.playLoop('./assets/run.mp3', {
+            volume: 0.5,
+        });
+    }
+    jumpSound() {
+        this.audio.stopAll();
+        this.audio.playOneShot('./assets/jump.mp3', {
+            volume: 0.1,
+        });
+    }
+    hitSound() {
+        this.audio.playOneShot('./assets/lose.wav', {
+            volume: 0.5,
+            position: this.transform.position
+        })
+    }
+
+    getKill() {
+        this.playerCorpse.getComponent("transform").position.x = this.transform.position.x;
+        this.playerCorpse.getComponent("transform").position.y = this.transform.position.y;
+        this.audio.stopAll();
+        this.hitSound();
+        this.destroy();
     }
 
     onCollision(other) {
         if (other.name === "Coin") {
-            // other.destroy();
             other.getComponent('transform').position.x = Random.range(-600, 600);
             other.getComponent("transform").position.y = 0;
             console.log("Coin Collected");
@@ -211,8 +260,9 @@ class PlayerScript extends ScriptComponent {
 
         if (this.rb.isGrounded) {
             if (other.name === "Enemy") {
-                // console.log("Enemy Kill");
-                other.destroy();
+                other.getComponent('transform').position.x = Random.range(-600, 600);
+                other.getComponent("transform").position.y = 0;
+                console.log("Enemy Kill");
             }
         }
     }
@@ -250,8 +300,10 @@ class Player extends Entity {
         }));
 
         this.addComponent("animator", new AnimatorComponent({ controller: PlayerAnimatorController() }));
+        this.addComponent("audio", new AudioSource());
         this.addComponent('script', new PlayerScript({
-            speed: 200
+            speed: 200,
+            playerCorpse: ref(300)
         }))
     }
 }
@@ -374,7 +426,7 @@ function Coin(entity, x, y) {
     entity.addComponent("animator", new AnimatorComponent({ controller: CoinAnimatorController() }));
 }
 
-function Enemy(entity, x, y, animation) {
+function Enemy(entity, x, y, skin) {
     entity.name = "Enemy";
     // entity.zIndex = 1;
     entity.addComponent("transform", new TransformComponent({
@@ -390,7 +442,7 @@ function Enemy(entity, x, y, animation) {
         // useGravity: false
     }));
 
-    entity.addComponent("collider", new ColliderComponent({width: animation === 1?50:70, height: animation === 1?50:40}));
+    entity.addComponent("collider", new ColliderComponent({ width: skin === 1 ? 50 : 70, height: skin === 1 ? 50 : 40 }));
     // entity.addComponent("renderer", new BoxRenderComponent({ color: "yellow" }));
     entity.addComponent("renderer", new SpriteComponent({
         image: "./assets/platformer_enemies.png",
@@ -398,13 +450,13 @@ function Enemy(entity, x, y, animation) {
         // sourceY: 350,
         sourceWidth: 150,
         sourceHeight: 130,
-        width: animation === 1?50:85,
-        height: animation === 1?50:40,
+        width: skin === 1 ? 50 : 85,
+        height: skin === 1 ? 50 : 40,
     }));
-    entity.addComponent("animator", new AnimatorComponent({ controller: EnemyAnimatorController(animation) }));
+    entity.addComponent("animator", new AnimatorComponent({ controller: EnemyAnimatorController(skin) }));
     entity.addComponent('script', new EnemyScript({
         player: ref(200),
-        anime: animation
+        skin: skin,
     }));
 }
 
@@ -479,6 +531,20 @@ class EnemyScript extends ScriptComponent {
     handlePatrol(dt) {
         const currentX = this.transform.position.x;
 
+        // --- NEW: Global World Bounds ---
+        // If they hit the right edge of the world
+        if (currentX >= 710) {
+            this.transform.position.x = 710; // Clamp it so they don't fall off
+            this.movingRight = false;        // Force them to turn Left
+            this.startX = 710;               // Reset patrol anchor
+        }
+        // If they hit the left edge of the world
+        else if (currentX <= -710) {
+            this.transform.position.x = -710; // Clamp it
+            this.movingRight = true;          // Force them to turn Right
+            this.startX = -710;               // Reset patrol anchor
+        }
+
         // --- QoL FEATURE 1: The Standard Distance Leash ---
         if (currentX > this.startX + this.patrolDistance) {
             this.movingRight = false;
@@ -487,30 +553,22 @@ class EnemyScript extends ScriptComponent {
         }
 
         // --- QoL FEATURE 2: The Anti-Stuck Wall Bump ---
-        // Calculate how far we ACTUALLY moved since the last frame
         const distanceMoved = Math.abs(currentX - this.lastX);
 
-        // If we moved less than 0.1 pixels, we are blocked by a rock/wall!
         if (distanceMoved < 0.1) {
             this.stuckTimer += dt;
-
-            // If we are stuck for more than 0.1 seconds, turn around!
             if (this.stuckTimer > 0.1) {
-                this.movingRight = !this.movingRight; // Flip direction
-                this.stuckTimer = 0;                  // Reset timer
-
-                // Reset the anchor point so it patrols this new, smaller area
+                this.movingRight = !this.movingRight;
+                this.stuckTimer = 0;
                 this.startX = currentX;
             }
         } else {
-            // We are walking normally, reset the timer!
             this.stuckTimer = 0;
         }
 
-        // Save our current position for the next frame's check
         this.lastX = currentX;
 
-        // Apply the velocity
+        // Apply the velocity based on the final direction!
         if (this.movingRight) {
             this.rb.velocity.x = this.patrolSpeed;
         } else {
@@ -524,16 +582,16 @@ class EnemyScript extends ScriptComponent {
             this.animator.setParameter("speedX", this.rb.velocity.x);
         }
 
-        if(this.anime === 2) this.sprite.flipY = true; 
+        if (this.skin === 2) this.sprite.flipY = true;
 
         // 2. Flip the sprite based on the exact physics velocity!
         if (this.sprite) {
             if (this.rb.velocity.x > 0) {
                 // Moving right, draw normally
-                this.sprite.flipX = true; 
+                this.sprite.flipX = true;
             } else if (this.rb.velocity.x < 0) {
                 // Moving left, flip the image!
-                this.sprite.flipX = false;  
+                this.sprite.flipX = false;
             }
             // Notice there is no "else" for 0. 
             // If the velocity is 0, it just stays facing whatever direction it was already looking!
@@ -543,10 +601,36 @@ class EnemyScript extends ScriptComponent {
     onCollision(other) {
         if (other.name === "Player") {
             if (!other.getComponent("rigidbody2d").isGrounded) {
-                other.destroy();
+                other.getComponent("script").getKill();
             }
         }
     }
+}
+
+function PlayerCorpse(entity, x, y) {
+    entity.name = "PlayerCorpse";
+    entity.id = 300;
+    entity.addComponent("transform", new TransformComponent({
+        position: { x, y },
+    }));
+
+    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+        mass: 1,
+        gravityScale: 1,
+        drag: 1,
+        // useGravity: false
+    }));
+
+    entity.addComponent("collider", new ColliderComponent({ width: 40, height: 70 }));
+    entity.addComponent("renderer", new SpriteComponent({
+        image: "./assets/player_set.png",
+        sourceX: 1030,
+        sourceY: 530,
+        sourceWidth: 150,
+        sourceHeight: 150,
+        width: 50,
+        height: 50,
+    }));
 }
 
 class Level extends Scene {
@@ -554,15 +638,38 @@ class Level extends Scene {
         const camera = new Camera(0, 0, this.game.config.width, this.game.config.height);
         this.addEntity(camera);
 
-        const player = new Player(0, 300);
+        const player = new Player(0, 0);
         this.addEntity(player);
         this.addEntity(new BackGround(0, 300));
 
-        this.spawn(Coin, 250, 200);
-        this.spawn(Enemy, -300, 200, 2);
-        this.spawn(Enemy, 200, 200, 1);
+        this.spawn(PlayerCorpse, 800, 0);
 
-        this.spawn(Ground, 0, 550, 30, 1);
+        // this.spawn(Enemy, -300, 200, 2);
+        // this.spawn(Enemy, 600, 200, 1);
+
+        // --- SPAWN 10 COINS ---
+        for (let i = 0; i < 10; i++) {
+            // Generate random coordinates 
+            // (Adjust the Y range so they don't spawn floating too high or inside the floor!)
+            let randomX = Random.int(-710, 710);
+            let randomY = Random.int(100, 300);
+
+            this.spawn(Coin, randomX, randomY);
+        }
+
+        // --- SPAWN 10 ENEMIES ---
+        for (let i = 0; i < 10; i++) {
+            let randomX = Random.int(-710, 710);
+            let randomY = Random.int(100, 300);
+
+            // Pick either 1 or 2 randomly for the sprite skin!
+            let randomSkin = Random.int(1, 2);
+
+            // Spawn the enemy with the random position and random skin
+            this.spawn(Enemy, randomX, randomY, randomSkin);
+        }
+
+        this.spawn(Ground, 0, 550, 35, 1);
 
         // --- LEFT SIDE: The Start ---
         // A basic staircase to get the player off the ground
