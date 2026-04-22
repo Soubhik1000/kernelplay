@@ -16,24 +16,25 @@ export function Shape(entity, x = 100, y = 100) {
         scale: { x: 1, y: 1 }
     }));
 
-    entity.addComponent("renderer", new ShapeRenderer({
-        shape: "roundedrect",
-        width: 80,
-        height: 40,
-        radius: 10,
-        // filled: false,
-        color: "#4488ff",
-        strokeColor: "#ff0000",
-        strokeWidth: 2,
-    }));
-
     // entity.addComponent("renderer", new ShapeRenderer({
-    //     shape: "ellipse",
-    //     // radius: 24,
-    //     radiusX: 40,
-    //     radiusY: 20,
-    //     color: "#ff4444",
+    //     shape: "roundedrect",
+    //     // width: 80,
+    //     // height: 40,
+    //     radius: 10,
+    //     // filled: false,
+    //     color: "#4488ff",
+    //     strokeColor: "#ff0000",
+    //     strokeWidth: 2,
     // }));
+
+    entity.addComponent("renderer", new ShapeRenderer({
+        // shape:       "circle",
+        shape: "ellipse",
+        // radius: 24,
+        // radiusX: 40,
+        // radiusY: 20,
+        color: "#ff4444",
+    }));
 
     // // Triangle
     // entity.addComponent("renderer", new ShapeRenderer({
