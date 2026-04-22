@@ -2,6 +2,7 @@ import { Scene } from "../../../src/core/Scene.js";
 import { Player } from "../prefabs/Player.js";
 import { Wall } from "../prefabs/Wall.js";
 import { Grass } from "../prefabs/Grass.js";
+import { Shape } from "../prefabs/Shape.js";
 import { CameraComponent, Entity, TransformComponent, FPSCounterComponent } from "../../../src/index.js";
 // import { Cube } from "../prefabs/Cube.js";
 // import { Cube1 } from "../prefabs/Cube1.js";
@@ -64,6 +65,8 @@ export class Level1 extends Scene {
     this.addEntity(camera);
     this.addEntity(camera2);
     this.addEntity(player);
+
+    this.spawn(Shape, 400, 100)
 
     this.addEntity(wall1);
     this.addEntity(new Wall(200, 100));

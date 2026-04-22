@@ -1,0 +1,435 @@
+import * as PIXI from "pixi.js";
+import { Component } from "../Component.js";
+
+export class ShapeRenderer extends Component {
+  constructor(props = {}) {
+    super();
+
+    const {
+      shape       = "rect",     // "rect" | "circle" | "ellipse" | "triangle" | "polygon" | "line"
+      width       = 32,
+      height      = 32,
+      radius      = 16,         // for circle
+      radiusX     = 32,         // for ellipse
+      radiusY     = 16,         // for ellipse
+      points      = [],         // for polygon [ {x,y}, ... ] or line [ {x,y}, {x,y} ]
+      color       = 0xff0000,
+      alpha       = 1.0,
+      zIndex      = 0,
+      filled      = true,
+      strokeColor = 0xffffff,
+      strokeWidth = 0,          // 0 = no stroke
+      anchor      = { x: 0.5, y: 0.5 },
+    } = props;
+
+    this.shape       = shape;
+    this.width       = width;
+    this.height      = height;
+    this.radius      = radius;
+    this.radiusX     = radiusX;
+    this.radiusY     = radiusY;
+    this.points      = points;
+    this.color       = color;
+    this.alpha       = alpha;
+    this.zIndex      = zIndex;
+    this.filled      = filled;
+    this.strokeColor = strokeColor;
+    this.strokeWidth = strokeWidth;
+    this.anchor      = anchor;
+
+    // Internal
+    this.object  = null;   // PIXI.Graphics — picked up by WebGL2DRenderer
+    this._dirty  = true;
+    this.flipX   = false;
+    this.flipY   = false;
+  }
+
+  init() {
+    this.transform = this.entity.getComponent("transform");
+    this._build();
+  }
+
+  // ── Build PIXI.Graphics ───────────────────────────────────────────────
+
+  _build() {
+    // Clean up old object if rebuilt
+    if (this.object) {
+      this.object.parent?.removeChild(this.object);
+      this.object.destroy();
+      this.object = null;
+    }
+
+    const gfx = new PIXI.Graphics();
+    this._draw(gfx);
+
+    gfx.alpha   = this.alpha;
+    gfx.zIndex  = this.zIndex;
+
+    this.object = gfx;
+
+    const stage = this.entity.scene?.game?.renderer?.stage;
+    if (stage) {
+      stage.addChild(this.object);
+      stage.sortableChildren = true;
+    }
+
+    this._dirty = false;
+  }
+
+  _draw(gfx) {
+    gfx.clear();
+
+    // Stroke
+    if (this.strokeWidth > 0) {
+      gfx.setStrokeStyle({ width: this.strokeWidth, color: this.strokeColor });
+    }
+
+    // Anchor offset
+    const ox = -this.width  * this.anchor.x;
+    const oy = -this.height * this.anchor.y;
+
+    switch (this.shape) {
+
+      case "rect":
+        if (this.filled) gfx.rect(ox, oy, this.width, this.height).fill(this.color);
+        if (this.strokeWidth > 0) gfx.rect(ox, oy, this.width, this.height).stroke();
+        break;
+
+      case "roundedrect":
+        if (this.filled) gfx.roundRect(ox, oy, this.width, this.height, this.radius).fill(this.color);
+        if (this.strokeWidth > 0) gfx.roundRect(ox, oy, this.width, this.height, this.radius).stroke();
+        break;
+
+      case "circle":
+        if (this.filled) gfx.circle(0, 0, this.radius).fill(this.color);
+        if (this.strokeWidth > 0) gfx.circle(0, 0, this.radius).stroke();
+        break;
+
+      case "ellipse":
+        if (this.filled) gfx.ellipse(0, 0, this.radiusX, this.radiusY).fill(this.color);
+        if (this.strokeWidth > 0) gfx.ellipse(0, 0, this.radiusX, this.radiusY).stroke();
+        break;
+
+      case "triangle":
+        const tx = this.width  / 2;
+        const ty = this.height / 2;
+        const triPoints = [
+          { x:  0,  y: -ty },
+          { x:  tx, y:  ty },
+          { x: -tx, y:  ty },
+        ];
+        this._drawPolygon(gfx, triPoints);
+        break;
+
+      case "polygon":
+        this._drawPolygon(gfx, this.points);
+        break;
+
+      case "line":
+        if (this.points.length < 2) break;
+        gfx.setStrokeStyle({ width: this.strokeWidth || 2, color: this.color });
+        gfx.moveTo(this.points[0].x, this.points[0].y);
+        for (let i = 1; i < this.points.length; i++) {
+          gfx.lineTo(this.points[i].x, this.points[i].y);
+        }
+        gfx.stroke();
+        break;
+
+      default:
+        console.warn(`ShapeRenderer: unknown shape "${this.shape}"`);
+    }
+  }
+
+  _drawPolygon(gfx, pts) {
+    if (pts.length < 3) return;
+    const flat = pts.flatMap(p => [p.x, p.y]);
+    if (this.filled)            gfx.poly(flat).fill(this.color);
+    if (this.strokeWidth > 0)   gfx.poly(flat).stroke();
+  }
+
+  // ── Public API ────────────────────────────────────────────────────────
+
+  /** Change any property and redraw */
+  setShape(shape) {
+    this.shape = shape;
+    this._build();
+  }
+
+  setColor(color) {
+    this.color = color;
+    if (this.object) this._draw(this.object);
+  }
+
+  setSize(width, height) {
+    this.width  = width;
+    this.height = height ?? width;
+    if (this.object) this._draw(this.object);
+  }
+
+  setRadius(radius) {
+    this.radius = radius;
+    if (this.object) this._draw(this.object);
+  }
+
+  setAlpha(alpha) {
+    this.alpha = alpha;
+    if (this.object) this.object.alpha = alpha;
+  }
+
+  setStroke(color, width) {
+    this.strokeColor = color;
+    this.strokeWidth = width;
+    if (this.object) this._draw(this.object);
+  }
+
+  setFilled(filled) {
+    this.filled = filled;
+    if (this.object) this._draw(this.object);
+  }
+
+  setPoints(points) {
+    this.points = points;
+    if (this.object) this._draw(this.object);
+  }
+
+  // ── Bounds — used by frustum culling ─────────────────────────────────
+
+  getBounds() {
+    const t = this.transform;
+    if (!t) return null;
+
+    const w = this.width  * t.scale.x;
+    const h = this.height * t.scale.y;
+
+    return {
+      x:      t.position.x - w * this.anchor.x,
+      y:      t.position.y - h * this.anchor.y,
+      width:  w,
+      height: h,
+    };
+  }
+
+  // ── Cleanup ───────────────────────────────────────────────────────────
+
+  onDestroy() {
+    if (this.object) {
+      this.object.parent?.removeChild(this.object);
+      this.object.destroy();
+      this.object = null;
+    }
+  }
+
+  // ── Serialization ─────────────────────────────────────────────────────
+
+  toJSON() {
+    return {
+      type:        "ShapeRenderer",
+      shape:       this.shape,
+      width:       this.width,
+      height:      this.height,
+      radius:      this.radius,
+      radiusX:     this.radiusX,
+      radiusY:     this.radiusY,
+      points:      this.points,
+      color:       this.color,
+      alpha:       this.alpha,
+      zIndex:      this.zIndex,
+      filled:      this.filled,
+      strokeColor: this.strokeColor,
+      strokeWidth: this.strokeWidth,
+      anchor:      this.anchor,
+    };
+  }
+
+  static fromJSON(data) {
+    return new ShapeRenderer(data);
+  }
+}
+
+
+import { ShapeRenderer } from "./components/ShapeRenderer.js";
+
+// Rectangle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "rect",
+  width:  64,
+  height: 32,
+  color:  0x4488ff,
+}));
+
+// Circle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "circle",
+  radius: 24,
+  color:  0xff4444,
+}));
+
+// Ellipse
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:   "ellipse",
+  radiusX: 40,
+  radiusY: 20,
+  color:   0x44ff88,
+}));
+
+// Rounded rect
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "roundedrect",
+  width:  80,
+  height: 40,
+  radius: 10,       // corner radius
+  color:  0xffaa00,
+}));
+
+// Triangle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "triangle",
+  width:  40,
+  height: 40,
+  color:  0xaa44ff,
+}));
+
+// Polygon (custom points)
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "polygon",
+  points: [
+    { x:  0,  y: -30 },
+    { x:  20, y:  0  },
+    { x:  10, y:  30 },
+    { x: -10, y:  30 },
+    { x: -20, y:  0  },
+  ],
+  color: 0xff8800,
+}));
+
+// Line
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "line",
+  points: [
+    { x: -50, y: 0 },
+    { x:  50, y: 0 },
+  ],
+  strokeWidth: 3,
+  color: 0xffffff,
+}));
+
+// Outline only (no fill)
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:       "rect",
+  width:       64,
+  height:      64,
+  filled:      false,
+  strokeColor: 0x00ff00,
+  strokeWidth: 2,
+}));
+
+// Fill + stroke
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:       "circle",
+  radius:      32,
+  color:       0x2244aa,
+  filled:      true,
+  strokeColor: 0xffffff,
+  strokeWidth: 2,
+}));
+
+// Change at runtime
+const shape = entity.getComponent("renderer");
+shape.setColor(0xff0000);
+shape.setSize(128, 64);
+shape.setAlpha(0.5);
+shape.setStroke(0xffffff, 3);
+shape.setShape("circle");  // completely rebuild as circle
+
+
+
+import { ShapeRenderer } from "./components/ShapeRenderer.js";
+
+// Rectangle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "rect",
+  width:  64,
+  height: 32,
+  color:  "#4488ff",
+}));
+
+// Rounded rectangle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "roundedrect",
+  width:  80,
+  height: 40,
+  radius: 10,
+  color:  "#ffaa00",
+}));
+
+// Circle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "circle",
+  radius: 24,
+  color:  "#ff4444",
+}));
+
+// Ellipse
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:   "ellipse",
+  radiusX: 40,
+  radiusY: 20,
+  color:   "#44ff88",
+}));
+
+// Triangle
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "triangle",
+  width:  40,
+  height: 40,
+  color:  "#aa44ff",
+}));
+
+// Custom polygon
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:  "polygon",
+  points: [
+    { x:  0,  y: -30 },
+    { x:  20, y:   0 },
+    { x:  10, y:  30 },
+    { x: -10, y:  30 },
+    { x: -20, y:   0 },
+  ],
+  color: "#ff8800",
+}));
+
+// Line
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:       "line",
+  points:      [{ x: -50, y: 0 }, { x: 50, y: 0 }],
+  strokeWidth: 3,
+  color:       "#ffffff",
+}));
+
+// Outline only
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:       "rect",
+  width:       64,
+  height:      64,
+  filled:      false,
+  strokeColor: "#00ff00",
+  strokeWidth: 2,
+}));
+
+// Fill + stroke
+entity.addComponent("renderer", new ShapeRenderer({
+  shape:       "circle",
+  radius:      32,
+  color:       "#2244aa",
+  filled:      true,
+  strokeColor: "#ffffff",
+  strokeWidth: 2,
+}));
+
+// Runtime changes
+const shape = entity.getComponent("renderer");
+shape.setColor("#ff0000");
+shape.setSize(128, 64);
+shape.setAlpha(0.5);
+shape.setStroke("#ffffff", 3);
+shape.setShape("circle");

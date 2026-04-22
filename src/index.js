@@ -39,6 +39,7 @@ export { ScriptComponent } from "./core/components/ScriptComponent.js";
 export { CameraComponent } from "./core/components/CameraComponent.js";
 export { SpriteComponent } from "./core/components/SpriteComponent.js";
 export { AnimatorComponent } from "./core/components/AnimatorComponent.js";
+export { ShapeRenderer } from "./core/components/ShapeRenderer.js";
 export { Spritesheet } from "./utils/Spritesheet.js";
 export { AudioSource } from "./core/components/AudioSource.js";
 export { AudioListener } from "./core/components/AudioListener.js";
