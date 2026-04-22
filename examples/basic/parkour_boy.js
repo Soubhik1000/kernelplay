@@ -1,3 +1,22 @@
+// -----------------------------------------------------------------------------
+// NOTES
+// -----------------------------------------------------------------------------
+//
+// 1. Audio System
+// This game includes a preliminary audio system implementation. It is currently
+// a test version and not part of the official release. The system functions
+// similarly to standard AudioListener and AudioSource components.
+// 
+// The audio system is available for use starting from version v0.3.0.
+// An official and fully supported implementation will be released in v0.3.1.
+//
+// 2. User Interface (UI)
+// The game includes a temporary UI implementation that is not part of the
+// official system. The UI is currently rendered by overriding the render()
+// method within the scene.
+//
+// -----------------------------------------------------------------------------
+
 import { BoxRenderComponent, Entity, Game, Random, ref, Scene } from "../../src/index.js";
 import {
     TransformComponent,
@@ -39,7 +58,7 @@ function PlayerAnimatorController() {
         name: "jump",
         frames: [9],
         frameRate: 1,
-        loop: true,    
+        loop: true,
         gridWidth: 4,
         frameWidth: 64,
         frameHeight: 64,
@@ -201,7 +220,7 @@ class PlayerScript extends ScriptComponent {
         const isMoving = this.rb.velocity.x !== 0;
         this.animator.setParameter("speed", isMoving ? 1 : 0);
         this.animator.setParameter("isGrounded", this.rb.isGrounded);
-        
+
         if (this.rb.isGrounded) {
             if (this._isJumping) this._isJumping = false;
             if (Keyboard.isPressed(KeyCode.Space)) {
@@ -222,7 +241,7 @@ class PlayerScript extends ScriptComponent {
             }
         } else {
             if (this._isRunningSoundPlaying) {
-                if(!this._isJumping) this.audio.stopAll();
+                if (!this._isJumping) this.audio.stopAll();
                 this._isRunningSoundPlaying = false;
             }
         }
@@ -675,9 +694,9 @@ class Level extends Scene {
         this.spawn(Ground, 0, 550, 35, 1);
 
         // All Platforms
-        this.spawn(Platform, -600, 480);      
-        this.spawn(PlatformShot, -450, 410);  
-        this.spawn(PlatformLong, -250, 350);  
+        this.spawn(Platform, -600, 480);
+        this.spawn(PlatformShot, -450, 410);
+        this.spawn(PlatformLong, -250, 350);
         this.spawn(PlatformShot, 0, 270);
         this.spawn(Platform, 0, 430);
         this.spawn(PlatformLong, 250, 480);
@@ -694,28 +713,36 @@ class Level extends Scene {
     }
 
     render() {
-    super.render(this.game.renderer);
+        // The render() method is overridden to extend the default rendering behavior.
+        // It is essential to call super.render(renderer); otherwise, entities will
+        // not be rendered correctly.
+        super.render(this.game.renderer);
 
-    this.frames++;
-    const now = performance.now();
+        // Tracks frames per second (FPS) by counting rendered frames over a
+        // one-second interval.
+        this.frames++;
+        const now = performance.now();
 
-    if (now >= this.lastTime + 1000) {
-      this.fps = this.frames;
-      this.frames = 0;
-      this.lastTime = now;
+        if (now >= this.lastTime + 1000) {
+            this.fps = this.frames;
+            this.frames = 0;
+            this.lastTime = now;
+        }
+
+        // Renders the FPS counter and player score on the screen using the canvas
+        // context. The drawing state is preserved using save() and restore() to
+        // prevent side effects on other rendering operations.
+        this.ctx.save();
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        this.ctx.font = "20px monospace";
+        this.ctx.fillText(`FPS: ${this.fps}`, 715, 20);
+
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+        this.ctx.font = "20px monospace";
+        this.ctx.fillText(`Score: ${this.score}`, 10, 20);
+
+        this.ctx.restore();
     }
-
-    this.ctx.save();
-    this.ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    this.ctx.font = "20px monospace";
-    this.ctx.fillText(`FPS: ${this.fps}`, 715, 20);
-
-    this.ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-    this.ctx.font = "20px monospace";
-    this.ctx.fillText(`Score: ${this.score}`, 10, 20);
-
-    this.ctx.restore();
-  }
 }
 
 // ---------------------------
