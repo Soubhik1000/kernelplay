@@ -1,15 +1,19 @@
 # KernelPlayJS
 
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
-Built on an Entity–Component architecture, KernelPlayJS is fast, flexible, and surprisingly fun to use.
+Built on an Entity–Component architecture, fast, flexible, and surprisingly fun to use.
 
-> **v0.2.3-alpha** · MIT License · Built by Soubhik Mukherjee
+> **v0.3.0-alpha** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
 <div align="left">
-  <img height="400" src="https://soubhik2.github.io/HomeLand.github.oi/Images/PerformanceM.png"  />
+  <img height="400" src="https://soubhik-rjs.github.io/kernelplay-js-demo/demoplay.gif" />
 </div>
+<div align="left">
+  <img height="400" src="https://soubhik2.github.io/HomeLand.github.oi/Images/PerformanceM.png" />
+</div>
+
 
 ---
 
@@ -22,15 +26,13 @@ Built on an Entity–Component architecture, KernelPlayJS is fast, flexible, and
 
 ## ⚡ Why KernelPlayJS?
 
-Most browser game engines either hold your hand too much or leave you drowning in boilerplate. KernelPlayJS hits the sweet spot — it handles the hard stuff (physics [AABB], rendering [**Canvas 2D**, **Pixi JS**, **Three JS**], collision, object pooling) so you can focus on making your game actually fun.
+Most browser game engines either hold your hand too much or leave you drowning in boilerplate. KernelPlayJS hits the sweet spot — it handles the hard stuff so you can focus on making your game fun.
 
-- **10,000+ objects** at 60 FPS on a 7th gen i3 — yes, really
-- **3,000 physics objects** with full collision detection at 40+ FPS
-- **Spatial grid** turns O(n²) collision into O(n) — automatic, no config needed
-- **Frustum culling** — skips anything off-screen entirely
-- **Object pooling** — spawn 1000+ bullets/sec with zero GC stutters
-- **Dirty flag system** — 91% fewer transform recalculations for static objects
-- **Batch rendering** — groups draws by color to cut canvas state changes by 100×
+- **Entity–Component–Script** architecture — just like Unity
+- **3 renderer backends** — Canvas 2D, Pixi.js, Three.js — swap with one line
+- **10,000+ objects at 60 FPS** on a 7th gen i3
+- **Full animation state machine** — triggers, transitions, crossfades
+- **Zero config** object pooling, spatial grid, frustum culling
 
 ---
 
@@ -40,7 +42,7 @@ Most browser game engines either hold your hand too much or leave you drowning i
 npm install kernelplay-js
 ```
 
-Or drop it straight into HTML with a CDN:
+Or use a CDN:
 
 ```html
 <script type="importmap">
@@ -54,208 +56,10 @@ Or drop it straight into HTML with a CDN:
 
 ### Optional Renderer Plugins
 
-The core engine ships with Canvas 2D — **zero external dependencies**. When your game needs more visual firepower, bolt on a renderer plugin:
-
 ```bash
-npm install @kernelplay/pixi-renderer    # Pixi.js — GPU-accelerated 2D sprites & effects
-npm install @kernelplay/three-renderer   # Three.js — full 3D with lights, meshes, shadows
+npm install @kernelplay/pixi-renderer    # GPU-accelerated 2D sprites & effects
+npm install @kernelplay/three-renderer   # Full 3D — lights, meshes, shadows
 ```
-
----
-
-## 🎥 CameraComponent (New in v0.2.3)
-
-No more hassle with manual game camera handling.
-
-### ❌ Old Way (Manual Camera)
-Previously, you had to manually sync the camera with the player:
-
-```js
-// Camera follows player manually
-this.camera.x = transform.position.x - this.camera.width / 2;
-this.camera.y = transform.position.y - this.camera.height / 2;
-```
-
----
-
-### ✅ New Way (Camera as a GameObject)
-
-Now, the camera is just another `Entity` in your scene.
-
-```js
-class GameScene extends Scene {
-  init() {
-    // Create player
-    const player = new Player(400, 300);
-    this.addEntity(player);
-    
-    // Create camera entity
-    const camera = new Entity("MainCamera");
-
-    camera.addComponent("transform", new TransformComponent({
-      position: { x: 400, y: 300, z: 0 }
-    }));
-    
-    camera.addComponent("camera", new CameraComponent({
-      width: this.game.config.width,
-      height: this.game.config.height,
-
-      // 🔥 Follow system
-      target: player,
-      followSpeed: 5,
-
-      // Offset from target
-      offset: { x: 0, y: -50, z: 0 },
-
-      // Level bounds (prevents showing outside world)
-      bounds: {
-        minX: 0,
-        maxX: 2000,
-        minY: 0,
-        maxY: 1500
-      },
-
-      isPrimary: true
-    }));
-    
-    this.addEntity(camera);
-  }
-}
-```
-
----
-
-## 🎮 Using Camera in Scripts
-
-```js
-export class PlayerController extends ScriptComponent {
-  onStart() {
-    // Get primary camera
-    this.primaryCamera = this.entity.scene.getPrimaryCamera();
-  }
-
-  update(dt) {
-    // Shortcut access
-    this.camera;
-  }
-}
-```
-
----
-
-## 🧠 CameraComponent Methods
-
-```js
-// Set follow target
-this.camera.setTarget(this.entity);
-
-// Screen shake effect
-this.camera.shake(20, 0.5);
-
-// Convert screen → world coordinates
-const worldPos = this.camera.screenToWorld(Mouse.x, Mouse.y);
-
-// Convert world → screen coordinates
-const screenPos = this.camera.worldToScreen(pos.x, pos.y);
-
-// Check if a position is visible
-this.camera.isInView(x, y);
-```
-
----
-
-## 🎥 Multiple Cameras Setup
-
-```js
-// Camera 1 (Primary)
-const camera1 = new Entity("MainCamera");
-camera1.id = 100;
-
-camera1.addComponent("transform", new TransformComponent({
-  position: { x: 400, y: 300, z: 10 }
-}));
-
-camera1.addComponent("camera", new CameraComponent({
-  width: 800,
-  height: 600,
-  isPrimary: true
-}));
-
-// Camera 2
-const camera2 = new Entity("Camera2");
-camera2.id = 101;
-
-camera2.addComponent("transform", new TransformComponent({
-  position: { x: 0, y: 0, z: 10 }
-}));
-
-camera2.addComponent("camera", new CameraComponent({
-  width: 800,
-  height: 600,
-  isPrimary: false
-}));
-```
-
----
-
-## 🔄 Switching Between Cameras
-
-```js
-// Inside ScriptComponent
-this.setPrimaryCamera(this.camera2);
-```
-
----
-
-## ⚡ Prop Injection System
-
-`ScriptComponent` now supports **automatic prop injection**.
-
-You can directly pass references and values — no manual lookup needed.
-
-### 🔗 Setup
-
-```js
-import { ref } from "kernelplay-js";
-
-player.addComponent("playerController", new PlayerController({
-  enemy: ref(5),
-  force: 800,
-  camera1: ref(100),
-  camera2: ref(101),
-}));
-```
-
----
-
-### 🚀 Usage
-
-```js
-// Use injected values directly
-if (Keyboard.isPressed(KeyCode.ArrowRight)) {
-  rb.addForce(this.force, 0);
-}
-
-// Switch camera
-this.setPrimaryCamera(this.camera2);
-
-// Destroy referenced entity
-this.enemy.destroy();
-
-// Change camera target
-this.camera2.getComponent("camera").setTarget(this.enemy);
-```
-
----
-
-## ✨ Summary
-
-- Camera is now a full **Entity**
-- Built-in **smooth follow system**
-- Supports **multiple cameras**
-- Easy **camera switching**
-- Powerful **prop injection system**
-- Cleaner, modular, and scalable 🎯
 
 ---
 
@@ -298,351 +102,218 @@ export class Player extends Entity {
   constructor(x, y) {
     super("Player");
     this.tag = "player";
-    this.zIndex = 10; // renders on top
+    this.zIndex = 10;
 
-    this.addComponent("transform", new TransformComponent({ position: { x, y } }));
+    this.addComponent("transform",   new TransformComponent({ position: { x, y } }));
     this.addComponent("rigidbody2d", new Rigidbody2DComponent({ mass: 1, gravityScale: 1 }));
-    this.addComponent("collider", new ColliderComponent({ width: 50, height: 50 }));
-    this.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
-    this.addComponent("controller", new PlayerController());
+    this.addComponent("collider",    new ColliderComponent({ width: 50, height: 50 }));
+    this.addComponent("renderer",    new BoxRenderComponent({ color: "red" }));
+    this.addComponent("controller",  new PlayerController());
   }
 }
 ```
 
----
-
-## 🧠 Script Lifecycle
-
-Scripts work just like Unity's MonoBehaviour — with clean hooks for every stage of an entity's life:
-
-```js
-export class PlayerController extends ScriptComponent {
-
-  onStart() {
-    this.speed = 200;
-    this.jumpForce = 500;
-  }
-
-  update(dt) {
-    const rb = this.entity.getComponent("rigidbody2d");
-
-    rb.velocity.x = 0;
-    if (Keyboard.isDown(KeyCode.ArrowRight)) rb.velocity.x = this.speed;
-    if (Keyboard.isDown(KeyCode.ArrowLeft))  rb.velocity.x = -this.speed;
-
-    if (Keyboard.wasPressed(KeyCode.Space) && rb.isGrounded) {
-      rb.velocity.y = -this.jumpForce;
-    }
-
-    if (Mouse.wasPressed(MouseButton.Left)) {
-      this.instantiate(Bullet, this.transform.position.x, this.transform.position.y);
-    }
-  }
-
-  onCollision(other) {
-    if (other.tag === "enemy") this.takeDamage(10);
-  }
-
-  onDestroy() {
-    // cleanup resources here
-  }
-}
-```
-
-**Lifecycle order:** `onAttach → onStart → update → lateUpdate → onDestroy`
+**Script lifecycle:** `onAttach → onStart → update → lateUpdate → onDestroy`
 
 ---
 
-## 🔫 Object Pooling (Automatic)
+## 🎞️ Animation System *(New in v0.3.0)*
 
-Spawning hundreds of bullets per second? KernelPlayJS silently recycles destroyed entities back into a pool so they can be reused — no setup, no pool sizes to configure, no GC spikes to fight.
+The animation system has three layers that work together:
+
+```
+AnimationClip        — pure data (frames, tracks, timing)
+AnimatorController   — state machine (states, transitions, parameters)
+AnimatorComponent    — runtime (drives sprites or 3D properties each frame)
+```
+
+### AnimationClip
+
+Define a clip from a sprite sheet using **frame indices** (KernelPlayJS calculates the source rect for you):
 
 ```js
-// Creates a Bullet, or quietly reuses a destroyed one from the pool
-this.instantiate(Bullet, x, y);
-
-// When the bullet's lifetime ends or it hits something:
-this.destroy(); // entity goes back to the pool, not the garbage collector
-```
-
-### Bullet Prefab (Auto-pooled)
-
-```js
-// Do not use Entity Object for the Bullet prefab if it will be instantiated.
-// It now contains data only for ECS.
-
-export function Bullet(entity, x = 100, y = 100) {
-    entity.name = "Bullet";
-    entity.tag = "bullet";
-
-    entity.addComponent("transform", new TransformComponent({
-        position: { x, y },
-        scale: { x: 0.2, y: 0.2 }
-    }));
-
-    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
-        mass: 1,
-        gravityScale: 1,
-        drag: 1,
-        useGravity: false
-    }));
-
-    entity.addComponent("collider", new ColliderComponent({
-        isTrigger: true
-    }));
-
-    entity.addComponent("renderer", new BoxRenderComponent({color:"#00ff11", zIndex:-20}));
-    entity.addComponent("bulletscript", new BulletScript());
-}
-
-class BulletScript extends ScriptComponent {
-  constructor(direction) {
-    super();
-    this.direction = direction;
-    this.lifetime = 2.0; // seconds
-  }
-
-  update(dt) {
-    this.transform.position.x += this.direction.x * 500 * dt;
-    this.transform.position.y += this.direction.y * 500 * dt;
-    
-    this.lifetime -= dt;
-    if (this.lifetime <= 0) {
-      this.entity.destroy(); // Returns to pool automatically
-    }
-  }
-
-  onTriggerEnter(other) {
-    if (other.tag === "enemy") {
-      other.destroy();
-      this.entity.destroy(); // Both return to pool
-    }
-  }
-}
-```
-
-This is what lets bullet-hell games run at 60 FPS. The GC never sees a thing.
-
----
-
-## 🖥️ Multi-Renderer & Performance
-
-The rendering system is designed to be **swapped out without touching your game logic**. Your entities, scripts, and physics stay exactly the same — only the renderer changes. One line of code, completely different rendering backend.
-
-### Canvas 2D — Default, Zero Dependencies
-
-The built-in renderer. Lightweight, fast, and no install required. Under the hood it uses batch rendering (groups draws by color) and frustum culling (skips off-screen objects entirely) to squeeze every bit of performance from the Canvas API.
-
-```js
-// No imports, no config — this is the default
-new MyGame({ width: 800, height: 600, fps: 60 }).start();
-```
-
-**When to use it:** Prototypes, logic-heavy simulations, games up to ~10,000 objects, anything where you want zero external dependencies.
-
----
-
-### Pixi.js 2D — GPU-Accelerated Sprites
-
-```bash
-npm install @kernelplay/pixi-renderer
-```
-
-```js
-import { PixiRenderer, PixiSpriteRender } from "@kernelplay/pixi-renderer";
-
-new MyGame({ renderer: new PixiRenderer(), width: 800, height: 600 }).start();
-
-// Swap in the Pixi sprite renderer for textured objects
-entity.addComponent("renderer", new PixiSpriteRender("./assets/player.png"));
-```
-
-Pixi.js runs on WebGL — it batches thousands of textured sprites into a handful of draw calls and pushes them straight to the GPU. The moment your game goes heavy on sprites, particle effects, or dense visual scenes, this is the renderer to reach for. The same ECS, the same physics, the same scripts — just dramatically more rendering throughput.
-
-**When to use it:** Sprite-heavy games, particle systems, visual effects, scenes with 20,000+ objects, anything that makes Canvas 2D sweat.
-
----
-
-### Three.js 3D — Full 3D Rendering
-
-```bash
-npm install @kernelplay/three-renderer
-```
-
-```js
-import { ThreeRenderer } from "@kernelplay/three-renderer";
-
-new MyGame({ renderer: new ThreeRenderer(), width: 800, height: 600 }).start();
-
-// Your game logic is unchanged — just use 3D mesh components
-const mesh = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshStandardMaterial({ color: "royalblue" })
-);
-entity.addComponent("mesh", new MeshComponent(mesh));
-entity.addComponent("collider3D", new BoxCollider3D());
-```
-
-Full Three.js under the hood — PBR materials, point lights, shadows, fog, post-processing — all wired into the same entity system you already know. Your physics scripts and game logic don't need to change at all.
-
-**When to use it:** 3D games, isometric views, 2.5D hybrids, any game that needs lighting and depth.
-
----
-
-### Renderer Comparison
-
-| | Canvas 2D | Pixi.js 2D | Three.js 3D |
-|---|---|---|---|
-| Install | None | `@kernelplay/pixi-renderer` | `@kernelplay/three-renderer` |
-| Rendering | CPU (Canvas API) | GPU (WebGL) | GPU (WebGL) |
-| Best for | Prototypes, logic-heavy | Sprite games, VFX | 3D, isometric |
-| Smooth object ceiling | ~10,000 | 20,000+ | Scene-dependent |
-| External dependency | Zero | Pixi.js | Three.js |
-
-The same ECS, scripts, physics, and input work across all three. Switching renderer is a one-liner.
-
----
-
-Writing game logic just got cleaner. No more drilling through `this.entity.scene.game...` chains every single time.
-
-### Shorthand API
-
-```js
-// Before                                        →  After
-this.entity.destroy()                            →  this.destroy()
-this.entity.hasTag("wall")                       →  this.hasTag("wall")
-this.entity.scene.findByTag("wall")              →  this.findByTag("wall")
-this.entity.scene.findAllByTag("wall")           →  this.findAllByTag("wall")
-this.entity.scene.raycast(Mouse.x, Mouse.y)      →  this.raycast(Mouse.x, Mouse.y)
-this.entity.scene.pick(Mouse.x, Mouse.y)         →  this.pick(Mouse.x, Mouse.y)
-this.entity.scene                                →  this.scene
-this.entity.scene.game                           →  this.game
-this.entity.scene.game.camera                    →  this.camera
-```
-
-### KeyCode & MouseButton
-
-No more magic strings or raw numbers buried in your input checks:
-
-```js
-if (Keyboard.isPressed(KeyCode.W))           // was: "w"
-if (Keyboard.wasPressed(KeyCode.Space))      // was: "Space"
-if (Mouse.wasPressed(MouseButton.Left))      // was: 0
-if (Mouse.wasPressed(MouseButton.Right))     // was: 2
-if (Mouse.wasPressed(MouseButton.Middle))    // was: 1
-```
-
-### Vector2 / Vector3
-
-```js
-const a = new Vector2(10, 5);
-const b = new Vector2(3, 2);
-
-Vector2.add(a, b)           // → Vector2(13, 7)
-Vector2.sub(a, b)           // → Vector2(7, 3)
-Vector2.distance(a, b)      // → number
-Vector2.lerp(a, b, 0.5)     // → smooth midpoint
-Vector2.dot(a, b)           // → scalar
-a.normalize()               // modifies in place, returns self
-a.clone()                   // safe copy
-```
-
-### Mathf
-
-```js
-Mathf.clamp(health, 0, 100)           // never go below 0 or above 100
-Mathf.lerp(currentVal, target, 0.1)   // smooth follow / easing
-Mathf.degToRad(90)                    // → 1.5707...
-Mathf.radToDeg(Math.PI)               // → 180
-```
-
-### Timer & Cooldown
-
-```js
-// Timer — great for wave spawning, cutscenes, and delayed events
-const waveTimer = new Timer(5.0, true); // 5 seconds, starts immediately
-
-update(dt) {
-  waveTimer.update(dt);
-  if (waveTimer.isFinished()) {
-    spawnNextWave();
-    waveTimer.start(); // loop it
-  }
-}
-
-// Cooldown — fire rates, dash recharge, ability delays
-const fireCooldown = new Cooldown(0.2); // 5 shots per second
-
-update(dt) {
-  fireCooldown.update(dt);
-  if (Mouse.wasPressed(MouseButton.Left) && fireCooldown.trigger()) {
-    this.instantiate(Bullet, x, y);
-  }
-}
-```
-
-### Utility Functions
-
-```js
-Random.range(1, 10);            // random float between 1 and 10
-Random.int(1, 10);              // random int between 1 and 10
-HexToRGB("#ff0000")             // → { r: 255, g: 0, b: 0 }
-RGBToHex(255, 0, 0)             // → "#ff0000"
-```
-
----
-
-### Raycasting
-
-```js
-const hit = this.raycast(Mouse.x, Mouse.y, {
-  layerMask: Layers.Enemy,
-  tag: "boss",
-  ignore: this.entity
+const walkClip = new AnimationClip({
+  name:        "walk",
+  frames:      [8, 9, 10, 11, 12, 13],
+  frameRate:   12,
+  loop:        true,
+  gridWidth:   8,
+  frameWidth:  32,
+  frameHeight: 32,
 });
+```
 
-if (hit) {
-  console.log("Hit:", hit.entity.name);
+Or use **explicit pixel rects** per frame:
+
+```js
+const walkClip = new AnimationClip({
+  frames: [
+    { x: 0,  y: 32, w: 32, h: 32 },
+    { x: 32, y: 32, w: 32, h: 32 },
+  ],
+  frameRate: 12,
+  loop: true,
+});
+```
+
+For **3D / property animation**, use tracks (no sprite needed):
+
+```js
+const bobClip = new AnimationClip({
+  name: "bob", loop: true, length: 1.5,
+  tracks: {
+    "transform.position.y": [
+      { time: 0.0,  value: 0   },
+      { time: 0.75, value: 1.5 },
+      { time: 1.5,  value: 0   },
+    ],
+  },
+});
+```
+
+Track values are linearly interpolated between keyframes. Supported types: `number`, `{ x, y, z }` vectors.
+
+---
+
+### AnimatorController — State Machine
+
+```js
+const controller = new AnimatorController()
+
+  // Parameters drive transitions
+  .addParameter("speed",      "float",   0)
+  .addParameter("isGrounded", "bool",    false)
+  .addParameter("jump",       "trigger")   // auto-resets after firing
+
+  // States (first added = entry state)
+  .addState("idle", idleClip)
+  .addState("walk", walkClip)
+  .addState("jump", jumpClip)
+
+  // Transitions — all conditions must be true
+  .addTransition("idle", "walk", {
+    conditions:  [{ param: "speed", op: ">", value: 0.1 }],
+    hasExitTime: false,
+    duration:    0,
+  })
+  .addTransition("walk", "idle", {
+    conditions:  [{ param: "speed", op: "<=", value: 0.1 }],
+    hasExitTime: false,
+    duration:    0,
+  })
+
+  // AnyState → fires from any state (great for jump, hurt, death)
+  .addAnyStateTransition("jump", {
+    conditions: [{ param: "jump", op: "trigger" }],
+    priority:   10,
+  });
+```
+
+**Condition operators:** `"true"` `"false"` `">"` `"<"` `">="` `"<="` `"=="` `"!="` `"trigger"`
+
+---
+
+### AnimatorComponent — Runtime
+
+```js
+entity.addComponent("sprite",   new SpriteComponent({ image: "./assets/player.png", width: 32, height: 32 }));
+entity.addComponent("animator", new AnimatorComponent({ controller, autoPlay: true }));
+```
+
+Driving it from a script each frame:
+
+```js
+update(dt) {
+  this.animator.setParameter("speed",      this.rb.velocity.x !== 0 ? 1 : 0);
+  this.animator.setParameter("isGrounded", this.rb.isGrounded);
+
+  if (Keyboard.wasPressed(KeyCode.Space) && this.rb.isGrounded) {
+    this.rb.addForce(0, -600, "impulse");
+    this.animator.setTrigger("jump");
+  }
 }
 ```
 
-## 🏷️ Tags, Layers & Raycasting
+**Useful methods:**
 
 ```js
-entity.tag = "enemy";
-entity.layer = Layers.Enemy;
+animator.play("idle")           // jump to state immediately
+animator.crossFade("run", 0.2)  // smooth 200ms blend
+animator.stop()                 // freeze on current frame
+animator.currentState           // string — current state name
+animator.isInState("walk")      // bool
+```
 
-// Scene queries
-const boss = this.findByTag("boss");
-const allEnemies = this.findAllByTag("enemy");
+**Callbacks:**
 
-// Raycast — only hits enemies, ignores everything else
-const hit = this.raycast(Mouse.x, Mouse.y, { layerMask: Layers.Enemy, ignore: this.entity });
-if (hit) console.log("Hit:", hit.entity.name);
+```js
+animator.onStateEnter   = (state) => { if (state === "attack") this.hitbox.enabled = true; };
+animator.onStateExit    = (state) => { if (state === "attack") this.hitbox.enabled = false; };
+animator.onAnimationEnd = (state) => { if (state === "death")  this.entity.destroy(); };
 ```
 
 ---
 
-## 🐛 Debug Mode
+### Legacy Shorthand
+
+Don't need a state machine? Pass clips directly — a simple controller is built automatically:
 
 ```js
-// Toggle with F1 in-game, or set it in config
-game.config.debugPhysics = true;
+entity.addComponent("animator", new AnimatorComponent({
+  animations: {
+    idle: { frames: [0,1,2,3],     frameRate: 8,  loop: true, gridWidth: 8, frameWidth: 32, frameHeight: 32 },
+    walk: { frames: [8,9,10,11],   frameRate: 12, loop: true, gridWidth: 8, frameWidth: 32, frameHeight: 32 },
+  },
+  defaultAnimation: "idle",
+}));
 
-// Color coding:
-// 🟢 Green  = grounded
-// 🔴 Red    = airborne
-// 🟡 Yellow = trigger collider
+animator.play("walk");
+animator.play("idle");
 ```
 
 ---
 
-## 📊 Benchmarks
+### Full Platformer Example
+
+```js
+const GRID = { gridWidth: 8, frameWidth: 32, frameHeight: 32 };
+
+const idleClip = new AnimationClip({ name: "idle", frames: [0,1,2,3],         frameRate: 8,  loop: true,  ...GRID });
+const walkClip = new AnimationClip({ name: "walk", frames: [8,9,10,11,12,13], frameRate: 12, loop: true,  ...GRID });
+const jumpClip = new AnimationClip({ name: "jump", frames: [16],              frameRate: 10, loop: false, length: 0.5, ...GRID });
+const hurtClip = new AnimationClip({ name: "hurt", frames: [24,25],           frameRate: 10, loop: false, ...GRID });
+
+const controller = new AnimatorController()
+  .addParameter("speed",      "float",   0)
+  .addParameter("isGrounded", "bool",    false)
+  .addParameter("jump",       "trigger")
+  .addParameter("hurt",       "trigger")
+
+  .addState("idle", idleClip)
+  .addState("walk", walkClip)
+  .addState("jump", jumpClip)
+  .addState("hurt", hurtClip)
+
+  .addTransition("idle", "walk", { conditions: [{ param: "speed", op: ">",    value: 0.1 }, { param: "isGrounded", op: "true"  }], hasExitTime: false, duration: 0 })
+  .addTransition("walk", "idle", { conditions: [{ param: "speed", op: "<=",   value: 0.1 }],                                        hasExitTime: false, duration: 0 })
+  .addTransition("walk", "jump", { conditions: [{ param: "isGrounded", op: "false" }],                                              hasExitTime: false, duration: 0 })
+  .addTransition("jump", "idle", { conditions: [{ param: "isGrounded", op: "true"  }],                                              hasExitTime: false, duration: 0 })
+  .addAnyStateTransition("jump", { conditions: [{ param: "jump", op: "trigger" }], priority: 10 })
+  .addAnyStateTransition("hurt", { conditions: [{ param: "hurt", op: "trigger" }], priority: 20 });
+
+entity.addComponent("sprite",   new SpriteComponent({ image: "./assets/player.png", width: 32, height: 32 }));
+entity.addComponent("animator", new AnimatorComponent({ controller }));
+entity.addComponent("script",   new PlayerScript());
+```
+
+---
+
+## ⚡ Performance
 
 Tested on **i3 7th Gen, 8GB RAM** — a deliberately modest machine:
 
-| Scenario | Objects | Physics % | FPS |
-|----------|---------|-----------|-----|
+| Scenario | Objects | Physics | FPS |
+|----------|---------|---------|-----|
 | Light | 1,000 | 10% | 60 |
 | Medium | 5,000 | 10% | 60 |
 | Heavy | 10,000 | 10% | 50–60 |
@@ -651,22 +322,184 @@ Tested on **i3 7th Gen, 8GB RAM** — a deliberately modest machine:
 
 *On modern hardware (i5 10th gen+), 60 FPS holds even at Extreme.*
 
+**How it stays fast:**
+- **Spatial grid** — turns O(n²) collision into O(n), automatically
+- **Frustum culling** — skips anything off-screen entirely
+- **Object pooling** — spawn 1000+ bullets/sec with zero GC stutters
+- **Dirty flag system** — 91% fewer transform recalculations for static objects
+- **Batch rendering** — groups draws by color, cuts canvas state changes by 100×
+
+---
+
+## 🎥 Camera System *(New in v0.2.3)*
+
+The camera is now a full Entity in your scene:
+
+```js
+const camera = new Entity("MainCamera");
+
+camera.addComponent("transform", new TransformComponent({ position: { x: 400, y: 300, z: 0 } }));
+camera.addComponent("camera", new CameraComponent({
+  width:       this.game.config.width,
+  height:      this.game.config.height,
+  target:      player,       // smooth follow
+  followSpeed: 5,
+  offset:      { x: 0, y: -50, z: 0 },
+  bounds:      { minX: 0, maxX: 2000, minY: 0, maxY: 1500 },
+  isPrimary:   true,
+}));
+
+this.addEntity(camera);
+```
+
+**Useful methods:**
+
+```js
+this.camera.shake(20, 0.5);                         // screen shake — intensity, duration
+this.camera.screenToWorld(Mouse.x, Mouse.y);        // screen → world coords
+this.camera.worldToScreen(pos.x, pos.y);            // world → screen coords
+this.camera.isInView(x, y);                         // visibility check
+this.setPrimaryCamera(this.camera2);                // switch cameras
+```
+
+---
+
+## 🔫 Object Pooling
+
+No setup needed — KernelPlayJS silently recycles destroyed entities:
+
+```js
+this.instantiate(Bullet, x, y);   // reuses a pooled entity if one exists
+this.destroy();                    // returns to pool, not the garbage collector
+```
+
+Bullet prefabs must use the function form (not `class extends Entity`):
+
+```js
+export function Bullet(entity, x = 0, y = 0) {
+  entity.name = "Bullet";
+  entity.tag  = "bullet";
+  entity.addComponent("transform",   new TransformComponent({ position: { x, y } }));
+  entity.addComponent("rigidbody2d", new Rigidbody2DComponent({ useGravity: false }));
+  entity.addComponent("collider",    new ColliderComponent({ isTrigger: true }));
+  entity.addComponent("renderer",    new BoxRenderComponent({ color: "#00ff11" }));
+  entity.addComponent("script",      new BulletScript());
+}
+```
+
+---
+
+## 🖥️ Renderers
+
+Swap the backend with one line — your ECS, physics, and scripts stay identical.
+
+| | Canvas 2D | Pixi.js 2D | Three.js 3D |
+|---|---|---|---|
+| Install | None | `@kernelplay/pixi-renderer` | `@kernelplay/three-renderer` |
+| Rendering | CPU | GPU (WebGL) | GPU (WebGL) |
+| Best for | Prototypes, logic-heavy | Sprite games, VFX | 3D, isometric |
+| Object ceiling | ~10,000 | 20,000+ | Scene-dependent |
+
+```js
+// Canvas 2D — default, zero dependencies
+new MyGame({ width: 800, height: 600, fps: 60 }).start();
+
+// Pixi.js — GPU-accelerated sprites
+import { PixiRenderer } from "@kernelplay/pixi-renderer";
+new MyGame({ renderer: new PixiRenderer(), width: 800, height: 600 }).start();
+
+// Three.js — full 3D
+import { ThreeRenderer } from "@kernelplay/three-renderer";
+new MyGame({ renderer: new ThreeRenderer(), width: 800, height: 600 }).start();
+```
+
+---
+
+## 🛠️ Helpers & Utilities
+
+### Shorthand API (inside ScriptComponent)
+
+```js
+this.destroy()                      // entity.destroy()
+this.findByTag("wall")              // scene.findByTag("wall")
+this.findAllByTag("wall")           // scene.findAllByTag("wall")
+this.raycast(Mouse.x, Mouse.y)      // scene.raycast(...)
+this.camera                         // scene.game.camera
+```
+
+### Input
+
+```js
+if (Keyboard.isDown(KeyCode.ArrowRight))    rb.velocity.x = speed;
+if (Keyboard.wasPressed(KeyCode.Space))     rb.velocity.y = -jumpForce;
+if (Mouse.wasPressed(MouseButton.Left))     this.instantiate(Bullet, x, y);
+```
+
+### Math & Vectors
+
+```js
+Vector2.add(a, b)           // → Vector2
+Vector2.distance(a, b)      // → number
+Vector2.lerp(a, b, 0.5)     // → smooth midpoint
+Mathf.clamp(health, 0, 100)
+Mathf.lerp(current, target, 0.1)
+Mathf.degToRad(90)
+```
+
+### Timer & Cooldown
+
+```js
+const waveTimer    = new Timer(5.0, true);    // 5s, auto-starts
+const fireCooldown = new Cooldown(0.2);       // 5 shots/sec
+
+update(dt) {
+  waveTimer.update(dt);
+  if (waveTimer.isFinished()) { spawnNextWave(); waveTimer.start(); }
+
+  fireCooldown.update(dt);
+  if (Mouse.wasPressed(MouseButton.Left) && fireCooldown.trigger()) {
+    this.instantiate(Bullet, x, y);
+  }
+}
+```
+
+### Prop Injection
+
+```js
+import { ref } from "kernelplay-js";
+
+player.addComponent("controller", new PlayerController({
+  enemy:   ref(5),    // entity ID 5
+  camera1: ref(100),
+  force:   800,
+}));
+
+// Inside PlayerController — available as this.enemy, this.camera1, this.force
+```
+
+### Debug Mode
+
+```js
+game.config.debugPhysics = true;   // or press F1 in-game
+// 🟢 Green = grounded · 🔴 Red = airborne · 🟡 Yellow = trigger
+```
+
 ---
 
 ## 🗺️ Roadmap
 
-**v0.2.3** (Current) — Helper Class Update  
-✅ Shorthand script API · ✅ KeyCode & MouseButton · ✅ Vector2/Vector3 · ✅ Mathf · ✅ Timer & Cooldown · ✅ Utility helpers
+**v0.3.0** *(Current)* — Animation System  
+✅ AnimationClip · ✅ AnimatorController · ✅ AnimatorComponent · ✅ State machine · ✅ Triggers & crossfades · ✅ 3D property tracks
 
-**v0.3.0** — Audio system · Particle effects · Scene save/load · Static object optimization · Continuous collision detection
+**v0.3.x** — Audio system · Particle effects · Scene save/load · Static object optimization · Continuous collision detection
 
-**v0.4.0** — UI system · Animation · State machine component · Physics constraints · Tilemap support
+**v0.4.0** — UI system · State machine component · Physics constraints · Tilemap support
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome — especially in these areas: audio system, particle effects, documentation, bug fixes, and renderer plugin improvements.
+Contributions welcome — especially: audio system, particle effects, documentation, bug fixes, renderer plugins.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
@@ -677,7 +510,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 - **GitHub:** https://github.com/Soubhik1000/kernelplay
 - **NPM:** https://www.npmjs.com/package/kernelplay-js
 - **Docs:** https://soubhik-rjs.github.io/kernelplay-js-demo/docs/
-<!-- - **Discord:** [Join the community](#) -->
 
 ---
 
