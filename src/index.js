@@ -45,6 +45,9 @@ export { AudioSource } from "./core/components/AudioSource.js";
 export { AudioListener } from "./core/components/AudioListener.js";
 export { FPSCounterComponent } from "./core/components/FPSCounterComponent.js";
 
+// ui elements
+export * from "./core/ui/index.js";
+
 // physics components
 export { RigidbodyComponent } from "./core/physics/RigidbodyComponent.js";
 export { Rigidbody2DComponent } from "./core/physics/Rigidbody2DComponent.js";

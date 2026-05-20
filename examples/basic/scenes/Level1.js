@@ -8,6 +8,12 @@ import { CameraComponent, Entity, TransformComponent, FPSCounterComponent } from
 // import { Cube1 } from "../prefabs/Cube1.js";
 // import { Bullet } from "../prefabs/Bullet.js";
 import { AudioListener } from "../../../src/index.js";
+import { UIText } from "../../../src/index.js";
+import { UIButton } from "../../../src/index.js";
+import { UICheckbox } from "../../../src/index.js";
+import { UISlider } from "../../../src/index.js";
+import { UIInputField } from "../../../src/index.js";
+
 
 export class Level1 extends Scene {
   init() {
@@ -82,12 +88,78 @@ export class Level1 extends Scene {
     // this.addEntity(new Cube(0,0,0));
     // this.addEntity(new Cube1(4,0,0));
     // this.addEntity(ground);
+
+
+    console.log(this);
+
+    const label = this.game.ui.add(new UIText({
+      text: "Score: 0",
+      anchor: "topRight",
+      offset: { x: 20, y: 20 },
+      style: {
+        textColor: "#ff0000",
+        fontSize: 18,
+        fontWeight: "bold",
+      },
+    }));
+
+    const btn = this.game.ui.add(new UIButton({
+      label: "Play",
+      anchor: "center",
+      offset: { x: 0, y: 0 },
+      width: 160,
+      height: 48,
+      zIndex: 1,
+      style: {
+        primaryColor: "#4a90e2",
+        hoverColor: "#5aa0f2",
+        pressColor: "#3a80d2",
+        fontSize: 16,
+        fontWeight: "bold",
+      },
+    }));
+
+    btn.onClick = () => {
+      console.log("Play clicked!");
+      // this.game.sceneManager.startScene("Game");
+    };
+
+    const sfxToggle = this.game.ui.add(new UICheckbox({
+      label: "Sound Effects",
+      checked: true,
+      anchor: "middleLeft",
+      offset: { x: 0, y: -20 },
+      width: 200,
+      height: 30,
+    }));
+
+    const volumeSlider = this.game.ui.add(new UISlider({
+      value: 0.8,
+      min: 0,
+      max: 1,
+      showValue: true,
+      anchor: "middleRight",
+      offset: { x: 0, y: 40 },
+      width: 220,
+      height: 30,
+    }));
+
+    const nameField = this.game.ui.add(new UIInputField({
+      placeholder: "Enter your name...",
+      value: "",
+      maxLength: 20,
+      anchor: "bottomCenter",
+      offset: { x: 0, y: 0 },
+      width: 260,
+      height: 42,
+    }));
+
   }
 
   update(dt) {
-    
+
     super.update(dt);
-    
+
     // this.frames++;
     // const now = performance.now();
 
@@ -96,7 +168,7 @@ export class Level1 extends Scene {
     //   this.frames = 0;
     //   this.lastTime = now;
     // }
-    
+
   }
 
   render() {

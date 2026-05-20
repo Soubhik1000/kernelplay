@@ -8,6 +8,7 @@ import { Canvas } from "../graphics/Canvas.js";
 import { CanvasRenderer } from "../graphics/CanvasRenderer.js";
 import { Camera2D } from "./components/Camera2D.js";
 import { AudioManager } from "./AudioManager.js";
+import { UICanvas } from "./ui/Uicanvas.js";
 
 export class Game {
   constructor(options = {}) {
@@ -27,6 +28,9 @@ export class Game {
     this.renderer = options.renderer || new CanvasRenderer();
     this.renderer.init(this);
 
+    // create the UI layer
+    this.ui = new UICanvas(this);
+
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);
 
@@ -38,6 +42,7 @@ export class Game {
         this.update(dt);
         this.sceneManager.update(dt);
         this.audio.update();
+        this.ui.update(dt);
         
         Keyboard.update();
         Mouse.update();
@@ -55,6 +60,7 @@ export class Game {
         // }
 
         this.sceneManager.render(this.renderer);
+        this.ui.render();
       },
 
       fps: this.config.fps
