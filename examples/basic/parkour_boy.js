@@ -203,9 +203,12 @@ class PlayerScript extends ScriptComponent {
 
         this._isRunningSoundPlaying = false;
         this._isJumping = false;
+        this.isLose = false;
     }
 
     update(dt) {
+        if (this.isLose) return;
+
         this.rb.velocity.x = 0;
 
         if (Keyboard.isPressed(KeyCode.ArrowRight)) {
@@ -221,67 +224,35 @@ class PlayerScript extends ScriptComponent {
         this.animator.setParameter("speed", isMoving ? 1 : 0);
         this.animator.setParameter("isGrounded", this.rb.isGrounded);
 
-        if (this.rb.isGrounded) {
-            if (this._isJumping) this._isJumping = false;
-            if (Keyboard.isPressed(KeyCode.Space)) {
-                this.rb.addForce(0, -600, "impulse");
-                this.animator.setTrigger("jump");
-                this.jumpSound();
-                this._isJumping = true;
-            }
+        if (this.rb.isGrounded && Keyboard.wasPressed(KeyCode.Space)) {
+            this.rb.addForce(0, -600, "impulse");
+            this.audio.stopLoop('run');          // cut run sound immediately
+            this.audio.playOneShot('jump', { volume: 0.1 });
+            this.animator.setTrigger("jump");
         }
 
         this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710)
 
         if (isMoving && this.rb.isGrounded) {
-            if (!this._isRunningSoundPlaying) {
-                this.runSound();
-                this._isRunningSoundPlaying = true;
-                console.log("running");
-            }
+            this.audio.playLoop('run', { volume: 0.5 });
         } else {
-            if (this._isRunningSoundPlaying) {
-                if (!this._isJumping) this.audio.stopAll();
-                this._isRunningSoundPlaying = false;
-            }
+            this.audio.stopLoop('run');
         }
     }
 
-    runSound() {
-        this.audio.playLoop('./assets/run.mp3', {
-            volume: 0.5,
-        });
-    }
-    jumpSound() {
-        this.audio.stopAll();
-        this.audio.playOneShot('./assets/jump.mp3', {
-            volume: 0.1,
-        });
-    }
-    coinSound() {
-        this.audio.stopAll();
-        this.audio.playOneShot('./assets/coin.wav', {
-            volume: 1,
-        });
-    }
-    hitSound() {
-        this.audio.playOneShot('./assets/lose.wav', {
-            volume: 0.5,
-            position: this.transform.position
-        });
-    }
-
     getKill() {
+        this.isLose = true;
         this.playerCorpse.getComponent("transform").position.x = this.transform.position.x;
         this.playerCorpse.getComponent("transform").position.y = this.transform.position.y;
         this.audio.stopAll();
-        this.hitSound();
+        this.audio.playOneShot('lose', { volume: 0.8 });
         this.destroy();
     }
 
     onCollision(other) {
         if (other.name === "Coin") {
-            this.coinSound();
+            // this.coinSound();
+            this.audio.playOneShot('coin', { volume: 0.8 });
             other.getComponent('transform').position.x = Random.range(-600, 600);
             other.getComponent("transform").position.y = 0;
             console.log("Coin Collected");
@@ -293,6 +264,7 @@ class PlayerScript extends ScriptComponent {
                 other.getComponent('transform').position.x = Random.range(-600, 600);
                 other.getComponent("transform").position.y = 0;
                 console.log("Enemy Kill");
+                this.audio.playOneShot('kill', { volume: 0.8 });
                 this.scene.score += 2;
             }
         }
@@ -327,7 +299,16 @@ class Player extends Entity {
         }));
 
         this.addComponent("animator", new AnimatorComponent({ controller: PlayerAnimatorController() }));
-        this.addComponent("audio", new AudioSource());
+        this.addComponent("audio", new AudioSource({
+            clips: {
+                run: './assets/run.mp3',
+                jump: './assets/jump.mp3',
+                coin: './assets/coin.wav',
+                lose: './assets/lose.wav',
+                kill: './assets/enemykill.mp3',
+            },
+            volume: 1.0,
+        }));
         this.addComponent('script', new PlayerScript({
             speed: 200,
             playerCorpse: ref(300)
@@ -710,6 +691,9 @@ class Level extends Scene {
 
         // Camera follow
         camera.getComponent("camera").setTarget(player);
+
+        game.audio.playBGM('./assets/BG.mp3', { loop: true, fadeDuration: 1.5 });
+        game.audio.setBGMVolume(0.4);
     }
 
     render() {
@@ -765,5 +749,14 @@ const game = new MyGame({
     backgroundColor: "#eeeeee",
     // debugPhysics: true
 });
+
+await game.audio.loadAll([
+    './assets/BG.mp3',
+    './assets/jump.mp3',
+    './assets/run.mp3',
+    './assets/coin.wav',
+    './assets/lose.wav',
+    './assets/enemykill.mp3'
+]);
 
 game.start();
