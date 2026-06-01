@@ -7,10 +7,10 @@
  */
 export class AudioManager {
     constructor() {
-        this._ctx        = null;   // AudioContext — created on first interaction
+        this._ctx = null;   // AudioContext — created on first interaction
         this._masterGain = null;
-        this._bgmGain    = null;   // separate gain chain for BGM (never spatialized)
-        this._sfxGain    = null;   // separate gain chain for SFX
+        this._bgmGain = null;   // separate gain chain for BGM (never spatialized)
+        this._sfxGain = null;   // separate gain chain for SFX
 
         // listener world position — set by AudioListener component every frame
         this.listener = { x: 0, y: 0 };
@@ -25,12 +25,12 @@ export class AudioManager {
         this._bgm = null;
 
         // config
-        this.maxDistance  = 800;   // pixels — beyond this volume = 0
-        this.rolloff      = 1.5;   // higher = steeper distance fade
+        this.maxDistance = 800;   // pixels — beyond this volume = 0
+        this.rolloff = 1.5;   // higher = steeper distance fade
 
         this.masterVolume = 1.0;
-        this.sfxVolume    = 1.0;
-        this.bgmVolume    = 1.0;
+        this.sfxVolume = 1.0;
+        this.bgmVolume = 1.0;
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ export class AudioManager {
     _ensureContext() {
         if (this._ctx) return;
 
-        this._ctx        = new (window.AudioContext || window.webkitAudioContext)();
+        this._ctx = new (window.AudioContext || window.webkitAudioContext)();
         this._masterGain = this._ctx.createGain();
         this._masterGain.connect(this._ctx.destination);
 
@@ -57,8 +57,8 @@ export class AudioManager {
         if (!this._ctx) return;
         const t = this._ctx.currentTime;
         this._masterGain.gain.setTargetAtTime(this.masterVolume, t, 0.01);
-        this._bgmGain.gain.setTargetAtTime(this.bgmVolume,    t, 0.01);
-        this._sfxGain.gain.setTargetAtTime(this.sfxVolume,    t, 0.01);
+        this._bgmGain.gain.setTargetAtTime(this.bgmVolume, t, 0.01);
+        this._sfxGain.gain.setTargetAtTime(this.sfxVolume, t, 0.01);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -117,10 +117,10 @@ export class AudioManager {
             return _noop();
         }
 
-        const gainNode  = this._ctx.createGain();
+        const gainNode = this._ctx.createGain();
         const sourceNode = this._ctx.createBufferSource();
         sourceNode.buffer = buffer;
-        sourceNode.loop   = false;
+        sourceNode.loop = false;
 
         gainNode.connect(this._sfxGain);
         sourceNode.connect(gainNode);
@@ -140,7 +140,7 @@ export class AudioManager {
         };
 
         return {
-            stop: () => { try { sourceNode.stop(); } catch (_) {} }
+            stop: () => { try { sourceNode.stop(); } catch (_) { } }
         };
     }
 
@@ -165,10 +165,10 @@ export class AudioManager {
             return _noop();
         }
 
-        const gainNode   = this._ctx.createGain();
+        const gainNode = this._ctx.createGain();
         const sourceNode = this._ctx.createBufferSource();
         sourceNode.buffer = buffer;
-        sourceNode.loop   = true;   // Web Audio loop — no gap, no delay
+        sourceNode.loop = true;   // Web Audio loop — no gap, no delay
 
         gainNode.connect(this._sfxGain);
         sourceNode.connect(gainNode);
@@ -183,7 +183,7 @@ export class AudioManager {
 
         return {
             stop: () => {
-                try { sourceNode.stop(); } catch (_) {}
+                try { sourceNode.stop(); } catch (_) { }
                 this._spatialSources = this._spatialSources.filter(e => e !== entry);
                 gainNode.disconnect();
             },
@@ -210,10 +210,10 @@ export class AudioManager {
         this._ensureContext();
 
         const startNew = (buffer) => {
-            const gainNode   = this._ctx.createGain();
+            const gainNode = this._ctx.createGain();
             const sourceNode = this._ctx.createBufferSource();
             sourceNode.buffer = buffer;
-            sourceNode.loop   = loop;
+            sourceNode.loop = loop;
 
             gainNode.connect(this._bgmGain);
             sourceNode.connect(gainNode);
@@ -229,10 +229,10 @@ export class AudioManager {
         // fade out existing BGM
         if (this._bgm) {
             const old = this._bgm;
-            const t   = this._ctx.currentTime;
+            const t = this._ctx.currentTime;
             old.gainNode.gain.linearRampToValueAtTime(0, t + fadeDuration);
             setTimeout(() => {
-                try { old.sourceNode.stop(); } catch (_) {}
+                try { old.sourceNode.stop(); } catch (_) { }
                 old.gainNode.disconnect();
             }, fadeDuration * 1000);
             this._bgm = null;
@@ -250,10 +250,10 @@ export class AudioManager {
     stopBGM(fadeDuration = 1.0) {
         if (!this._bgm) return;
         const old = this._bgm;
-        const t   = this._ctx.currentTime;
+        const t = this._ctx.currentTime;
         old.gainNode.gain.linearRampToValueAtTime(0, t + fadeDuration);
         setTimeout(() => {
-            try { old.sourceNode.stop(); } catch (_) {}
+            try { old.sourceNode.stop(); } catch (_) { }
             old.gainNode.disconnect();
         }, fadeDuration * 1000);
         this._bgm = null;
@@ -264,8 +264,8 @@ export class AudioManager {
     // ─────────────────────────────────────────────────────────────
 
     setMasterVolume(v) { this.masterVolume = v; this._applyVolumes(); }
-    setSFXVolume(v)    { this.sfxVolume    = v; this._applyVolumes(); }
-    setBGMVolume(v)    { this.bgmVolume    = v; this._applyVolumes(); }
+    setSFXVolume(v) { this.sfxVolume = v; this._applyVolumes(); }
+    setBGMVolume(v) { this.bgmVolume = v; this._applyVolumes(); }
 
     // ─────────────────────────────────────────────────────────────
     //  UPDATE — called every frame by the game loop
@@ -278,7 +278,7 @@ export class AudioManager {
      */
     update() {
         // console.log('hi');
-        
+
         if (!this._ctx) return;
 
         for (const entry of this._spatialSources) {
@@ -300,8 +300,8 @@ export class AudioManager {
      * Uses inverse power falloff: vol = 1 / (1 + rolloff * normalizedDist)
      */
     _spatialVolume(position) {
-        const dx   = position.x - this.listener.x;
-        const dy   = position.y - this.listener.y;
+        const dx = position.x - this.listener.x;
+        const dy = position.y - this.listener.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist >= this.maxDistance) return 0;
@@ -310,9 +310,18 @@ export class AudioManager {
         const t = dist / this.maxDistance;
         return Math.max(0, 1 - Math.pow(t, this.rolloff));
     }
+
+    stopAll() {
+        for (const entry of this._spatialSources) {
+            try { entry.sourceNode.stop(); } catch (_) { }
+            entry.gainNode.disconnect();
+        }
+        this._spatialSources = [];
+        this.stopBGM(0);   // instant stop, no fade
+    }
 }
 
 // returns a no-op handle for when buffer isn't ready yet
 function _noop() {
-    return { stop: () => {}, setPosition: () => {} };
+    return { stop: () => { }, setPosition: () => { } };
 }

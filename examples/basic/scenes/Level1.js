@@ -114,26 +114,26 @@ export class Level1 extends Scene {
     //   },
     // }));
 
-    // const btn = this.game.ui.add(new UIButton({
-    //   label: "Play",
-    //   anchor: "center",
-    //   offset: { x: 0, y: 0 },
-    //   width: 160,
-    //   height: 48,
-    //   zIndex: 1,
-    //   style: {
-    //     primaryColor: "#4a90e2",
-    //     hoverColor: "#5aa0f2",
-    //     pressColor: "#3a80d2",
-    //     fontSize: 16,
-    //     fontWeight: "bold",
-    //   },
-    // }));
+    const btn = this.game.ui.add(new UIButton({
+      label: "Level 2",
+      anchor: "topRight",
+      offset: { x: 0, y: 0 },
+      width: 160,
+      height: 48,
+      zIndex: 1,
+      style: {
+        primaryColor: "#4a90e2",
+        hoverColor: "#5aa0f2",
+        pressColor: "#3a80d2",
+        fontSize: 16,
+        fontWeight: "bold",
+      },
+    }));
 
-    // btn.onClick = () => {
-    //   console.log("Play clicked!");
-    //   // this.game.sceneManager.startScene("Game");
-    // };
+    btn.onClick = () => {
+      console.log("Play clicked!");
+      this.game.sceneManager.startScene("Level2");
+    };
 
     // const sfxToggle = this.game.ui.add(new UICheckbox({
     //   label: "Sound Effects",

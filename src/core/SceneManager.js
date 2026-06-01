@@ -30,6 +30,9 @@ export class SceneManager {
       this.currentScene.destroy();
     }
 
+    this.game.audio.stopAll();
+    this.game.ui.clear();
+
     this.currentScene = scene;
 
     if (scene.init) scene.init();

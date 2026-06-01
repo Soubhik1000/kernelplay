@@ -34,7 +34,7 @@ export function TestPlayer(x = 100, y = 100) {
     player.addComponent("renderer", new BoxRenderComponent({ color: "#FF0000", zIndex: -10 }));
     // player.addComponent("renderer", new WebGLBoxRender2D({color:"#FF0000"}));
 
-    player.addComponent("PlayerScript", new PlayerScript());
+    // player.addComponent("PlayerScript", new PlayerScript());
 
     return player;
 }
