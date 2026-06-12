@@ -1,17 +1,30 @@
 export class Loop {
-  constructor({ update, render, fps = 60 }) {
+  constructor({ update, fixedUpdate, render, fps = 60, calcRate = 60 }) {
     this.update = update;
+    this.fixedUpdate = fixedUpdate;
     this.render = render;
 
     this.targetFPS = fps;
     this.frameInterval = 1000 / fps;
 
-    this.lastRenderTime = 0;
+    this.calcRate = calcRate;
+    this.calcInterval = 1000 / calcRate;
+    this.fixedDeltaTime = 1 / calcRate;
+    this.accumulator = 0;
 
-    this.running = false;
+    this.lastRenderTime = 0;
+    this.lastCalcTime = 0;
     this.lastTime = 0;
 
+    this.running = false;
+
     this._tick = this._tick.bind(this);
+  }
+
+  setCalcRate(hz) {
+    this.calcRate = hz;
+    this.calcInterval = 1000 / hz;
+    this.fixedDeltaTime = 1 / hz;
   }
 
   start() {
@@ -27,58 +40,37 @@ export class Loop {
     this.running = false;
   }
 
-  // _tick(currentTime) {
-  //   if (!this.running) return;
-
-  //   let dt = (currentTime - this.lastTime) / 1000;
-
-  //   // 🛡️ tab fix
-  //   if (dt > 1) dt = 0;
-
-  //   this.lastTime = currentTime;
-
-  //   if (this.update) this.update(dt);
-  //   if (this.render) this.render();
-
-  //   requestAnimationFrame(this._tick);
-  // }
-
-  // _tick(currentTime) {
-  //   if (!this.running) return;
-
-  //   const dt = (currentTime - this.lastTime) / 1000;
-  //   this.lastTime = currentTime;
-
-  //   if (this.update) this.update(dt);
-
-  //   // 🔥 throttle render
-  //   if (currentTime - this.lastRenderTime >= this.frameInterval) {
-  //     this.lastRenderTime += this.frameInterval;
-
-  //     if (this.render) this.render();
-  //   }
-
-  //   requestAnimationFrame(this._tick);
-  // }
-
   _tick(currentTime) {
     if (!this.running) return;
 
     const dt = (currentTime - this.lastTime) / 1000;
     this.lastTime = currentTime;
 
-    if (this.update) this.update(dt);
+    const clampedDt = Math.min(dt, 0.1);
 
     // 🛡️ tab switch fix
-    if (currentTime - this.lastRenderTime > 1000) {
-      this.lastRenderTime = currentTime;
+    if (currentTime - this.lastCalcTime > 1000) this.lastCalcTime = currentTime;
+    if (currentTime - this.lastRenderTime > 1000) this.lastRenderTime = currentTime;
+
+    // ⚙️ calc, always throttled to calcInterval
+    if (currentTime - this.lastCalcTime >= this.calcInterval) {
+      this.lastCalcTime += this.calcInterval;
+
+      this.accumulator += clampedDt;
+
+      while (this.accumulator >= this.fixedDeltaTime) {
+        if (this.fixedUpdate) this.fixedUpdate(this.fixedDeltaTime);
+        this.accumulator -= this.fixedDeltaTime;
+      }
+
+      if (this.update) this.update(clampedDt);
     }
 
-    // 🔥 stable FPS throttle
+    // 🎨 render, always throttled to frameInterval
     if (currentTime - this.lastRenderTime >= this.frameInterval) {
       this.lastRenderTime += this.frameInterval;
-
-      if (this.render) this.render();
+      const alpha = this.accumulator / this.fixedDeltaTime;
+      if (this.render) this.render(alpha);
     }
 
     requestAnimationFrame(this._tick);

@@ -23,6 +23,10 @@ export class Level1 extends Scene {
     this.frames = 0;
     this.lastTime = performance.now();
 
+    this.cal = 0;
+    this.calframes = 0;
+    this.lastTime_cal = performance.now();
+    
     const player = Player(100, 100);
     const wall = new Wall(670, 260);
 
@@ -119,6 +123,17 @@ export class Level1 extends Scene {
       text: `FPS: 00`,
       anchor: "topLeft",
       offset: { x: 5, y: 5 },
+      style: {
+        textColor: "#1d1d1d",
+        fontSize: 16,
+        // fontWeight: "bold",
+      },
+    }));
+
+    this.calText = this.game.ui.add(new UIText({
+      text: `CAL: 00`,
+      anchor: "topLeft",
+      offset: { x: 5, y: 20 },
       style: {
         textColor: "#1d1d1d",
         fontSize: 16,
@@ -238,14 +253,15 @@ export class Level1 extends Scene {
 
     super.update(dt);
 
-    // this.frames++;
-    // const now = performance.now();
+    this.calframes++;
+    const now = performance.now();
 
-    // if (now >= this.lastTime + 1000) {
-    //   this.fps = this.frames;
-    //   this.frames = 0;
-    //   this.lastTime = now;
-    // }
+    if (now >= this.lastTime_cal + 1000) {
+      this.cal = this.calframes;
+      this.calframes = 0;
+      this.lastTime_cal = now;
+    }
+    this.calText.text = `CAL: ${this.cal}`;
 
   }
 

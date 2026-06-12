@@ -63,7 +63,8 @@ export class Game {
         this.ui.render();
       },
 
-      fps: this.config.fps
+      fps: this.config.fps,
+      calcRate: this.config.calcRate,
     });
   }
 
