@@ -10,5 +10,8 @@ export class Component {
   update(dt) {} // called every frame
   render(obj) {} // called every frame
   lateUpdate(dt) {}
+  fixedUpdate(dt) {}
+  onCollision(other) {}
+  onTriggerEnter(other) {}
   onDestroy() {}
 }

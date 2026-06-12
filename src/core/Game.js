@@ -48,8 +48,13 @@ export class Game {
         Mouse.update();
       },
 
+      fixedUpdate: (dt) =>{
+        this.fixedUpdate(dt);
+        this.sceneManager.fixedUpdate(dt);
+      },
+
       render: () => {
-        // this.render();
+        this.render();
 
         // // 🔥 Centralized render
         // const { width, height } = this.config;
@@ -65,6 +70,7 @@ export class Game {
 
       fps: this.config.fps,
       calcRate: this.config.calcRate,
+      fixedRate: this.config.fixedRate,
     });
   }
 
@@ -76,6 +82,7 @@ export class Game {
     // await this.renderer.init(this);
   }
   update(dt) {}
+  fixedUpdate(dt) {}
   render() {}
 
   start() {

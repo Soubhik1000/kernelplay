@@ -45,6 +45,12 @@ export class SceneManager {
     }
   }
 
+  fixedUpdate(dt) {
+    if (this.currentScene && this.currentScene.fixedUpdate) {
+      this.currentScene.fixedUpdate(dt);
+    }
+  }
+
   render(renderer) {
     if (this.currentScene && this.currentScene.render) {
       this.currentScene.render(renderer);

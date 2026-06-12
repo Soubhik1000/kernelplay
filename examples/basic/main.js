@@ -33,7 +33,8 @@ const game = new MyGame({
   width: 800,
   height: 600,
   fps: 60,
-  calcRate: 30,
+  calcRate: 60,
+  // fixedRate: 60,
   backgroundColor: "#eeeeee",
   // debugPhysics: true
 });

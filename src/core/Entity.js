@@ -90,6 +90,15 @@ export class Entity {
     }
   }
 
+  fixedUpdate(dt){
+    // console.log("hi");
+    for (const comp of Object.values(this.components)) {
+      if (comp.enabled && comp.fixedUpdate) {
+        comp.fixedUpdate(dt);
+      }
+    }
+  }
+
   lateUpdate(dt) {
     for (const comp of Object.values(this.components)) {
       if (comp.enabled && comp.lateUpdate) {

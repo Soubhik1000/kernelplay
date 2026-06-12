@@ -26,6 +26,10 @@ export class Level1 extends Scene {
     this.cal = 0;
     this.calframes = 0;
     this.lastTime_cal = performance.now();
+
+    this.calFixed = 0;
+    this.calframesFixed = 0;
+    this.lastTime_calFixed = performance.now();
     
     const player = Player(100, 100);
     const wall = new Wall(670, 260);
@@ -134,6 +138,17 @@ export class Level1 extends Scene {
       text: `CAL: 00`,
       anchor: "topLeft",
       offset: { x: 5, y: 20 },
+      style: {
+        textColor: "#1d1d1d",
+        fontSize: 16,
+        // fontWeight: "bold",
+      },
+    }));
+
+    this.calFixedText = this.game.ui.add(new UIText({
+      text: `CALFIXED: 00`,
+      anchor: "topLeft",
+      offset: { x: 5, y: 35 },
       style: {
         textColor: "#1d1d1d",
         fontSize: 16,
@@ -263,6 +278,23 @@ export class Level1 extends Scene {
     }
     this.calText.text = `CAL: ${this.cal}`;
 
+  }
+
+  fixedUpdate(dt){
+    super.fixedUpdate(dt);
+
+    // console.log('h');
+
+    this.calframesFixed++;
+    const now = performance.now();
+
+    if (now >= this.lastTime_calFixed + 1000) {
+      this.calFixed = this.calframesFixed;
+      this.calframesFixed = 0;
+      this.lastTime_calFixed = now;
+    }
+    this.calFixedText.text = `CALFIXED: ${this.calFixed}`;
+    
   }
 
   render() {

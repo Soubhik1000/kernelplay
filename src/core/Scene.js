@@ -58,12 +58,12 @@ export class Scene {
 
     // }
 
-    this._accumulator += dt;
+    // this._accumulator += dt;
 
-    while (this._accumulator >= this.fixedTimeStep) {
-      this._physicsStep(this.fixedTimeStep);
-      this._accumulator -= this.fixedTimeStep;
-    }
+    // while (this._accumulator >= this.fixedTimeStep) {
+    //   this._physicsStep(this.fixedTimeStep);
+    //   this._accumulator -= this.fixedTimeStep;
+    // }
 
     // 🔥 UPDATE CAMERAS
     for (const camera of this._cameras) {
@@ -203,6 +203,15 @@ export class Scene {
 
     this.entities = alive;
 
+  }
+
+  fixedUpdate(dt){
+
+    for (const entity of this.entities) {
+      entity.fixedUpdate(dt);
+    }
+
+    this._physicsStep(dt);
   }
 
   // render() {

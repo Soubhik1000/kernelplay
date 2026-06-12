@@ -281,6 +281,21 @@ export class PlayerController extends ScriptComponent {
 
         }
 
+        if (Keyboard.wasPressed(KeyCode.N)) {
+
+            // this.entity.scene.game.loop.frameInterval = 1000 / 30;
+            // console.log(Math.round(1000/this.entity.scene.game.loop.frameInterval));
+
+            this.setFPS(30);
+            console.log(this.getFPS());
+
+            // this.setcalcRate(30);
+            // console.log(this.getcalcRate());
+
+            // this.setfixedRate(30);
+            // console.log(this.getfixedRate());
+        }
+
         // if(Mouse.isPressed(0)){
         //     // console.log(Mouse.x, Mouse.y);
         //     this.entity.getComponent().position.x = Mouse.x;
@@ -367,6 +382,11 @@ export class PlayerController extends ScriptComponent {
 
     // lateUpdate(dt){
 
+    // }
+
+    // fixedUpdate(dt){
+    //     console.log('hi');
+        
     // }
 
     onDestroy() {

@@ -62,6 +62,7 @@ export class ScriptComponent extends Component {
   onStart() { }
   update(dt) { }
   lateUpdate(dt) { }
+  fixedUpdate(dt) { }
   onCollision(other) { }
   onTriggerEnter(other) { }
   onDestroy() { }
@@ -75,6 +76,30 @@ export class ScriptComponent extends Component {
   //   return entity;
   // }
 
+
+  setFPS(fps) {
+    this.entity.scene.game.loop.frameInterval = 1000 / fps;
+  }
+
+  getFPS() {
+    return Math.round(1000 / this.entity.scene.game.loop.frameInterval);
+  }
+
+  setcalcRate(rate){
+    this.entity.scene.game.loop.calcInterval = 1000 / rate;
+  }
+
+  getcalcRate(){
+    return Math.round(1000 / this.entity.scene.game.loop.calcInterval); 
+  }
+
+  setfixedRate(rate){
+    this.entity.scene.game.loop.fixedInterval = 1000 / rate;
+  }
+
+  getfixedRate(){
+    return Math.round(1000 / this.entity.scene.game.loop.fixedInterval); 
+  }
 
   setPrimaryCamera(camera) {
     const cam = camera.getComponent("camera");

@@ -3,7 +3,8 @@ export class Config {
     this.width = options.width || 800;
     this.height = options.height || 600;
     this.fps = options.fps || 60; // target FPS
-    this.calcRate = options.calcRate || 60; // fixed update rate
+    this.calcRate = options.calcRate || 60; // update rate
+    this.fixedRate = options.fixedRate || 60; // fixed update rate
     this.backgroundColor = options.backgroundColor || "#ffffff";
 
     this.gravity = 980;

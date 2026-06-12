@@ -1,5 +1,5 @@
 export class Loop {
-  constructor({ update, fixedUpdate, render, fps = 60, calcRate = 60 }) {
+  constructor({ update, fixedUpdate, render, fps = 60, calcRate = 60, fixedRate = 60 }) {
     this.update = update;
     this.fixedUpdate = fixedUpdate;
     this.render = render;
@@ -9,8 +9,12 @@ export class Loop {
 
     this.calcRate = calcRate;
     this.calcInterval = 1000 / calcRate;
-    this.fixedDeltaTime = 1 / calcRate;
     this.accumulator = 0;
+
+
+    this.fixedDeltaTime = 1 / fixedRate;
+    this.fixedInterval = 1000 / fixedRate;
+    this.lastFixedTime = 0;
 
     this.lastRenderTime = 0;
     this.lastCalcTime = 0;
@@ -50,26 +54,25 @@ export class Loop {
 
     // 🛡️ tab switch fix
     if (currentTime - this.lastCalcTime > 1000) this.lastCalcTime = currentTime;
+    if (currentTime - this.lastFixedTime > 1000) this.lastFixedTime = currentTime;
     if (currentTime - this.lastRenderTime > 1000) this.lastRenderTime = currentTime;
 
-    // ⚙️ calc, always throttled to calcInterval
+    // ⚙️ variable update, throttled to calcRate
     if (currentTime - this.lastCalcTime >= this.calcInterval) {
       this.lastCalcTime += this.calcInterval;
-
-      this.accumulator += clampedDt;
-
-      while (this.accumulator >= this.fixedDeltaTime) {
-        if (this.fixedUpdate) this.fixedUpdate(this.fixedDeltaTime);
-        this.accumulator -= this.fixedDeltaTime;
-      }
-
       if (this.update) this.update(clampedDt);
     }
 
-    // 🎨 render, always throttled to frameInterval
+    // 🔧 fixed update, throttled to fixedRate
+    if (currentTime - this.lastFixedTime >= this.fixedInterval) {
+      this.lastFixedTime += this.fixedInterval;
+      if (this.fixedUpdate) this.fixedUpdate(this.fixedDeltaTime);
+    }
+
+    // 🎨 render, throttled to frameRate
     if (currentTime - this.lastRenderTime >= this.frameInterval) {
       this.lastRenderTime += this.frameInterval;
-      const alpha = this.accumulator / this.fixedDeltaTime;
+      const alpha = (currentTime - this.lastFixedTime) / this.fixedInterval;
       if (this.render) this.render(alpha);
     }
 
