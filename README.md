@@ -3,7 +3,7 @@
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
 Built on an Entity–Component architecture, fast, flexible, and surprisingly fun to use.
 
-> **v0.3.1-alpha** · MIT License · Built by Soubhik Mukherjee
+> **v0.3.2-alpha** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
@@ -57,23 +57,102 @@ Or use a CDN:
 ### Optional Renderer Plugins
 
 ```bash
-npm install @kernelplay/pixi-renderer    # GPU-accelerated 2D sprites & effects
+npm install @kernelplay/pixi-renderer   # GPU-accelerated 2D sprites & effects
 npm install @kernelplay/three-renderer   # Full 3D — lights, meshes, shadows
 ```
+#### Optional Renderer Plugins Documentation
+**[@kernelplay/pixi-renderer](https://www.npmjs.com/package/@kernelplay/pixi-renderer)** <br>
+**[@kernelplay/three-renderer](https://www.npmjs.com/package/@kernelplay/three-renderer)**
 
 ---
 
 ## 🚀 Quick Start
-
+### Procedural Approach
 ```js
-import { Game, Scene, Entity, TransformComponent, BoxRenderComponent } from "kernelplay-js";
+import { Game, Scene, Entity, TransformComponent, BoxRenderComponent, CameraComponent, ScriptComponent, Keyboard, KeyCode} from "kernelplay-js";
+
+// function base
+const game = new Game({width: 800, height: 600, fps: 60});
+
+const camera = new Entity("MainCamera");
+
+camera.addComponent("transform", new TransformComponent({ position: { x: 400, y: 300, z: 0 } }));
+camera.addComponent("camera", new CameraComponent({width: game.config.width, height: game.config.height, isPrimary: true}));
+
+const myScript = {
+  onStart() {
+    console.log(this);
+    this.transform = this.entity.getComponent("transform");
+    this.speed = 200;
+  },
+  update(dt) {
+    if(Keyboard.isPressed(KeyCode.W) || Keyboard.isPressed(KeyCode.ArrowUp)){
+      this.transform.position.y -= this.speed*dt;
+    }
+    if(Keyboard.isPressed(KeyCode.S) || Keyboard.isPressed(KeyCode.ArrowDown)){
+      this.transform.position.y += this.speed*dt;
+    }
+    if(Keyboard.isPressed(KeyCode.A) || Keyboard.isPressed(KeyCode.ArrowLeft)){
+      this.transform.position.x -= this.speed*dt;
+    }
+    if(Keyboard.isPressed(KeyCode.D) || Keyboard.isPressed(KeyCode.ArrowRight)){
+      this.transform.position.x += this.speed*dt;
+    }
+  }
+}
+
+const box = new Entity();
+box.addComponent("transform", new TransformComponent({ position: { x: 300, y: 200 } }));
+box.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
+box.addComponent("script", new ScriptComponent(myScript));
+
+const MyScene = new Scene("Main");
+MyScene.addEntity(camera);
+MyScene.addEntity(box);
+
+game.sceneManager.addScene(MyScene);
+game.sceneManager.startScene("Main");
+game.start();
+```
+
+### Instantiated Approach
+```js
+import { Game, Scene, Entity, TransformComponent, BoxRenderComponent, CameraComponent, ScriptComponent, Keyboard, KeyCode} from "kernelplay-js";
 
 class MyScene extends Scene {
   init() {
+    const camera = new Entity("MainCamera");
+    camera.addComponent("transform", new TransformComponent({ position: { x: 400, y: 300, z: 0 } }));
+    camera.addComponent("camera", new CameraComponent({width: game.config.width, height: game.config.height, isPrimary: true}));
+
     const box = new Entity();
     box.addComponent("transform", new TransformComponent({ position: { x: 300, y: 200 } }));
     box.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
+    box.addComponent("script", new MyScript({speed: 200}));
+
+    this.addEntity(camera);
     this.addEntity(box);
+  }
+}
+
+class MyScript extends ScriptComponent{
+  onStart() {
+    this.transform = this.entity.getComponent("transform");
+  }
+
+  update(dt) {
+    if (Keyboard.isPressed(KeyCode.W) || Keyboard.isPressed(KeyCode.ArrowUp)) {
+      this.transform.position.y -= this.speed * dt;
+    }
+    if (Keyboard.isPressed(KeyCode.S) || Keyboard.isPressed(KeyCode.ArrowDown)) {
+      this.transform.position.y += this.speed * dt;
+    }
+    if (Keyboard.isPressed(KeyCode.A) || Keyboard.isPressed(KeyCode.ArrowLeft)) {
+      this.transform.position.x -= this.speed * dt;
+    }
+    if (Keyboard.isPressed(KeyCode.D) || Keyboard.isPressed(KeyCode.ArrowRight)) {
+      this.transform.position.x += this.speed * dt;
+    }
   }
 }
 
@@ -634,6 +713,28 @@ export function Bullet(entity, x = 0, y = 0) {
   entity.addComponent("script",      new BulletScript());
 }
 ```
+---
+## Physics System
+#### Built-in 2D physics with collision detection, rigidbodies, and gravity
+### Physics-Enabled Entity
+
+Combine a `Rigidbody2DComponent` and `ColliderComponent` to get full physics.
+
+```js
+const player = new Entity("Player");
+
+player.addComponent("transform", new TransformComponent({
+  position: { x: 400, y: 100 }
+}));
+player.addComponent("rigidbody2d", new Rigidbody2DComponent({
+  useGravity: true,
+  mass: 1,
+  drag: 0.02
+}));
+player.addComponent("collider", new ColliderComponent());
+
+scene.addEntity(player);
+```
 
 ---
 
@@ -663,6 +764,59 @@ new MyGame({ renderer: new ThreeRenderer(), width: 800, height: 600 }).start();
 
 ---
 
+## Frame Rate & Calculation Configs
+
+Configure your game's rendering, update, and physics loops independently using the engine initialization object.
+
+```js
+const game = new MyGame({
+  width: 800,
+  height: 600,
+  fps: 60,
+  calcRate: 60,
+  fixedRate: 60,
+});
+```
+
+### Configuration Properties
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| **`fps`** | `number` | Target frames per second for rendering visual updates. |
+| **`calcRate`** | `number` | Frequency per second for standard game logic updates. |
+| **`fixedRate`** | `number` | Frequency per second for physics and deterministic updates (fixed delta time). |
+
+---
+
+### Loop Rate Modifiers
+
+Dynamically alter or query the execution frequencies of your rendering, standard logic calculation, and fixed physics loops during runtime.
+
+#### `setFPS(fps)`
+Sets the target frames per second for rendering visual updates.
+* **Arguments:** `fps` (`number`) — The target frames per second.
+
+#### `getFPS()`
+Retrieves the current target frames per second for rendering.
+* **Returns:** `number` — The target frames per second rounded to the nearest integer.
+
+#### `setcalcRate(rate)`
+Sets the frequency per second for executing standard game logic updates.
+* **Arguments:** `rate` (`number`) — The target updates per second.
+
+#### `getcalcRate()`
+Retrieves the current target frequency for standard game logic updates.
+* **Returns:** `number` — The updates per second rounded to the nearest integer.
+
+#### `setfixedRate(rate)`
+Sets the frequency per second for executing physics and deterministic updates.
+* **Arguments:** `rate` (`number`) — The target fixed updates per second.
+
+#### `getfixedRate()`
+Retrieves the current target frequency for physics and deterministic updates.
+* **Returns:** `number` — The fixed updates per second rounded to the nearest integer.
+
+
 ## 🛠️ Helpers & Utilities
 
 ### Shorthand API (inside ScriptComponent)
@@ -688,6 +842,7 @@ if (Mouse.wasPressed(MouseButton.Left))     this.instantiate(Bullet, x, y);
 ```js
 Vector2.add(a, b)           // → Vector2
 Vector2.distance(a, b)      // → number
+Vector2.distanceSq(a, b)      // → avoiding Math.sqrt()
 Vector2.lerp(a, b, 0.5)     // → smooth midpoint
 Mathf.clamp(health, 0, 100)
 Mathf.lerp(current, target, 0.1)
@@ -739,11 +894,13 @@ game.config.debugPhysics = true;   // or press F1 in-game
 **v0.3.0**  — Animation System  
 ✅ AnimationClip · ✅ AnimatorController · ✅ AnimatorComponent · ✅ State machine · ✅ Triggers & crossfades · ✅ 3D property tracks
 
-**v0.3.1** *(Current)* — Audio system ✅
+**v0.3.1** — Audio system ✅
+
+**v0.3.2** *(Current)* — Performance Optimization & Bugs Fixed ✅
 
 **v0.4.x** — UI system · State machine component · Physics constraints · Tilemap support
 
-**v0.5.x** — Audio system · Particle effects · Scene save/load · Static object optimization · Continuous collision detection
+**v0.5.x** — Particle effects · Scene save/load · Static object optimization · Continuous collision detection
 
 ---
 
