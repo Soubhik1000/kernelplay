@@ -3,7 +3,7 @@
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
 Built on an Entity–Component architecture, fast, flexible, and surprisingly fun to use.
 
-> **v0.3.2-alpha** · MIT License · Built by Soubhik Mukherjee
+> **v0.3.3-alpha** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
@@ -896,7 +896,7 @@ game.config.debugPhysics = true;   // or press F1 in-game
 
 **v0.3.1** — Audio system ✅
 
-**v0.3.2** *(Current)* — Performance Optimization & Bugs Fixed ✅
+**v0.3.3** *(Current)* — Performance Optimization & Bugs Fixed ✅
 
 **v0.4.x** — UI system · State machine component · Physics constraints · Tilemap support
 
