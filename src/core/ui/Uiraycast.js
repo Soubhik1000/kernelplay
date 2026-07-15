@@ -80,6 +80,7 @@ export class UIRaycast {
             this._activeElement = el;
             el._onPointerDown(x, y);
             e.stopPropagation();   // consume — don't let game see this click
+            e.preventDefault();
         }
     }
 
@@ -97,6 +98,7 @@ export class UIRaycast {
 
             this._activeElement = null;
             e.stopPropagation();
+            e.preventDefault();
         }
 
         const el = this.hitTest(x, y);

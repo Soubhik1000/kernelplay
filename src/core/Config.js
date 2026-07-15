@@ -9,6 +9,7 @@ export class Config {
 
     this.gravity = 980;
     this.debugPhysics = options.debugPhysics;
+    this.container = options.container;
 
     // Add more defaults here in future (e.g., gravity, scale)
   }

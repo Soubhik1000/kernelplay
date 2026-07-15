@@ -27,18 +27,21 @@ export class UICanvas {
             "position: absolute",
             "top: 0",
             "left: 0",
-            "pointer-events: auto",   // UI canvas captures pointer events
+            "pointer-events: none",   // UI canvas captures pointer events
             "z-index: 10",
         ].join(";");
 
         // mount on top of game canvas
         const gameCanvas = game.canvas.canvas ?? game.canvas;
-        gameCanvas.parentElement.style.position = "relative";
-        gameCanvas.parentElement.appendChild(this._canvas);
+        // gameCanvas.parentElement.style.position = "relative";
+        // gameCanvas.parentElement.appendChild(this._canvas);
+        const container = game.canvas.container;
+        container.appendChild(this._canvas);
 
         this._ctx = this._canvas.getContext("2d");
         this.theme = new UITheme();
-        this.raycast = new UIRaycast(this._canvas, this);
+        // this.raycast = new UIRaycast(this._canvas, this);
+        this.raycast = new UIRaycast(gameCanvas, this);
     }
 
     // ─────────────────────────────────────────────────────────────

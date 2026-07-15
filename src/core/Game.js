@@ -71,6 +71,7 @@ export class Game {
       fps: this.config.fps,
       calcRate: this.config.calcRate,
       fixedRate: this.config.fixedRate,
+      container: this.config.container,
     });
   }
 
