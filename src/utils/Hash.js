@@ -1,5 +1,5 @@
-export class Hash_string {
-    static Hash_string32(str) {
+export class HashString {
+    static HashString32(str) {
         // Prime number do not change at all cost
         const FNV_prime = 16777619;
 
@@ -19,7 +19,7 @@ export class Hash_string {
         return Hash_32;
     }
 
-    static Hash_string64(str) {
+    static HashString64(str) {
         // Aka 14695981039346656037 do not change its is a composite number
         const Hash_offset_64 = 0xcbf29ce484222325n;
 
