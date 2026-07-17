@@ -15,33 +15,41 @@ export class Mathf {
     static radToDeg(rad) {
         return rad * (180 / Math.PI);
     }
-    static remap(value,inMin,inMax,outMin,outMax){
-        // To stop / by 0
+
+    static remap(value, inMin, inMax, outMin, outMax) {
+        // Prevent division by zero
         if (inMin === inMax) {
-        return outMin;
-    }
-        const raw_t = (value - inMin) / (inMax - inMin)
+            return outMin;
+        }
+        
+        const rawT = (value - inMin) / (inMax - inMin);
+        const clampedT = Math.max(0, Math.min(1, rawT));
 
-        const clamped_t = Math.max(0,Math.min(1,raw_t))
-
-        return outMin + (outMax - outMin) * clamped_t; // The standard Linear Interpolation formula
-    }
-    static warp_angle(degrees){
-        if (!isFinite(degrees)) return 0; // To stop the worst case
-        let warpped = degrees % 360
-
-        if (warpped < 0 ) warpped += 360; // JS does not have true % like python to stop -num we add 360
-        return warpped
+        return outMin + (outMax - outMin) * clampedT; // The standard clamped Linear Interpolation formula
     }
 
-    static warp_radians(radians){
+    static wrapAngle(degrees) {
+        // Added type check to match the radians function
+        if (typeof degrees !== 'number' || !isFinite(degrees)) {
+            return 0; 
+        }
+        
+        let wrapped = degrees % 360;
+
+        if (wrapped < 0) wrapped += 360; 
+        return wrapped;
+    }
+
+    static wrapRadians(radians) {
         if (typeof radians !== 'number' || !isFinite(radians)) {
-        return 0;
-    }
-        let warpped =  radians %  6.283185307179586 // Its pi * 2 used 15 digits 
-        if (warpped < 0) warpped +=  6.283185307179586 //JS does not have true % like python to stop -num we add pi * 2
-        return warpped;
-
+            return 0;
+        }
+        
+        const TWO_PI = Math.PI * 2;
+        let wrapped = radians % TWO_PI;
+        
+        if (wrapped < 0) wrapped += TWO_PI; 
+        return wrapped;
     }
 
 }

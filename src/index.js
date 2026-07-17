@@ -30,6 +30,7 @@ export { hexToRGB } from "./utils/utils.js";
 export { rgbToHex } from "./utils/utils.js"; 
 export { radToDeg } from "./utils/utils.js";
 export { degToRad } from "./utils/utils.js";
+// export { HashString } from "./utils/Hash.js";
 
 // user components
 export { TransformComponent } from "./core/components/TransformComponent.js";
