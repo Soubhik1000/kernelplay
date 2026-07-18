@@ -185,7 +185,8 @@ export class UIProgressBar extends UIElement {
         // fill
         ctx.save();
         ctx.beginPath();
-        ctx.rect(x, y, this.width, this.height);
+        // ctx.rect(x, y, this.width, this.height);
+        this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
         ctx.clip();
 
         const fillColor = this._s("progressFillColor");
