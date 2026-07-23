@@ -52,4 +52,25 @@ export class Mathf {
         return wrapped;
     }
 
+    static RoundToNearest(value,multiple){
+        return Math.round(value/multiple) * multiple;
+    }
+
+    static CeilToNearest(value,multiple){
+        return Math.ceil(value/multiple) * multiple;
+    }
+
+    static FloorToNearest(value,multiple){
+        return Math.floor(value/multiple) * multiple;
+    }
+
+    static pingPong(value,lenght){
+        const p = value % (lenght*2)
+        // If p >= length, we're on the downward part → length * 2 - p maps length → length and length * 2 → 0.
+        return  P < lenght ?  P : lenght * 2 - P; 
+    }
+    static MidPoint(MinValue,MaxValue){
+        return (MinValue + MaxValue) / 2
+    }
+
 }
