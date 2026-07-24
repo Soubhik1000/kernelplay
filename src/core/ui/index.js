@@ -12,4 +12,6 @@ export {
     UICheckbox,
     UISlider,
     UIInputField,
+    UIImageButton,
+    UIBitmapText
 } from "./UIElements.js";

@@ -508,3 +508,282 @@ export class UIInputField extends UIElement {
         this._blur();
     }
 }
+
+export class UIImageButton extends UIElement {
+    constructor({
+        src          = null,
+        label        = null,       // null = no text, icon-only mode
+        disabled     = false,
+ 
+        // hover/press tint  — rgba string or null to disable
+        hoverTint    = "rgba(255,255,255,0.15)",
+        pressTint    = "rgba(0,0,0,0.25)",
+        disabledTint = "rgba(0,0,0,0.5)",
+ 
+        // sprite sheet states (optional)
+        // if provided, draws a different region per state
+        // { normal, hover, press, disabled } — each { x, y, w, h }
+        states       = null,
+ 
+        ...options
+    } = {}) {
+        super({ name: "UIImageButton", interactive: true, ...options });
+ 
+        this.src          = src;
+        this.label        = label;
+        this.disabled     = disabled;
+        this.hoverTint    = hoverTint;
+        this.pressTint    = pressTint;
+        this.disabledTint = disabledTint;
+        this.states       = states;
+ 
+        this._img         = null;
+        this._loaded      = false;
+        this._pressed     = false;
+ 
+        this.onPointerDown = null;
+        this.onPointerUp   = null;
+    }
+ 
+    init() {
+        if (!this.src) return;
+        this._img        = new Image();
+        this._img.onload = () => { this._loaded = true; };
+        this._img.src    = this.src;
+    }
+ 
+    draw(ctx) {
+        const x = this._x - this.width  * 0.5;
+        const y = this._y - this.height * 0.5;
+ 
+        ctx.save();
+ 
+        // ── draw image ───────────────────────────────────────────
+        if (this._loaded && this._img) {
+            if (this.states) {
+                // sprite sheet state regions
+                const region = this.disabled      ? this.states.disabled :
+                               this._pressed      ? this.states.press    :
+                               this._hovered      ? this.states.hover    :
+                                                    this.states.normal;
+ 
+                if (region) {
+                    ctx.drawImage(
+                        this._img,
+                        region.x, region.y, region.w, region.h,
+                        x, y, this.width, this.height
+                    );
+                } else {
+                    ctx.drawImage(this._img, x, y, this.width, this.height);
+                }
+            } else {
+                // single image — apply tint overlay for states
+                ctx.drawImage(this._img, x, y, this.width, this.height);
+ 
+                const tint = this.disabled ? this.disabledTint :
+                             this._pressed ? this.pressTint     :
+                             this._hovered ? this.hoverTint     : null;
+ 
+                if (tint) {
+                    ctx.fillStyle = tint;
+                    ctx.fillRect(x, y, this.width, this.height);
+                }
+            }
+        } else {
+            // placeholder while loading
+            const r  = this._s("borderRadius");
+            this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
+            ctx.fillStyle = this._s("surfaceColor");
+            ctx.fill();
+        }
+ 
+        // ── optional label ───────────────────────────────────────
+        if (this.label !== null && this.label !== undefined) {
+            ctx.fillStyle    = this.disabled
+                ? this._s("disabledTextColor")
+                : this._s("textColor");
+            ctx.font         = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
+            ctx.textAlign    = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(this.label, this._x, this._y);
+        }
+ 
+        ctx.restore();
+    }
+ 
+    _onPointerDown(px, py) {
+        if (this.disabled) return;
+        this._pressed = true;
+        this.onPointerDown?.();
+    }
+ 
+    _onPointerUp(px, py) {
+        if (this.disabled) return;
+        if (this._pressed) {
+            this._pressed = false;
+            this.onClick?.();
+            this.onPointerUp?.();
+        }
+    }
+ 
+    _onPointerExit() {
+        this._hovered = false;
+        this._pressed = false;
+        this.onHoverExit?.();
+    }
+}
+ 
+ 
+// ═══════════════════════════════════════════════════════════════════
+//  UIBitmapText
+//
+//  Renders text using a sprite sheet bitmap font.
+//  Each character is a fixed-size cell on the sheet.
+//
+//  Sprite sheet layout:
+//    Characters are arranged in ASCII order starting from charOffset.
+//    Sheet reads left → right, then wraps to next row.
+//
+//  Usage:
+//    new UIBitmapText({
+//        src:        "./assets/font.png",
+//        text:       "SCORE: 0",
+//        charWidth:  8,      // width of one character cell in pixels
+//        charHeight: 8,      // height of one character cell
+//        sheetCols:  16,     // how many characters per row on the sheet
+//        charOffset: 32,     // ASCII code of first character on sheet (32 = space)
+//        scale:      2,      // render scale (2 = draw each char at 16x16)
+//        spacing:    1,      // extra pixels between characters
+//        anchor:     "topLeft",
+//        offset:     { x: 20, y: 20 },
+//    })
+// ═══════════════════════════════════════════════════════════════════
+ 
+export class UIBitmapText extends UIElement {
+    constructor({
+        src        = null,
+        text       = "",
+        charWidth  = 8,
+        charHeight = 8,
+        sheetCols  = 16,
+        charOffset = 32,     // ASCII 32 = space — first char on sheet
+        scale      = 1,
+        spacing    = 0,      // extra px between chars
+        tint       = null,   // CSS color overlay (null = no tint)
+        ...options
+    } = {}) {
+        // auto-size width from text length if not provided
+        const w = options.width  ?? text.length * (charWidth  * scale + spacing);
+        const h = options.height ?? charHeight * scale;
+ 
+        super({
+            name:        "UIBitmapText",
+            interactive: false,
+            width:       w,
+            height:      h,
+            ...options,
+        });
+ 
+        this.src        = src;
+        this.text       = text;
+        this.charWidth  = charWidth;
+        this.charHeight = charHeight;
+        this.sheetCols  = sheetCols;
+        this.charOffset = charOffset;
+        this.scale      = scale;
+        this.spacing    = spacing;
+        this.tint       = tint;
+ 
+        this._img    = null;
+        this._loaded = false;
+ 
+        // offscreen canvas for tinting
+        this._tintCanvas = null;
+        this._tintCtx    = null;
+        this._lastTint   = null;
+        this._lastSrc    = null;
+    }
+ 
+    init() {
+        if (!this.src) return;
+        this._img        = new Image();
+        this._img.onload = () => {
+            this._loaded = true;
+            if (this.tint) this._buildTintSheet();
+        };
+        this._img.src = this.src;
+    }
+ 
+    // pre-bake a tinted version of the sheet onto an offscreen canvas
+    _buildTintSheet() {
+        if (!this._img) return;
+ 
+        this._tintCanvas        = document.createElement("canvas");
+        this._tintCanvas.width  = this._img.width;
+        this._tintCanvas.height = this._img.height;
+        this._tintCtx           = this._tintCanvas.getContext("2d");
+ 
+        const c = this._tintCtx;
+        c.drawImage(this._img, 0, 0);
+        c.globalCompositeOperation = "source-atop";
+        c.fillStyle = this.tint;
+        c.fillRect(0, 0, this._tintCanvas.width, this._tintCanvas.height);
+        c.globalCompositeOperation = "source-over";
+ 
+        this._lastTint = this.tint;
+        this._lastSrc  = this.src;
+    }
+ 
+    draw(ctx) {
+        if (!this._loaded || !this._img) return;
+ 
+        // rebuild tint sheet if tint changed
+        if (this.tint && this.tint !== this._lastTint) this._buildTintSheet();
+ 
+        const sheet  = (this.tint && this._tintCanvas) ? this._tintCanvas : this._img;
+        const cw     = this.charWidth;
+        const ch     = this.charHeight;
+        const dw     = cw * this.scale;
+        const dh     = ch * this.scale;
+        const step   = dw + this.spacing;
+ 
+        // start x so text is centered on this._x
+        let drawX = this._x - (this.text.length * step) * 0.5;
+        const drawY = this._y - dh * 0.5;
+ 
+        for (let i = 0; i < this.text.length; i++) {
+            const code = this.text.charCodeAt(i) - this.charOffset;
+            if (code < 0) { drawX += step; continue; }  // unknown char — skip
+ 
+            const col = code % this.sheetCols;
+            const row = Math.floor(code / this.sheetCols);
+ 
+            const sx = col * cw;
+            const sy = row * ch;
+ 
+            ctx.drawImage(sheet, sx, sy, cw, ch, drawX, drawY, dw, dh);
+            drawX += step;
+        }
+    }
+ 
+    // ── helpers ───────────────────────────────────────────────────
+ 
+    /** Update text and auto-resize width. */
+    setText(text) {
+        this.text  = text;
+        this.width = text.length * (this.charWidth * this.scale + this.spacing);
+    }
+ 
+    /** Change tint color. */
+    setTint(color) {
+        this.tint = color;
+        if (this._loaded) this._buildTintSheet();
+    }
+ 
+    /** Remove tint. */
+    clearTint() {
+        this.tint        = null;
+        this._tintCanvas = null;
+        this._tintCtx    = null;
+    }
+}

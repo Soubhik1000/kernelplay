@@ -8,6 +8,8 @@ import {
     UICheckbox,
     UISlider,
     UIInputField,
+    UIImageButton,
+    UIBitmapText,
 } from "kernelplay-js";
 
 // function base
@@ -125,6 +127,98 @@ const btn = game.ui.add(new UIButton({
 btn.onClick = () => {
     label.text = nameField.value;
 };
+
+// const play_btn = game.ui.add(new UIImageButton({ 
+//     src: "./assets/play-button.png", 
+//     // label: "Play" ,
+//     anchor: "center",
+// }));
+
+game.ui.add(new UIPanel({
+    anchor: "bottomCenter",
+    offset: { x: -180, y: 10 },
+    width:  420,
+    height: 250,
+    zIndex: 0,
+
+    // per-element style overrides
+    style: {
+        surfaceColor: "#1a1a2e7c",
+        // borderColor:  "#e63946",
+        borderWidth:  2,
+        borderRadius: 12,
+    },
+}));
+
+const play_btn_1 = game.ui.add(new UIImageButton({ 
+    src: "./assets/play-button.png", 
+    offset: { x: -50, y: 100 },
+    anchor: "center",
+}));
+
+const play_btn_2 = game.ui.add(new UIImageButton({ 
+    src: "./assets/button_sprite.png", 
+    anchor: "center",
+    offset: { x: -50, y: 150 },
+    states: {
+        normal:   { x: 600,   y: 106, w: 113, h: 51 },
+        hover:    { x: 485, y: 106, w: 113, h: 51 },
+        press:    { x: 485, y: 153, w: 113, h: 51 },
+        disabled: { x: 480, y: 0, w: 160, h: 60 },
+    }
+}));
+
+const s1 = game.ui.add(new UIBitmapText({
+    src:        "./assets/font_1.png",
+    text:       "SCORE: 0",
+    charWidth:  20,       // one char cell on sheet
+    charHeight: 20,
+    sheetCols:  15,      // chars per row on sheet
+    charOffset: 32,      // ASCII 32 = space = first char
+    scale:      1,       // render 3x bigger
+    spacing:    1,
+    anchor:     "topLeft",
+    offset:     { x: 20, y: 370 },
+    // tint:       "#ffdd00",  // optional color tint
+}));
+
+const s2 = game.ui.add(new UIBitmapText({
+    src:        "./assets/font_2.png",
+    text:       "SCORE: 0",
+    charWidth:  24,       // one char cell on sheet
+    charHeight: 32,
+    sheetCols:  16,      // chars per row on sheet
+    charOffset: 32,      // ASCII 32 = space = first char
+    scale:      1,       // render 3x bigger
+    spacing:    1,
+    anchor:     "topLeft",
+    offset:     { x: 20, y: 400 },
+    // tint:       "#ffdd00",  // optional color tint
+}));
+
+play_btn_1.onClick = () => {
+    s1.text = "SCORE: " + Math.floor(Math.random() * 100);
+    s2.text = "SCORE: " + Math.floor(Math.random() * 100);
+};
+
+play_btn_2.onClick = () => {
+    s1.text = "SCORE: " + Math.floor(Math.random() * 100);
+    s2.text = "SCORE: " + Math.floor(Math.random() * 100);
+};
+
+game.ui.add(new UIBitmapText({
+    src:        "./assets/font_3.png",
+    text:       "DESIGN BY SOUBHIK",
+    charWidth:  77,       // one char cell on sheet
+    charHeight: 77,
+    sheetCols:  12,      // chars per row on sheet
+    charOffset: 65,      // ASCII 32 = space = first char
+    scale:      0.25,       // render 3x bigger
+    spacing:    1,
+    anchor:     "topLeft",
+    offset:     { x: 20, y: 530 },
+    // tint:       "#ffdd00",  // optional color tint
+}));
 
 game.ui.add(new UIText({
     text:   "Health Bar Example",
