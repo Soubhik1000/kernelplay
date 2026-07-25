@@ -47,7 +47,7 @@ const myScript = {
 }
 
 const box = new Entity();
-box.addComponent("transform", new TransformComponent({ position: { x: 300, y: 200 } }));
+box.addComponent("transform", new TransformComponent({ position: { x: 210, y: 165 } }));
 box.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
 box.addComponent("script", new ScriptComponent(myScript));
 
@@ -232,7 +232,7 @@ game.ui.add(new UIText({
 }));
 
 const healthBar1 = game.ui.add(new UIProgressBar({
-    value:     1.0,          // 1.0 = full
+    value:     0.5,          // 1.0 = full
     direction: "left",       // fills left → right
     anchor:    "middleRight",
     offset:    { x: 80, y: 0 },
@@ -247,7 +247,7 @@ const healthBar1 = game.ui.add(new UIProgressBar({
 }));
 
 const healthBar2 = game.ui.add(new UIProgressBar({
-    value:     1.0,          // 1.0 = full
+    value:     0.5,          // 1.0 = full
     direction: "right",       // fills left → right
     anchor:    "middleRight",
     offset:    { x: 80, y: 30 },
@@ -262,7 +262,7 @@ const healthBar2 = game.ui.add(new UIProgressBar({
 }));
 
 const healthBar3 = game.ui.add(new UIProgressBar({
-    value:     1.0,          // 1.0 = full
+    value:     0.5,          // 1.0 = full
     direction: "up",       // fills left → right
     anchor:    "middleRight",
     offset:    { x: 40, y: 0 },
@@ -277,7 +277,7 @@ const healthBar3 = game.ui.add(new UIProgressBar({
 }));
 
 const healthBar4 = game.ui.add(new UIProgressBar({
-    value:     1.0,          // 1.0 = full
+    value:     0.5,          // 1.0 = full
     direction: "down",       // fills left → right
     anchor:    "middleRight",
     offset:    { x: 300, y: 0 },
@@ -292,7 +292,7 @@ const healthBar4 = game.ui.add(new UIProgressBar({
 }));
 
 const volumeSlider = game.ui.add(new UISlider({
-    value:     1,
+    value:     0.5,
     min:       0,
     max:       1,
     showValue: true,
