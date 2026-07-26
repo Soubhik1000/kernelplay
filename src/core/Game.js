@@ -30,6 +30,7 @@ export class Game {
     
     // create the UI layer
     this.ui = new UICanvas(this);
+    this.ui.init();
     
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);

@@ -10,22 +10,24 @@
  */
 export class UIRaycast {
     constructor(canvas, uiCanvas) {
-        this._canvas   = canvas;   // the UI <canvas> element
+        this._canvas = canvas;   // the UI <canvas> element
         this._uiCanvas = uiCanvas; // UICanvas instance (holds element list)
+        this._gameWidth = uiCanvas._canvas.width;   // UI canvas is always game resolution
+        this._gameHeight = uiCanvas._canvas.height;
 
-        this._activeElement  = null;   // element currently being pressed
+        this._activeElement = null;   // element currently being pressed
         this._hoveredElement = null;   // element under cursor
 
         this._bound = {
-            down:  this._onDown.bind(this),
-            up:    this._onUp.bind(this),
-            move:  this._onMove.bind(this),
+            down: this._onDown.bind(this),
+            up: this._onUp.bind(this),
+            move: this._onMove.bind(this),
             leave: this._onLeave.bind(this),
         };
 
-        this._canvas.addEventListener("pointerdown",  this._bound.down);
-        this._canvas.addEventListener("pointerup",    this._bound.up);
-        this._canvas.addEventListener("pointermove",  this._bound.move);
+        this._canvas.addEventListener("pointerdown", this._bound.down);
+        this._canvas.addEventListener("pointerup", this._bound.up);
+        this._canvas.addEventListener("pointermove", this._bound.move);
         this._canvas.addEventListener("pointerleave", this._bound.leave);
     }
 
@@ -64,11 +66,15 @@ export class UIRaycast {
 
     _getPos(e) {
         const rect = this._canvas.getBoundingClientRect();
-        const scaleX = this._canvas.width  / rect.width;
-        const scaleY = this._canvas.height / rect.height;
+
+        // const scaleX = this._canvas.width / rect.width;
+        // const scaleY = this._canvas.height / rect.height;
+        const scaleX = this._gameWidth / rect.width;
+        const scaleY = this._gameHeight / rect.height;
+
         return {
             x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top)  * scaleY,
+            y: (e.clientY - rect.top) * scaleY,
         };
     }
 
@@ -145,9 +151,9 @@ export class UIRaycast {
     // ─────────────────────────────────────────────────────────────
 
     destroy() {
-        this._canvas.removeEventListener("pointerdown",  this._bound.down);
-        this._canvas.removeEventListener("pointerup",    this._bound.up);
-        this._canvas.removeEventListener("pointermove",  this._bound.move);
+        this._canvas.removeEventListener("pointerdown", this._bound.down);
+        this._canvas.removeEventListener("pointerup", this._bound.up);
+        this._canvas.removeEventListener("pointermove", this._bound.move);
         this._canvas.removeEventListener("pointerleave", this._bound.leave);
     }
 }
