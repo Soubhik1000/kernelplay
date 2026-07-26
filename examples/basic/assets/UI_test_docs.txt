@@ -262,6 +262,50 @@ const passField = game.ui.add(new UIInputField({
 }));
 ```
 
+## UIImageButton — three modes
+
+```js
+// 1. Image background + label (menu button with art)
+new UIImageButton({ src: "./assets/btn.png", label: "Play" })
+
+// 2. Icon only — label: null
+new UIImageButton({ src: "./assets/settings_icon.png", label: null })
+
+// 3. Sprite sheet states — different region per state
+new UIImageButton({
+    src: "./assets/btn_sheet.png",
+    states: {
+        normal:   { x: 0,   y: 0, w: 160, h: 60 },
+        hover:    { x: 160, y: 0, w: 160, h: 60 },
+        press:    { x: 320, y: 0, w: 160, h: 60 },
+        disabled: { x: 480, y: 0, w: 160, h: 60 },
+    }
+})
+```
+
+## UIBitmapText
+```jsconst score = game.ui.add(new UIBitmapText({
+    src:        "./assets/font.png",
+    text:       "SCORE: 0",
+    charWidth:  8,       // one char cell on sheet
+    charHeight: 8,
+    sheetCols:  16,      // chars per row on sheet
+    charOffset: 32,      // ASCII 32 = space = first char
+    scale:      3,       // render 3x bigger
+    spacing:    1,
+    anchor:     "topLeft",
+    offset:     { x: 20, y: 20 },
+    tint:       "#ffdd00",  // optional color tint
+}));
+
+// update text
+score.setText(`SCORE: ${this.score}`);
+
+// change tint at runtime
+score.setTint("#ff0000");
+score.clearTint();
+```
+
 ---
 
 ## World Space UI — label above an enemy
