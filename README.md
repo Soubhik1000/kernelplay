@@ -1135,6 +1135,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 - **GitHub:** https://github.com/Soubhik1000/kernelplay
 - **NPM:** https://www.npmjs.com/package/kernelplay-js
 - **Docs:** https://soubhik-rjs.github.io/kernelplay-js-demo/docs/
+- **Discord** https://discord.gg/bHfe96EnNR
 
 ---
 
