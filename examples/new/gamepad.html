@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KernelPlayJS — Input Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0d0d0f;
+      color: #e8e8ec;
+      font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+      min-height: 100vh;
+      gap: 20px;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #5b5b72;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 11px;
+      color: #3a3a4a;
+      letter-spacing: 0.1em;
+    }
+
+    /* Canvas */
+    #gameCanvas {
+      border: 1px solid #1e1e2a;
+      display: block;
+      background: #0a0a0c;
+    }
+
+    /* Two-column panel */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 800px;
+    }
+
+    .panel {
+      background: #111116;
+      border: 1px solid #1e1e2a;
+      border-radius: 4px;
+      padding: 14px 16px;
+    }
+
+    .panel-title {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #3a3a52;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a1a24;
+    }
+
+    /* Gamepad status */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: #4a4a62;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2a2a3a;
+      flex-shrink: 0;
+      transition: background 0.1s;
+    }
+
+    .dot.connected { background: #3ddc84; box-shadow: 0 0 6px #3ddc8466; }
+    .dot.disconnected { background: #e05555; }
+
+    /* Button grid */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .btn-cell {
+      background: #0d0d14;
+      border: 1px solid #1a1a26;
+      border-radius: 3px;
+      padding: 5px 4px;
+      text-align: center;
+      font-size: 9px;
+      color: #3a3a52;
+      transition: background 0.05s, color 0.05s, border-color 0.05s;
+    }
+
+    .btn-cell .btn-label { display: block; font-size: 8px; color: #2a2a3a; margin-bottom: 2px; }
+    .btn-cell .btn-name  { display: block; font-size: 10px; }
+
+    .btn-cell.active {
+      background: #1a1a2e;
+      border-color: #6c6cff;
+      color: #9898ff;
+    }
+
+    .btn-cell.just-pressed {
+      background: #1e1e3a;
+      border-color: #aaaaff;
+      color: #d0d0ff;
+    }
+
+    /* Stick visualizer */
+    .sticks {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .stick-wrap {
+      flex: 1;
+    }
+
+    .stick-label {
+      font-size: 9px;
+      color: #3a3a52;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .stick-canvas-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 100%;
+    }
+
+    .stick-canvas-wrap canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .stick-values {
+      font-size: 9px;
+      color: #3a3a52;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Trigger bars */
+    .triggers {
+      display: flex;
+      gap: 10px;
+    }
+
+    .trigger-wrap {
+      flex: 1;
+    }
+
+    .trigger-label {
+      font-size: 9px;
+      color: #3a3a52;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .trigger-bar-bg {
+      height: 6px;
+      background: #0d0d14;
+      border: 1px solid #1a1a26;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .trigger-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #6c6cff;
+      border-radius: 2px;
+      transition: width 0.04s;
+    }
+
+    .trigger-bar-fill.active { background: #aaaaff; }
+
+    /* Keyboard panel */
+    .kb-hint {
+      font-size: 10px;
+      color: #3a3a4a;
+      line-height: 1.7;
+    }
+
+    .key-tag {
+      display: inline-block;
+      background: #0d0d14;
+      border: 1px solid #2a2a3a;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 9px;
+      color: #5a5a7a;
+      margin: 1px;
+    }
+
+    .key-tag.active {
+      background: #1a1a2e;
+      border-color: #6c6cff;
+      color: #9898ff;
+    }
+
+    /* Engine canvas label */
+    .canvas-label {
+      font-size: 10px;
+      color: #2a2a3a;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      align-self: flex-start;
+      margin-left: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>KernelPlayJS — Input Test</h1>
+    <p>Keyboard · Gamepad · Timer</p>
+  </header>
+
+  <span class="canvas-label">Engine Output</span>
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+  <div class="panels">
+
+    <!-- Keyboard panel -->
+    <div class="panel">
+      <div class="panel-title">Keyboard</div>
+      <div class="kb-hint">Move the box using:</div>
+      <div style="margin-top:8px; line-height:2;">
+        <span class="key-tag" id="key-w">W</span>
+        <span class="key-tag" id="key-a">A</span>
+        <span class="key-tag" id="key-s">S</span>
+        <span class="key-tag" id="key-d">D</span>
+        &nbsp;or&nbsp;
+        <span class="key-tag" id="key-up">↑</span>
+        <span class="key-tag" id="key-left">←</span>
+        <span class="key-tag" id="key-down">↓</span>
+        <span class="key-tag" id="key-right">→</span>
+      </div>
+      <div style="margin-top:14px; font-size:10px; color:#2a2a3a; line-height:1.8;">
+        <div>Space &nbsp;<span class="key-tag" id="key-space">SPACE</span> — reset position</div>
+      </div>
+    </div>
+
+    <!-- Gamepad panel -->
+    <div class="panel">
+      <div class="panel-title">Gamepad</div>
+
+      <div class="status-row">
+        <span class="dot" id="gp-dot"></span>
+        <span id="gp-status">No controller detected</span>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-grid" id="btn-grid"></div>
+
+      <!-- Sticks -->
+      <div class="sticks">
+        <div class="stick-wrap">
+          <div class="stick-label">Left Stick</div>
+          <div class="stick-canvas-wrap">
+            <canvas id="stick-left"></canvas>
+          </div>
+          <div class="stick-values">
+            <span id="ls-x">x: 0.00</span>
+            <span id="ls-y">y: 0.00</span>
+            <span id="ls-mag">mag: 0.00</span>
+          </div>
+        </div>
+        <div class="stick-wrap">
+          <div class="stick-label">Right Stick</div>
+          <div class="stick-canvas-wrap">
+            <canvas id="stick-right"></canvas>
+          </div>
+          <div class="stick-values">
+            <span id="rs-x">x: 0.00</span>
+            <span id="rs-y">y: 0.00</span>
+            <span id="rs-mag">mag: 0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Triggers -->
+      <div class="triggers">
+        <div class="trigger-wrap">
+          <div class="trigger-label">
+            <span>LT</span>
+            <span id="lt-val">0.00</span>
+          </div>
+          <div class="trigger-bar-bg">
+            <div class="trigger-bar-fill" id="lt-bar"></div>
+          </div>
+        </div>
+        <div class="trigger-wrap">
+          <div class="trigger-label">
+            <span>RT</span>
+            <span id="rt-val">0.00</span>
+          </div>
+          <div class="trigger-bar-bg">
+            <div class="trigger-bar-fill" id="rt-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "kernelplay-js": "https://cdn.jsdelivr.net/npm/kernelplay-js/dist/kernelplay.es.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import {
+      Game, Scene, Entity,
+      TransformComponent, BoxRenderComponent, CameraComponent, ScriptComponent,
+      Keyboard, KeyCode
+    } from "kernelplay-js";
+
+    // ─── Gamepad ────────────────────────────────────────────────────────────────
+
+    const GamepadButton = {
+      A: 0, B: 1, X: 2, Y: 3,
+      LB: 4, RB: 5, LT: 6, RT: 7,
+      Select: 8, Start: 9,
+      LS: 10, RS: 11,
+      DPadUp: 12, DPadDown: 13, DPadLeft: 14, DPadRight: 15,
+      Home: 16,
+    };
+
+    const GamepadButtonName = {
+      0: "A", 1: "B", 2: "X", 3: "Y",
+      4: "LB", 5: "RB", 6: "LT", 7: "RT",
+      8: "SEL", 9: "START",
+      10: "LS", 11: "RS",
+      12: "D↑", 13: "D↓", 14: "D←", 15: "D→",
+      16: "HOME",
+    };
+
+    class GPad {
+      static #pad = null;
+      static #buttons = {};
+      static #justPressed = {};
+      static #justReleased = {};
+      static #axes = {};
+      static DEADZONE = 0.15;
+      static TRIGGER_THRESHOLD = 0.1;
+
+      static init() {
+        window.addEventListener("gamepadconnected", (e) => { GPad.#pad = e.gamepad; });
+        window.addEventListener("gamepaddisconnected", () => {
+          GPad.#pad = null;
+          GPad.#buttons = {}; GPad.#justPressed = {}; GPad.#justReleased = {}; GPad.#axes = {};
+        });
+      }
+
+      static isConnected() { return GPad.#pad !== null; }
+
+      static update() {
+        const pads = navigator.getGamepads();
+        GPad.#pad = pads[0] ?? null;
+        GPad.#justPressed = {};
+        GPad.#justReleased = {};
+        if (!GPad.#pad) return;
+
+        GPad.#pad.buttons.forEach((btn, i) => {
+          const key = String(i);
+          const wasDown = !!GPad.#buttons[key];
+          const isDown = btn.pressed;
+          if (isDown && !wasDown) GPad.#justPressed[key] = true;
+          if (!isDown && wasDown) GPad.#justReleased[key] = true;
+          GPad.#buttons[key] = isDown;
+        });
+
+        GPad.#pad.axes.forEach((v, i) => { GPad.#axes[i] = v; });
+      }
+
+      static isPressed(b)    { return !!GPad.#buttons[String(b)]; }
+      static wasPressed(b)   { return !!GPad.#justPressed[String(b)]; }
+      static wasReleased(b)  { return !!GPad.#justReleased[String(b)]; }
+
+      static #dz(x, y) {
+        const mag = Math.sqrt(x * x + y * y);
+        if (mag < GPad.DEADZONE) return { x: 0, y: 0, magnitude: 0 };
+        const n = (mag - GPad.DEADZONE) / (1 - GPad.DEADZONE);
+        const s = n / mag;
+        return { x: x * s, y: y * s, magnitude: Math.min(n, 1) };
+      }
+
+      static leftStick()  { return GPad.#dz(GPad.#axes[0] ?? 0, GPad.#axes[1] ?? 0); }
+      static rightStick() { return GPad.#dz(GPad.#axes[2] ?? 0, GPad.#axes[3] ?? 0); }
+
+      static leftTrigger()  { return GPad.#pad?.buttons[6]?.value ?? 0; }
+      static rightTrigger() { return GPad.#pad?.buttons[7]?.value ?? 0; }
+      static isLeftTriggerPressed()  { return GPad.leftTrigger()  >= GPad.TRIGGER_THRESHOLD; }
+      static isRightTriggerPressed() { return GPad.rightTrigger() >= GPad.TRIGGER_THRESHOLD; }
+
+      // expose internals for UI
+      static get _justPressed()  { return GPad.#justPressed; }
+      static get _buttons()      { return GPad.#buttons; }
+      static get _pad()          { return GPad.#pad; }
+    }
+
+    GPad.init();
+
+    // ─── Timer ───────────────────────────────────────────────────────────────────
+
+    class Timer {
+      constructor(duration = 1, autoStart = false) {
+        this.duration = duration;
+        this.time = 0;
+        this.running = autoStart;
+        this.finished = false;
+      }
+      start() { this.running = true; this.finished = false; this.time = 0; }
+      reset() { this.time = 0; this.finished = false; }
+      stop()  { this.running = false; }
+      update(dt) {
+        if (!this.running || this.finished) return;
+        this.time += dt;
+        if (this.time >= this.duration) {
+          this.time = this.duration;
+          this.finished = true;
+          this.running = false;
+        }
+      }
+      isFinished() { return this.finished; }
+      progress()   { return this.duration <= 0 ? 1 : Math.min(this.time / this.duration, 1); }
+    }
+
+    // ─── Engine Scene ─────────────────────────────────────────────────────────────
+
+    const ORIGIN = { x: 400, y: 200 };
+    const SPEED  = 220;
+
+    class BoxScript extends ScriptComponent {
+      onStart() {
+        this.transform = this.entity.getComponent("transform");
+        this.flashTimer = new Timer(0.12);
+        this.flashing = false;
+        this.baseColor = "#6c6cff";
+        this.renderer = this.entity.getComponent("renderer");
+      }
+
+      update(dt) {
+        GPad.update();
+
+        const stick = GPad.leftStick();
+
+        // Keyboard
+        let dx = 0, dy = 0;
+        if (Keyboard.isPressed(KeyCode.A) || Keyboard.isPressed(KeyCode.ArrowLeft))  dx -= 1;
+        if (Keyboard.isPressed(KeyCode.D) || Keyboard.isPressed(KeyCode.ArrowRight)) dx += 1;
+        if (Keyboard.isPressed(KeyCode.W) || Keyboard.isPressed(KeyCode.ArrowUp))    dy -= 1;
+        if (Keyboard.isPressed(KeyCode.S) || Keyboard.isPressed(KeyCode.ArrowDown))  dy += 1;
+
+        // Gamepad stick
+        dx += stick.x;
+        dy += stick.y;
+
+        // Gamepad d-pad
+        if (GPad.isPressed(GamepadButton.DPadLeft))  dx -= 1;
+        if (GPad.isPressed(GamepadButton.DPadRight)) dx += 1;
+        if (GPad.isPressed(GamepadButton.DPadUp))    dy -= 1;
+        if (GPad.isPressed(GamepadButton.DPadDown))  dy += 1;
+
+        // Clamp diagonal
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len > 1) { dx /= len; dy /= len; }
+
+        // RT boost
+        const boost = 1 + GPad.rightTrigger() * 1.5;
+
+        this.transform.position.x += dx * SPEED * boost * dt;
+        this.transform.position.y += dy * SPEED * boost * dt;
+
+        // Reset — Space or A button
+        if (Keyboard.wasPressed(KeyCode.Space) || GPad.wasPressed(GamepadButton.A)) {
+          this.transform.position.x = ORIGIN.x;
+          this.transform.position.y = ORIGIN.y;
+          this.flashTimer.start();
+          this.flashing = true;
+        }
+
+        // Flash on reset
+        this.flashTimer.update(dt);
+        if (this.flashing) {
+          const p = this.flashTimer.progress();
+          if (this.flashTimer.isFinished()) {
+            this.flashing = false;
+          }
+        }
+
+        updateUI();
+      }
+    }
+
+    class TestScene extends Scene {
+      init() {
+        const cam = new Entity("cam");
+        cam.addComponent("transform", new TransformComponent({ position: { x: 400, y: 200, z: 0 } }));
+        cam.addComponent("camera", new CameraComponent({ width: 800, height: 400, isPrimary: true }));
+
+        const box = new Entity("box");
+        box.addComponent("transform", new TransformComponent({ position: { x: ORIGIN.x, y: ORIGIN.y } }));
+        box.addComponent("renderer", new BoxRenderComponent({ color: "#6c6cff", width: 36, height: 36 }));
+        box.addComponent("script", new BoxScript());
+
+        this.addEntity(cam);
+        this.addEntity(box);
+      }
+    }
+
+    class TestGame extends Game {
+      init() {
+        this.sceneManager.addScene(new TestScene("Main"));
+        this.sceneManager.startScene("Main");
+      }
+    }
+
+    new TestGame({ width: 800, height: 400, fps: 60, canvas: document.getElementById("gameCanvas") }).start();
+
+    // ─── UI Updates ───────────────────────────────────────────────────────────────
+
+    // Build button cells
+    const btnGrid = document.getElementById("btn-grid");
+    for (let i = 0; i <= 16; i++) {
+      const cell = document.createElement("div");
+      cell.className = "btn-cell";
+      cell.id = `gp-btn-${i}`;
+      cell.innerHTML = `<span class="btn-label">${i}</span><span class="btn-name">${GamepadButtonName[i] ?? "?"}</span>`;
+      btnGrid.appendChild(cell);
+    }
+
+    // Stick canvas draw
+    function drawStick(canvasEl, x, y) {
+      const w = canvasEl.offsetWidth  || 80;
+      const h = canvasEl.offsetHeight || 80;
+      canvasEl.width  = w;
+      canvasEl.height = h;
+      const ctx = canvasEl.getContext("2d");
+      const cx = w / 2, cy = h / 2, r = Math.min(w, h) / 2 - 4;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "#1a1a2a";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Deadzone ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.15, 0, Math.PI * 2);
+      ctx.strokeStyle = "#2a2a3a";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Crosshair
+      ctx.strokeStyle = "#1a1a28";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r); ctx.stroke();
+
+      // Dot
+      const px = cx + x * r;
+      const py = cy + y * r;
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fillStyle = (Math.abs(x) > 0.01 || Math.abs(y) > 0.01) ? "#9898ff" : "#2a2a3a";
+      ctx.fill();
+    }
+
+    // Key display map
+    const keyMap = {
+      [KeyCode.W]: "key-w", [KeyCode.A]: "key-a",
+      [KeyCode.S]: "key-s", [KeyCode.D]: "key-d",
+      [KeyCode.ArrowUp]: "key-up", [KeyCode.ArrowDown]: "key-down",
+      [KeyCode.ArrowLeft]: "key-left", [KeyCode.ArrowRight]: "key-right",
+      [KeyCode.Space]: "key-space",
+    };
+
+    function updateUI() {
+      // Gamepad connection status
+      const connected = GPad.isConnected();
+      document.getElementById("gp-dot").className = "dot " + (connected ? "connected" : "disconnected");
+      document.getElementById("gp-status").textContent = connected
+        ? (GPad._pad.id || "Controller connected")
+        : "No controller detected";
+
+      // Buttons
+      for (let i = 0; i <= 16; i++) {
+        const cell = document.getElementById(`gp-btn-${i}`);
+        if (!cell) continue;
+        const key = String(i);
+        const jp = !!GPad._justPressed[key];
+        const pr = !!GPad._buttons[key];
+        cell.className = "btn-cell" + (jp ? " just-pressed" : pr ? " active" : "");
+      }
+
+      // Sticks
+      const ls = GPad.leftStick();
+      const rs = GPad.rightStick();
+
+      const lc = document.getElementById("stick-left");
+      const rc = document.getElementById("stick-right");
+      drawStick(lc, ls.x, ls.y);
+      drawStick(rc, rs.x, rs.y);
+
+      document.getElementById("ls-x").textContent   = `x: ${ls.x.toFixed(2)}`;
+      document.getElementById("ls-y").textContent   = `y: ${ls.y.toFixed(2)}`;
+      document.getElementById("ls-mag").textContent = `mag: ${ls.magnitude.toFixed(2)}`;
+      document.getElementById("rs-x").textContent   = `x: ${rs.x.toFixed(2)}`;
+      document.getElementById("rs-y").textContent   = `y: ${rs.y.toFixed(2)}`;
+      document.getElementById("rs-mag").textContent = `mag: ${rs.magnitude.toFixed(2)}`;
+
+      // Triggers
+      const lt = GPad.leftTrigger();
+      const rt = GPad.rightTrigger();
+      document.getElementById("lt-val").textContent = lt.toFixed(2);
+      document.getElementById("rt-val").textContent = rt.toFixed(2);
+      const ltBar = document.getElementById("lt-bar");
+      const rtBar = document.getElementById("rt-bar");
+      ltBar.style.width = (lt * 100) + "%";
+      rtBar.style.width = (rt * 100) + "%";
+      ltBar.className = "trigger-bar-fill" + (GPad.isLeftTriggerPressed()  ? " active" : "");
+      rtBar.className = "trigger-bar-fill" + (GPad.isRightTriggerPressed() ? " active" : "");
+
+      // Keyboard keys
+      for (const [kc, id] of Object.entries(keyMap)) {
+        const el = document.getElementById(id);
+        if (el) el.className = "key-tag" + (Keyboard.isPressed(kc) ? " active" : "");
+      }
+    }
+  </script>
+</body>
+</html>
