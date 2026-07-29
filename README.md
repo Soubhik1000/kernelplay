@@ -145,7 +145,7 @@ class MyScene extends Scene {
   init() {
     const camera = new Entity("MainCamera");
     camera.addComponent("transform", new TransformComponent({ position: { x: 400, y: 300, z: 0 } }));
-    camera.addComponent("camera", new CameraComponent({width: game.config.width, height: game.config.height, isPrimary: true}));
+    camera.addComponent("camera", new CameraComponent({width: this.game.config.width, height: this.game.config.height, isPrimary: true}));
 
     const box = new Entity();
     box.addComponent("transform", new TransformComponent({ position: { x: 300, y: 200 } }));
@@ -978,6 +978,22 @@ new MyGame({ renderer: new ThreeRenderer(), width: 800, height: 600 }).start();
 ```
 
 ---
+
+## Using a CSS selector
+
+```js
+const game = new MyGame({
+  width: 800,
+  height: 600,
+  container: "#game-container",
+});
+```
+
+```html
+<div id="game-container"></div>
+```
+
+The engine will find the element using the selector and append the game canvas to it.
 
 ## Frame Rate & Calculation Configs
 
