@@ -30,7 +30,7 @@ export class Level1 extends Scene {
     this.calFixed = 0;
     this.calframesFixed = 0;
     this.lastTime_calFixed = performance.now();
-    
+
     const player = Player(100, 100);
     const wall = new Wall(670, 260);
 
@@ -120,6 +120,8 @@ export class Level1 extends Scene {
     }));
     this.addEntity(UI_EventHandeler);
 
+    this.game.ui.addLayer("FPS", 5);
+
 
     console.log(this);
 
@@ -132,7 +134,7 @@ export class Level1 extends Scene {
         fontSize: 16,
         // fontWeight: "bold",
       },
-    }));
+    }), "FPS");
 
     this.calText = this.game.ui.add(new UIText({
       text: `CAL: 00`,
@@ -143,7 +145,7 @@ export class Level1 extends Scene {
         fontSize: 16,
         // fontWeight: "bold",
       },
-    }));
+    }), "FPS");
 
     this.calFixedText = this.game.ui.add(new UIText({
       text: `CALFIXED: 00`,
@@ -154,7 +156,7 @@ export class Level1 extends Scene {
         fontSize: 16,
         // fontWeight: "bold",
       },
-    }));
+    }), "FPS");
 
     // const label = this.game.ui.add(new UIText({
     //   text: "Score: 0",
@@ -228,6 +230,38 @@ export class Level1 extends Scene {
       },
     }));
 
+    const btn_HUD = this.game.ui.add(new UIButton({
+      label: "FPS",
+      anchor: "topRight",
+      offset: { x: 0, y: 100 },
+      width: 160,
+      height: 48,
+      zIndex: 1,
+      style: {
+        primaryColor: "#4a91e200",
+        hoverColor: "#5aa1f223",
+        pressColor: "#3a81d200",
+        textColor: "#000000",
+        fontSize: 16,
+        fontWeight: "bold",
+      },
+    }));
+
+    btn_HUD.onClick = () => {
+      this.game.ui.toggleLayer("FPS");
+    };
+
+    this.game.ui.add(new UIText({
+      // screenSpace: false,   // ← manual
+      offset: { x: 100, y: 200 },
+      text: "Enemy",
+      style: {
+        textColor: "#1d1d1d",
+        fontSize: 16,
+        // fontWeight: "bold",
+      },
+    }), "World");
+
     // rightBtn.onPointerDown = () => { this._moveRight = true;  };
     // rightBtn.onPointerUp   = () => { this._moveRight = false; };
 
@@ -280,7 +314,7 @@ export class Level1 extends Scene {
 
   }
 
-  fixedUpdate(dt){
+  fixedUpdate(dt) {
     super.fixedUpdate(dt);
 
     // console.log('h');
@@ -294,7 +328,7 @@ export class Level1 extends Scene {
       this.lastTime_calFixed = now;
     }
     this.calFixedText.text = `CALFIXED: ${this.calFixed}`;
-    
+
   }
 
   render() {

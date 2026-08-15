@@ -1,25 +1,26 @@
-import { UITheme } from "./UITheme.js";
-import { UIRaycast } from "./UIRaycast.js";
+import { UITheme } from "./Uitheme.js";
+import { UIRaycast } from "./Uiraycast.js";
+import { UILayer } from "./Uilayer.js";
 
 /**
  * UICanvas
  *
  * Creates a separate <canvas> on top of the game canvas.
- * Owns all UI elements, the render pipeline, and the raycast system.
+ * Manages UI layers — global defaults always available,
+ * per-scene layers added on top and cleared on scene switch.
  *
- * Attached to game.ui — set up automatically when you call:
- *   new MyGame({ ui: true, ... })
- *
- * Or manually:
- *   game.ui = new UICanvas(game);
- *   game.ui.init();
+ * Default global layers (always available):
+ *   "World"   order: 0   — world space UI (name tags, damage numbers)
+ *   "HUD"     order: 10  — health bars, score, ammo
+ *   "Menu"    order: 20  — pause menu, settings panels
+ *   "Overlay" order: 30  — fades, popups, tooltips
  */
 export class UICanvas {
     constructor(game) {
         this._game = game;
-        this._elements = [];    // flat sorted list
+        this._layers = new Map();   // name → UILayer, sorted by order
 
-        // create overlay <canvas>
+        // create overlay <canvas> — don't mount yet, init() does that
         this._canvas = document.createElement("canvas");
         this._canvas.width = game.config.width;
         this._canvas.height = game.config.height;
@@ -27,85 +28,220 @@ export class UICanvas {
             "position: absolute",
             "top: 0",
             "left: 0",
-            "pointer-events: none",   // UI canvas captures pointer events
+            "pointer-events: none",
             "z-index: 10",
         ].join(";");
 
         this._ctx = this._canvas.getContext("2d");
         this.theme = new UITheme();
+        this.raycast = null;   // created in init() after renderer is ready
 
-        // // mount on top of game canvas
-        // const gameCanvas = game.canvas.canvas ?? game.canvas;
-        // // gameCanvas.parentElement.style.position = "relative";
-        // // gameCanvas.parentElement.appendChild(this._canvas);
-        // const container = game.canvas.container;
-        // container.appendChild(this._canvas);
-
-        // // this.raycast = new UIRaycast(this._canvas, this);
-        // this.raycast = new UIRaycast(gameCanvas, this);
+        // register built-in global layers
+        this._addLayer("World", 0, true, { screenSpace: false });
+        this._addLayer("HUD", 10, true);
+        this._addLayer("Menu", 20, true);
+        this._addLayer("Overlay", 30, true);
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  INIT — call after renderer is fully initialized
+    // ─────────────────────────────────────────────────────────────
 
     async init() {
         const container = this._game.canvas.container;
         container.appendChild(this._canvas);
 
-        // now game.canvas.canvas is the final canvas (Pixi or default)
         const gameCanvas = this._game.canvas.canvas;
         this.raycast = new UIRaycast(gameCanvas, this);
-
-        console.log("game canvas:", this._game.canvas.canvas);
-        console.log("container:", this._game.canvas.container);
-        console.log("canvas in DOM:", document.contains(this._game.canvas.canvas));
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  LAYER MANAGEMENT
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * Add a new named layer.
+     * If a layer with this name already exists, returns the existing one.
+     *
+     * @param {string}  name
+     * @param {number}  order   — draw order, lower = behind
+     * @param {boolean} global  — true = survives scene switches
+     * @returns {UILayer}
+     */
+    addLayer(name, order = 0, global = false, defaults = {}) {
+        if (this._layers.has(name)) return this._layers.get(name);
+        return this._addLayer(name, order, global, defaults);
+    }
+
+    _addLayer(name, order, global = false, defaults = {}) {
+        const layer = new UILayer(name, order, defaults);
+        layer._global = global;
+        this._layers.set(name, layer);
+        this._sortLayers();
+        return layer;
+    }
+
+    /** Get a layer by name. Returns null if not found. */
+    getLayer(name) {
+        return this._layers.get(name) ?? null;
+    }
+
+    /** Remove a custom layer and all its elements. Cannot remove global layers. */
+    removeLayer(name) {
+        const layer = this._layers.get(name);
+        if (!layer || layer._global) return;
+        layer.clear();
+        this._layers.delete(name);
+    }
+
+    _sortLayers() {
+        this._layers = new Map(
+            [...this._layers.entries()].sort((a, b) => a[1].order - b[1].order)
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  LAYER VISIBILITY / LOCK
+    // ─────────────────────────────────────────────────────────────
+
+    showLayer(name) { this._layers.get(name)?.show(); }
+    hideLayer(name) { this._layers.get(name)?.hide(); }
+    lockLayer(name) { this._layers.get(name)?.lock(); }
+    unlockLayer(name) { this._layers.get(name)?.unlock(); }
+    toggleLayer(name) { this._layers.get(name)?.toggle(); }
+
+    isLayerVisible(name) { return this._layers.get(name)?.visible ?? false; }
+    isLayerLocked(name) { return this._layers.get(name)?.locked ?? false; }
 
     // ─────────────────────────────────────────────────────────────
     //  ELEMENT MANAGEMENT
     // ─────────────────────────────────────────────────────────────
 
     /**
-     * Add a UI element to the canvas.
-     * Elements are drawn in zIndex order (lower first).
+     * Add a UI element to a layer.
      *
      * @param {UIElement} element
-     * @returns {UIElement}  the same element — for chaining
+     * @param {string}    layerName  — defaults to "HUD"
+     * @returns {UIElement}
      */
-    add(element) {
+    add(element, layerName = "HUD") {
+        let layer = this._layers.get(layerName);
+
+        if (!layer) {
+            console.warn(`UICanvas: layer "${layerName}" not found — creating it.`);
+            layer = this.addLayer(layerName, 0);
+        }
+
         element._canvas = this._canvas;
         element._theme = this.theme;
         element.init();
 
-        this._elements.push(element);
-        this._sortElements();
-
+        layer._add(element);
         return element;
     }
 
     /**
-     * Remove a UI element.
+     * Remove a UI element from its layer.
      * @param {UIElement} element
      */
     remove(element) {
-        element.destroy?.();
-        this._elements = this._elements.filter(e => e !== element);
+        // use stored layer reference first
+        if (element._layer) {
+            element._layer._remove(element);
+            return;
+        }
+
+        // fallback — search all layers
+        for (const layer of this._layers.values()) {
+            if (layer._elements.includes(element)) {
+                layer._remove(element);
+                return;
+            }
+        }
     }
 
-    /** Remove all elements. */
-    clear() {
-        for (const el of this._elements) el.destroy?.();
-        this._elements = [];
-    }
+    /**
+     * Clear UI elements.
+     *
+     * clear()              — clears ALL layers (called on scene switch)
+     * clear("HUD")         — clears only the HUD layer
+     */
+    clear(layerName = null) {
+        if (layerName) {
+            this._layers.get(layerName)?.clear();
+            return;
+        }
 
-    _sortElements() {
-        this._elements.sort((a, b) => a.zIndex - b.zIndex);
+        // clear all layers
+        for (const layer of this._layers.values()) layer.clear();
+
+        // remove non-global layers entirely
+        for (const [name, layer] of this._layers.entries()) {
+            if (!layer._global) this._layers.delete(name);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  UPDATE + RENDER  — called by game loop
+    //  QUERY
+    // ─────────────────────────────────────────────────────────────
+
+    /** Find element by name across all layers. */
+    find(name) {
+        for (const layer of this._layers.values()) {
+            const el = layer._elements.find(e => e.name === name);
+            if (el) return el;
+        }
+        return null;
+    }
+
+    /** Find all elements with a given name across all layers. */
+    findAll(name) {
+        const results = [];
+        for (const layer of this._layers.values()) {
+            results.push(...layer._elements.filter(e => e.name === name));
+        }
+        return results;
+    }
+
+    /** Find element by id across all layers. */
+    findById(id) {
+        for (const layer of this._layers.values()) {
+            const el = layer._elements.find(e => e.id === id);
+            if (el) return el;
+        }
+        return null;
+    }
+
+    /** Get all elements in a specific layer. */
+    getElements(layerName) {
+        return this._layers.get(layerName)?._elements ?? [];
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  RAYCAST — called by UIRaycast internally
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * Returns topmost interactive element at (px, py).
+     * Walks layers in reverse order — highest order (Overlay) checked first.
+     * Skips hidden and locked layers automatically.
+     */
+    hitTestAll(px, py) {
+        const layers = [...this._layers.values()].reverse();
+        for (const layer of layers) {
+            const hit = layer.hitTest(px, py);
+            if (hit) return hit;
+        }
+        return null;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  UPDATE + RENDER — called by game loop
     // ─────────────────────────────────────────────────────────────
 
     update(dt) {
-        for (const el of this._elements) {
-            if (el.active) el.update(dt);
+        for (const layer of this._layers.values()) {
+            layer.update(dt);
         }
     }
 
@@ -116,42 +252,10 @@ export class UICanvas {
 
         ctx.clearRect(0, 0, w, h);
 
-        for (const el of this._elements) {
-            if (!el.active || !el.visible) continue;
-
-            if (el.screenSpace) {
-                // screen space — resolve anchor, draw at fixed screen position
-                el.resolvePosition(w, h);
-            } else {
-                // world space — convert world position to screen position
-                const camera = this._game.scene?.getPrimaryCamera?.();
-                if (camera) {
-                    const sp = camera.worldToScreen(el.offset.x, el.offset.y);
-                    el._x = sp.x;
-                    el._y = sp.y;
-                }
-            }
-
-            ctx.save();
-            el.draw(ctx);
-            ctx.restore();
+        // layers already sorted by order — World first, Overlay last
+        for (const layer of this._layers.values()) {
+            layer.render(ctx, w, h, this._game);
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    //  CONVENIENCE — query elements by name
-    // ─────────────────────────────────────────────────────────────
-
-    find(name) {
-        return this._elements.find(e => e.name === name) ?? null;
-    }
-
-    findAll(name) {
-        return this._elements.filter(e => e.name === name);
-    }
-
-    findById(id) {
-        return this._elements.find(e => e.id === id) ?? null;
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -159,8 +263,8 @@ export class UICanvas {
     // ─────────────────────────────────────────────────────────────
 
     destroy() {
-        this.raycast.destroy();
-        this.clear();
+        this.raycast?.destroy();
+        for (const layer of this._layers.values()) layer.clear();
         this._canvas.remove();
     }
 }

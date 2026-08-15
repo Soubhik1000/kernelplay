@@ -1,9 +1,23 @@
-import { Game, Scene, Entity, TransformComponent, BoxRenderComponent, CameraComponent, ScriptComponent, Keyboard, KeyCode} from "kernelplay-js";
 import { 
-    UIPanel, 
-    UIText, 
-    UIButton, 
-    UIImage, 
+    Game, 
+    Scene, 
+    Entity, 
+    TransformComponent, 
+    ColliderComponent, 
+    BoxRenderComponent, 
+    CameraComponent, 
+    ScriptComponent, 
+    Keyboard, 
+    KeyCode, 
+    Mouse, 
+    MouseButton,
+} from "kernelplay-js";
+
+import {
+    UIPanel,
+    UIText,
+    UIButton,
+    UIImage,
     UIProgressBar,
     UICheckbox,
     UISlider,
@@ -13,42 +27,54 @@ import {
 } from "kernelplay-js";
 
 // function base
-const game = new Game({width: 800, height: 600, fps: 60});
+const game = new Game({ width: 800, height: 600, fps: 60 });
 
 const camera = new Entity("MainCamera");
 
 camera.addComponent("transform", new TransformComponent({ position: { x: 400, y: 300, z: 0 } }));
-camera.addComponent("camera", new CameraComponent({width: game.config.width, height: game.config.height, isPrimary: true}));
+camera.addComponent("camera", new CameraComponent({ width: game.config.width, height: game.config.height, isPrimary: true }));
 
 const myScript = {
-  onStart() {
-    console.log(this);
-    this.transform = this.entity.getComponent("transform");
-    this.speed = 200;
-  },
-  update(dt) {
-    if(Keyboard.isPressed(KeyCode.W) || Keyboard.isPressed(KeyCode.ArrowUp)){
-      this.transform.position.y -= this.speed*dt;
-    }
-    if(Keyboard.isPressed(KeyCode.S) || Keyboard.isPressed(KeyCode.ArrowDown)){
-      this.transform.position.y += this.speed*dt;
-    }
-    if(Keyboard.isPressed(KeyCode.A) || Keyboard.isPressed(KeyCode.ArrowLeft)){
-      this.transform.position.x -= this.speed*dt;
-    }
-    if(Keyboard.isPressed(KeyCode.D) || Keyboard.isPressed(KeyCode.ArrowRight)){
-      this.transform.position.x += this.speed*dt;
-    }
+    onStart() {
+        console.log(this);
+        this.transform = this.entity.getComponent("transform");
+        this.speed = 200;
+    },
+    update(dt) {
+        if (Keyboard.isPressed(KeyCode.W) || Keyboard.isPressed(KeyCode.ArrowUp)) {
+            this.transform.position.y -= this.speed * dt;
+        }
+        if (Keyboard.isPressed(KeyCode.S) || Keyboard.isPressed(KeyCode.ArrowDown)) {
+            this.transform.position.y += this.speed * dt;
+        }
+        if (Keyboard.isPressed(KeyCode.A) || Keyboard.isPressed(KeyCode.ArrowLeft)) {
+            this.transform.position.x -= this.speed * dt;
+        }
+        if (Keyboard.isPressed(KeyCode.D) || Keyboard.isPressed(KeyCode.ArrowRight)) {
+            this.transform.position.x += this.speed * dt;
+        }
 
-    // console.log(this.game.playerNameTag.offset.x);
-    this.game.playerNameTag.offset.x = this.transform.position.x - 50;
-    this.game.playerNameTag.offset.y = this.transform.position.y - 60;
-  }
+        if (Mouse.wasPressed(MouseButton.Left)) {
+            const worldPos = this.camera.screenToWorld(Mouse.x, Mouse.y);
+            console.log("Mouse in world:", worldPos, "Mouse:", Mouse.x, Mouse.y);
+
+            const hit = this.raycast(worldPos.x, worldPos.y);
+            if (hit) {
+                console.log("Clicked:", hit.entity.name);
+                // console.log("Clicked:", hit.name, hit.tag);
+            }
+        }
+
+        // console.log(this.game.playerNameTag.offset.x);
+        this.game.playerNameTag.offset.x = this.transform.position.x;
+        this.game.playerNameTag.offset.y = this.transform.position.y - 40;
+    }
 }
 
-const box = new Entity();
+const box = new Entity("Player", "player");
 box.addComponent("transform", new TransformComponent({ position: { x: 210, y: 165 } }));
 box.addComponent("renderer", new BoxRenderComponent({ color: "red" }));
+box.addComponent("collider", new ColliderComponent({}));
 box.addComponent("script", new ScriptComponent(myScript));
 
 const MyScene = new Scene("Main");
@@ -63,7 +89,7 @@ game.sceneManager.startScene("Main");
 const panel = game.ui.add(new UIPanel({
     anchor: "middleRight",
     offset: { x: 10, y: 0 },
-    width:  350,
+    width: 350,
     height: 580,
     zIndex: 0,
 
@@ -71,56 +97,56 @@ const panel = game.ui.add(new UIPanel({
     style: {
         surfaceColor: "#1a1a2e7c",
         // borderColor:  "#e63946",
-        borderWidth:  2,
+        borderWidth: 2,
         borderRadius: 12,
     },
 }));
 
 game.ui.add(new UIText({
-    text:   "Input Example",
+    text: "Input Example",
     anchor: "topRight",
     offset: { x: 240, y: 10 },
     style: {
-        textColor:  "#ffffff",
-        fontSize:   17,
+        textColor: "#ffffff",
+        fontSize: 17,
         fontWeight: "bolder",
     },
 }));
 
 const label = game.ui.add(new UIText({
-    text:   "Example Text",
+    text: "Example Text",
     anchor: "topRight",
     offset: { x: 130, y: 45 },
     style: {
-        textColor:  "#000000",
-        fontSize:   30,
+        textColor: "#000000",
+        fontSize: 30,
         fontWeight: "bolder",
     },
 }));
 
 const nameField = game.ui.add(new UIInputField({
     placeholder: "Enter your name...",
-    value:       "Example Text",
-    maxLength:   20,
-    anchor:      "topRight",
-    offset:      { x: 50, y: 90 },
-    width:       260,
-    height:      42,
+    value: "Example Text",
+    maxLength: 20,
+    anchor: "topRight",
+    offset: { x: 50, y: 90 },
+    width: 260,
+    height: 42,
 }));
 
 const btn = game.ui.add(new UIButton({
-    label:  "Login",
+    label: "Login",
     anchor: "topRight",
     offset: { x: 100, y: 150 },
-    width:  160,
+    width: 160,
     height: 48,
     zIndex: 1,
     style: {
         primaryColor: "#0655b0",
-        hoverColor:   "#3a689d",
-        pressColor:   "#1f4572",
-        fontSize:     16,
-        fontWeight:   "bold",
+        hoverColor: "#3a689d",
+        pressColor: "#1f4572",
+        fontSize: 16,
+        fontWeight: "bold",
     },
 }));
 
@@ -137,7 +163,7 @@ btn.onClick = () => {
 game.ui.add(new UIPanel({
     anchor: "bottomCenter",
     offset: { x: -180, y: 10 },
-    width:  420,
+    width: 420,
     height: 250,
     zIndex: 0,
 
@@ -145,54 +171,54 @@ game.ui.add(new UIPanel({
     style: {
         surfaceColor: "#1a1a2e7c",
         // borderColor:  "#e63946",
-        borderWidth:  2,
+        borderWidth: 2,
         borderRadius: 12,
     },
 }));
 
-const play_btn_1 = game.ui.add(new UIImageButton({ 
-    src: "./assets/play-button.png", 
+const play_btn_1 = game.ui.add(new UIImageButton({
+    src: "./assets/play-button.png",
     offset: { x: -50, y: 100 },
     anchor: "center",
 }));
 
-const play_btn_2 = game.ui.add(new UIImageButton({ 
-    src: "./assets/button_sprite.png", 
+const play_btn_2 = game.ui.add(new UIImageButton({
+    src: "./assets/button_sprite.png",
     anchor: "center",
     offset: { x: -50, y: 150 },
     states: {
-        normal:   { x: 600,   y: 106, w: 113, h: 51 },
-        hover:    { x: 485, y: 106, w: 113, h: 51 },
-        press:    { x: 485, y: 153, w: 113, h: 51 },
+        normal: { x: 600, y: 106, w: 113, h: 51 },
+        hover: { x: 485, y: 106, w: 113, h: 51 },
+        press: { x: 485, y: 153, w: 113, h: 51 },
         disabled: { x: 480, y: 0, w: 160, h: 60 },
     }
 }));
 
 const s1 = game.ui.add(new UIBitmapText({
-    src:        "./assets/font_1.png",
-    text:       "SCORE: 0",
-    charWidth:  20,       // one char cell on sheet
+    src: "./assets/font_1.png",
+    text: "SCORE: 0",
+    charWidth: 20,       // one char cell on sheet
     charHeight: 20,
-    sheetCols:  15,      // chars per row on sheet
+    sheetCols: 15,      // chars per row on sheet
     charOffset: 32,      // ASCII 32 = space = first char
-    scale:      1,       // render 3x bigger
-    spacing:    1,
-    anchor:     "topLeft",
-    offset:     { x: 20, y: 370 },
+    scale: 1,       // render 3x bigger
+    spacing: 1,
+    anchor: "topLeft",
+    offset: { x: 20, y: 370 },
     // tint:       "#ffdd00",  // optional color tint
 }));
 
 const s2 = game.ui.add(new UIBitmapText({
-    src:        "./assets/font_2.png",
-    text:       "SCORE: 0",
-    charWidth:  24,       // one char cell on sheet
+    src: "./assets/font_2.png",
+    text: "SCORE: 0",
+    charWidth: 24,       // one char cell on sheet
     charHeight: 32,
-    sheetCols:  16,      // chars per row on sheet
+    sheetCols: 16,      // chars per row on sheet
     charOffset: 32,      // ASCII 32 = space = first char
-    scale:      1,       // render 3x bigger
-    spacing:    1,
-    anchor:     "topLeft",
-    offset:     { x: 20, y: 400 },
+    scale: 1,       // render 3x bigger
+    spacing: 1,
+    anchor: "topLeft",
+    offset: { x: 20, y: 400 },
     // tint:       "#ffdd00",  // optional color tint
 }));
 
@@ -207,99 +233,99 @@ play_btn_2.onClick = () => {
 };
 
 game.ui.add(new UIBitmapText({
-    src:        "./assets/font_3.png",
-    text:       "DESIGN BY SOUBHIK",
-    charWidth:  77,       // one char cell on sheet
+    src: "./assets/font_3.png",
+    text: "DESIGN BY SOUBHIK",
+    charWidth: 77,       // one char cell on sheet
     charHeight: 77,
-    sheetCols:  12,      // chars per row on sheet
+    sheetCols: 12,      // chars per row on sheet
     charOffset: 65,      // ASCII 32 = space = first char
-    scale:      0.25,       // render 3x bigger
-    spacing:    1,
-    anchor:     "topLeft",
-    offset:     { x: 20, y: 530 },
+    scale: 0.25,       // render 3x bigger
+    spacing: 1,
+    anchor: "topLeft",
+    offset: { x: 20, y: 530 },
     // tint:       "#ffdd00",  // optional color tint
 }));
 
 game.ui.add(new UIText({
-    text:   "Health Bar Example",
+    text: "Health Bar Example",
     anchor: "topRight",
     offset: { x: 220, y: 210 },
     style: {
-        textColor:  "#ffffff",
-        fontSize:   17,
+        textColor: "#ffffff",
+        fontSize: 17,
         fontWeight: "bolder",
     },
 }));
 
 const healthBar1 = game.ui.add(new UIProgressBar({
-    value:     0.5,          // 1.0 = full
+    value: 0.5,          // 1.0 = full
     direction: "left",       // fills left → right
-    anchor:    "middleRight",
-    offset:    { x: 80, y: 0 },
-    width:     200,
-    height:    20,
-    showText:  false,
+    anchor: "middleRight",
+    offset: { x: 80, y: 0 },
+    width: 200,
+    height: 20,
+    showText: false,
     style: {
         progressTrackColor: "#333350",
-        progressFillColor:  "#e74c3c",   // red health bar
-        borderRadius:       10,
+        progressFillColor: "#e74c3c",   // red health bar
+        borderRadius: 10,
     },
 }));
 
 const healthBar2 = game.ui.add(new UIProgressBar({
-    value:     0.5,          // 1.0 = full
+    value: 0.5,          // 1.0 = full
     direction: "right",       // fills left → right
-    anchor:    "middleRight",
-    offset:    { x: 80, y: 30 },
-    width:     200,
-    height:    20,
-    showText:  false,
+    anchor: "middleRight",
+    offset: { x: 80, y: 30 },
+    width: 200,
+    height: 20,
+    showText: false,
     style: {
         progressTrackColor: "#333350",
-        progressFillColor:  "#e74c3c",   // red health bar
-        borderRadius:       10,
+        progressFillColor: "#e74c3c",   // red health bar
+        borderRadius: 10,
     },
 }));
 
 const healthBar3 = game.ui.add(new UIProgressBar({
-    value:     0.5,          // 1.0 = full
+    value: 0.5,          // 1.0 = full
     direction: "up",       // fills left → right
-    anchor:    "middleRight",
-    offset:    { x: 40, y: 0 },
-    width:     20,
-    height:    100,
-    showText:  false,
+    anchor: "middleRight",
+    offset: { x: 40, y: 0 },
+    width: 20,
+    height: 100,
+    showText: false,
     style: {
         progressTrackColor: "#333350",
-        progressFillColor:  "#e74c3c",   // red health bar
-        borderRadius:       10,
+        progressFillColor: "#e74c3c",   // red health bar
+        borderRadius: 10,
     },
 }));
 
 const healthBar4 = game.ui.add(new UIProgressBar({
-    value:     0.5,          // 1.0 = full
+    value: 0.5,          // 1.0 = full
     direction: "down",       // fills left → right
-    anchor:    "middleRight",
-    offset:    { x: 300, y: 0 },
-    width:     20,
-    height:    100,
-    showText:  false,
+    anchor: "middleRight",
+    offset: { x: 300, y: 0 },
+    width: 20,
+    height: 100,
+    showText: false,
     style: {
         progressTrackColor: "#333350",
-        progressFillColor:  "#e74c3c",   // red health bar
-        borderRadius:       10,
+        progressFillColor: "#e74c3c",   // red health bar
+        borderRadius: 10,
     },
 }));
 
 const volumeSlider = game.ui.add(new UISlider({
-    value:     0.5,
-    min:       0,
-    max:       1,
+    value: 0.5,
+    min: 0,
+    max: 1,
     showValue: true,
-    anchor:    "middleRight",
-    offset:    { x: 70, y: 60 },
-    width:     220,
-    height:    30,
+    anchor: "middleRight",
+    offset: { x: 70, y: 60 },
+    width: 220,
+    height: 30,
 }));
 
 volumeSlider.onChange = (value) => {
@@ -311,23 +337,23 @@ volumeSlider.onChange = (value) => {
 };
 
 game.ui.add(new UIText({
-    text:   "Icon Example",
+    text: "Icon Example",
     anchor: "topRight",
     offset: { x: 245, y: 380 },
     style: {
-        textColor:  "#ffffff",
-        fontSize:   17,
+        textColor: "#ffffff",
+        fontSize: 17,
         fontWeight: "bolder",
     },
 }));
 
 const Toggle = game.ui.add(new UICheckbox({
-    label:   "Change the Image",
+    label: "Change the Image",
     checked: true,
-    anchor:  "middleRight",
-    offset:  { x: 60, y: 140 },
-    width:   200,
-    height:  30,
+    anchor: "middleRight",
+    offset: { x: 60, y: 140 },
+    width: 200,
+    height: 30,
 }));
 
 
@@ -335,7 +361,7 @@ const icon1 = game.ui.add(new UIImage({
     src: "./assets/Pic1.jpg",
     anchor: "middleRight",
     offset: { x: 125, y: 220 },
-    width:  130,
+    width: 130,
     height: 130,
 }));
 
@@ -344,7 +370,7 @@ const icon2 = game.ui.add(new UIImage({
     anchor: "middleRight",
     visible: false,
     offset: { x: 125, y: 220 },
-    width:  130,
+    width: 130,
     height: 130,
 }));
 
@@ -354,10 +380,36 @@ Toggle.onChange = (checked) => {
 };
 
 const playerNameTag = game.ui.add(new UIText({
-    text:        "Player",
-    screenSpace: true,
-    offset:      { x: 100, y: 100 },
+    text: "Player",
+    offset: { x: 0, y: 0 },
     style: { textColor: "#e74c3c", fontSize: 20 },
+}), "World");
+
+const btn_HUD = game.ui.add(new UIButton({
+    label: "HUD",
+    anchor: "topLeft",
+    offset: { x: 10, y: 10 },
+    width: 60,
+    height: 48,
+    zIndex: 1,
+    style: {
+        primaryColor: "#0655b0",
+        hoverColor: "#3a689d",
+        pressColor: "#1f4572",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+}), "Menu");
+
+btn_HUD.onClick = () => {
+    game.ui.toggleLayer("HUD");
+};
+
+game.ui.add(new UIText({
+    text: "Tape The Player",
+    anchor: "topLeft",
+    offset: { x: 80, y: 15 },
+    style: { textColor: "#000000", fontSize: 15 },
 }));
 
 game.playerNameTag = playerNameTag;

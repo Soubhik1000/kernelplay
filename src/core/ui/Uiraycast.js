@@ -2,32 +2,34 @@
  * UIRaycast
  *
  * Separate input system — only hit-tests UI elements.
- * Attaches its own pointer listeners to the UI canvas.
+ * Attaches pointer listeners to the game canvas.
  * Consumes events that hit interactive elements so they
  * don't reach the game input system.
  *
- * Added to game.ui.raycast automatically by UICanvas.
+ * Respects layer visibility and lock state:
+ *   hidden layer → not interactive
+ *   locked layer → visible but not interactive
  */
 export class UIRaycast {
     constructor(canvas, uiCanvas) {
-        this._canvas = canvas;   // the UI <canvas> element
-        this._uiCanvas = uiCanvas; // UICanvas instance (holds element list)
-        this._gameWidth = uiCanvas._canvas.width;   // UI canvas is always game resolution
+        this._canvas     = canvas;
+        this._uiCanvas   = uiCanvas;
+        this._gameWidth  = uiCanvas._canvas.width;
         this._gameHeight = uiCanvas._canvas.height;
 
-        this._activeElement = null;   // element currently being pressed
-        this._hoveredElement = null;   // element under cursor
+        this._activeElement  = null;
+        this._hoveredElement = null;
 
         this._bound = {
-            down: this._onDown.bind(this),
-            up: this._onUp.bind(this),
-            move: this._onMove.bind(this),
+            down:  this._onDown.bind(this),
+            up:    this._onUp.bind(this),
+            move:  this._onMove.bind(this),
             leave: this._onLeave.bind(this),
         };
 
-        this._canvas.addEventListener("pointerdown", this._bound.down);
-        this._canvas.addEventListener("pointerup", this._bound.up);
-        this._canvas.addEventListener("pointermove", this._bound.move);
+        this._canvas.addEventListener("pointerdown",  this._bound.down);
+        this._canvas.addEventListener("pointerup",    this._bound.up);
+        this._canvas.addEventListener("pointermove",  this._bound.move);
         this._canvas.addEventListener("pointerleave", this._bound.leave);
     }
 
@@ -36,47 +38,42 @@ export class UIRaycast {
     // ─────────────────────────────────────────────────────────────
 
     /**
-     * Find the topmost interactive element at screen position (px, py).
-     * Returns element or null.
+     * Find topmost interactive element at screen position (px, py).
+     * Delegates to UICanvas.hitTestAll which walks layers highest-first.
      */
     hitTest(px, py) {
-        const elements = this._uiCanvas._elements;
-
-        // walk back-to-front (highest zIndex on top)
-        for (let i = elements.length - 1; i >= 0; i--) {
-            const el = elements[i];
-            if (!el.active || !el.visible || !el.interactive) continue;
-            if (el.containsPoint(px, py)) return el;
-        }
-
-        return null;
+        return this._uiCanvas.hitTestAll(px, py);
     }
 
     /**
      * Check if any interactive UI element is at this position.
-     * Use this in your game input system to skip raycasts when UI is hit.
+     * Use in game input to skip raycasts when UI is hit.
      */
     isUIAt(px, py) {
         return this.hitTest(px, py) !== null;
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  POINTER EVENTS
+    //  COORDINATE CONVERSION
     // ─────────────────────────────────────────────────────────────
 
     _getPos(e) {
-        const rect = this._canvas.getBoundingClientRect();
+        const rect   = this._canvas.getBoundingClientRect();
 
-        // const scaleX = this._canvas.width / rect.width;
-        // const scaleY = this._canvas.height / rect.height;
-        const scaleX = this._gameWidth / rect.width;
+        // use game resolution / bounding rect size
+        // handles Pixi devicePixelRatio scaling correctly
+        const scaleX = this._gameWidth  / rect.width;
         const scaleY = this._gameHeight / rect.height;
 
         return {
             x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top) * scaleY,
+            y: (e.clientY - rect.top)  * scaleY,
         };
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  POINTER EVENTS
+    // ─────────────────────────────────────────────────────────────
 
     _onDown(e) {
         const { x, y } = this._getPos(e);
@@ -85,7 +82,15 @@ export class UIRaycast {
         if (el) {
             this._activeElement = el;
             el._onPointerDown(x, y);
-            e.stopPropagation();   // consume — don't let game see this click
+
+            // blur any focused input field that isn't this element
+            for (const layer of this._uiCanvas._layers.values()) {
+                for (const other of layer._elements) {
+                    if (other !== el && other._blur) other._blur();
+                }
+            }
+
+            e.stopPropagation();
             e.preventDefault();
         }
     }
@@ -95,33 +100,29 @@ export class UIRaycast {
 
         if (this._activeElement) {
             this._activeElement._onPointerUp(x, y);
-
-            // blur any input field that isn't the active element
-            const elements = this._uiCanvas._elements;
-            for (const el of elements) {
-                if (el !== this._activeElement && el._blur) el._blur();
-            }
-
             this._activeElement = null;
             e.stopPropagation();
             e.preventDefault();
+            return;
         }
 
-        const el = this.hitTest(x, y);
-        if (el) e.stopPropagation();
+        // consume up event if still over a UI element
+        if (this.hitTest(x, y)) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
     }
 
     _onMove(e) {
         const { x, y } = this._getPos(e);
 
-        // drag — notify active element
+        // dragging — notify active element, don't block game
         if (this._activeElement) {
             this._activeElement._onPointerMove(x, y);
-            e.stopPropagation();
             return;
         }
 
-        // hover
+        // hover detection
         const el = this.hitTest(x, y);
 
         if (el !== this._hoveredElement) {
@@ -132,9 +133,7 @@ export class UIRaycast {
 
         if (el) {
             el._onPointerMove(x, y);
-            // update cursor style
             this._canvas.style.cursor = "pointer";
-            e.stopPropagation();
         } else {
             this._canvas.style.cursor = "default";
         }
@@ -151,9 +150,9 @@ export class UIRaycast {
     // ─────────────────────────────────────────────────────────────
 
     destroy() {
-        this._canvas.removeEventListener("pointerdown", this._bound.down);
-        this._canvas.removeEventListener("pointerup", this._bound.up);
-        this._canvas.removeEventListener("pointermove", this._bound.move);
+        this._canvas.removeEventListener("pointerdown",  this._bound.down);
+        this._canvas.removeEventListener("pointerup",    this._bound.up);
+        this._canvas.removeEventListener("pointermove",  this._bound.move);
         this._canvas.removeEventListener("pointerleave", this._bound.leave);
     }
 }
