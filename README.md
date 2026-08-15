@@ -3,7 +3,7 @@
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
 Built on an Entity–Component architecture, fast, flexible, and surprisingly fun to use.
 
-> **v0.4.0-beta** · MIT License · Built by Soubhik Mukherjee
+> **v0.4.1-beta** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
@@ -347,6 +347,33 @@ update(dt) {
     nameTag.offset.x = this.transform.position.x;
     nameTag.offset.y = this.transform.position.y - 60;
 }
+```
+
+### UILayers *(New in v0.4.1)*
+
+### Default layers — always available, never need to create them:
+```js
+"World"   order: 0   — world space UI (damage numbers, name tags)
+"HUD"     order: 10  — health bars, score, ammo
+"Menu"    order: 20  — pause menu, settings
+"Overlay" order: 30  — fades, popups, loading screens
+```
+
+```js
+// default layers — no setup needed
+game.ui.add(new UIProgressBar({ ... }), "HUD");
+game.ui.add(new UIButton({ ... }),      "Menu");
+game.ui.add(new UIText({ ... }),        "Overlay");
+
+// custom layer
+game.ui.addLayer("Minimap", 5);
+game.ui.add(new UIImage({ ... }), "Minimap");
+
+// control layers
+game.ui.hideLayer("Menu");
+game.ui.showLayer("Menu");
+game.ui.lockLayer("HUD");      // HUD visible but not clickable
+game.ui.toggleLayer("Menu");   // pause menu open/close
 ```
 
 ### UIRaycast — skip game input when UI is hit
