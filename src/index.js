@@ -1,9 +1,6 @@
 export { Game } from "./core/Game.js";
 export { Loop } from "./core/Loop.js";
 export { Time } from "./core/Time.js";
-export { Keyboard } from "./input/Keyboard.js";
-export { Mouse } from "./input/Mouse.js"
-export { Gamepad } from "./input/Gamepad.js"
 export { Touch } from "./input/Touch.js"
 export { Canvas } from "./graphics/Canvas.js";
 export { Scene } from "./core/Scene.js";
@@ -18,6 +15,12 @@ export { ref, uiRef } from "./core/EntityReference.js";
 export { EntityReference, UIReference } from "./core/EntityReference.js";
 export { AnimatorController } from "./graphics/AnimatorController.js";
 export { AnimationClip } from "./graphics/AnimationClip.js";
+
+// Input
+export { Keyboard } from "./input/Keyboard.js";
+export { Mouse } from "./input/Mouse.js"
+export { Gamepad } from "./input/Gamepad.js"
+export { Input } from "./input/Input.js"
 
 // uitls
 export { KeyCode } from "./utils/KeyCode.js";

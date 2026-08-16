@@ -76,23 +76,31 @@ class PlayerScript extends ScriptComponent {
         // if (Keyboard.isPressed(KeyCode.ArrowUp)    || touch.y < -0.1) this.rb.addForce(0, -800 * (touch.y < -0.1 ? Math.abs(touch.y) : 1));
 
         // const touch = Touch.getAxis();
-        const TOUCH_SENSITIVITY = 0.5;
+        // const TOUCH_SENSITIVITY = 0.5;
 
-        if (Keyboard.isPressed(KeyCode.ArrowRight)) this.rb.addForce(800, 0);
-        if (Keyboard.isPressed(KeyCode.ArrowLeft)) this.rb.addForce(-800, 0);
-        if (Keyboard.isPressed(KeyCode.ArrowDown)) this.rb.addForce(0, 800);
-        if (Keyboard.isPressed(KeyCode.ArrowUp)) this.rb.addForce(0, -800);
+        // if (Keyboard.isPressed(KeyCode.ArrowRight)) this.rb.addForce(800, 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowLeft)) this.rb.addForce(-800, 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowDown)) this.rb.addForce(0, 800);
+        // if (Keyboard.isPressed(KeyCode.ArrowUp)) this.rb.addForce(0, -800);
 
-        if (touch.x > 0.1) this.rb.addForce(800 * touch.x * TOUCH_SENSITIVITY, 0);
-        if (touch.x < -0.1) this.rb.addForce(800 * touch.x * TOUCH_SENSITIVITY, 0);
-        if (touch.y > 0.1) this.rb.addForce(0, 800 * touch.y * TOUCH_SENSITIVITY);
-        if (touch.y < -0.1) this.rb.addForce(0, 800 * touch.y * TOUCH_SENSITIVITY);
+        // if (touch.x > 0.1) this.rb.addForce(800 * touch.x * TOUCH_SENSITIVITY, 0);
+        // if (touch.x < -0.1) this.rb.addForce(800 * touch.x * TOUCH_SENSITIVITY, 0);
+        // if (touch.y > 0.1) this.rb.addForce(0, 800 * touch.y * TOUCH_SENSITIVITY);
+        // if (touch.y < -0.1) this.rb.addForce(0, 800 * touch.y * TOUCH_SENSITIVITY);
 
         // let force = 20000;
         // if (Touch.swipeRight()) this.rb.addForce(force, 0);
         // if (Touch.swipeLeft())  this.rb.addForce(-force, 0);
         // if (Touch.swipeDown())  this.rb.addForce(0, force);
         // if (Touch.swipeUp())    this.rb.addForce(0, -force);
+
+
+        const FORCE = 800;
+const h = Input.getAxis("horizontal");
+const v = Input.getAxis("vertical");
+
+if (Math.abs(h) > 0.1) this.rb.addForce(FORCE * h, 0);
+if (Math.abs(v) > 0.1) this.rb.addForce(0, FORCE * v);
 
         if (Keyboard.isPressed(KeyCode.Shift)) {
             const movement = Vector2.scale(this.rb.velocity, dt);
