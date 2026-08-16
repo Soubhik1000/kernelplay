@@ -2,18 +2,12 @@
 // NOTES
 // -----------------------------------------------------------------------------
 //
-// 1. Audio System
-// This game includes a preliminary audio system implementation. It is currently
-// a test version and not part of the official release. The system functions
-// similarly to standard AudioListener and AudioSource components.
-// 
-// The audio system is available for use starting from version v0.3.0.
-// An official and fully supported implementation will be released in v0.3.1.
+// User Interface (UI)
+// The game includes a pre-release UI system starting from version v0.3.3.
+// It is available for use and intended for testing and early development.
 //
-// 2. User Interface (UI)
-// The game includes a temporary UI implementation that is not part of the
-// official system. The UI is currently rendered by overriding the render()
-// method within the scene.
+// The official UI system will be released in version v0.4.0 and will introduce
+// a dedicated UI Canvas for rendering and managing user interface elements.
 //
 // -----------------------------------------------------------------------------
 
@@ -26,7 +20,8 @@ import {
     ScriptComponent,
     ColliderComponent,
     AudioListener,
-    AudioSource
+    AudioSource,
+    Gamepad
 } from "../../src/index.js";
 import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/index.js";
 import { Keyboard, KeyCode } from "../../src/index.js";
@@ -206,16 +201,52 @@ class PlayerScript extends ScriptComponent {
         this.isLose = false;
     }
 
+    // update(dt) {
+    //     if (this.isLose) return;
+
+    //     this.rb.velocity.x = 0;
+
+    //     if (Keyboard.isPressed(KeyCode.ArrowRight)) {
+    //         this.rb.velocity.x = this.speed;
+    //         this.sprite.flipX = false;
+    //     }
+    //     if (Keyboard.isPressed(KeyCode.ArrowLeft)) {
+    //         this.rb.velocity.x = -this.speed;
+    //         this.sprite.flipX = true;
+    //     }
+
+    //     const isMoving = this.rb.velocity.x !== 0;
+    //     this.animator.setParameter("speed", isMoving ? 1 : 0);
+    //     this.animator.setParameter("isGrounded", this.rb.isGrounded);
+
+    //     if (this.rb.isGrounded && Keyboard.wasPressed(KeyCode.Space)) {
+    //         this.rb.addForce(0, -600, "impulse");
+    //         this.audio.stopLoop('run');          // cut run sound immediately
+    //         this.audio.playOneShot('jump', { volume: 0.1 });
+    //         this.animator.setTrigger("jump");
+    //     }
+
+    //     this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710)
+
+    //     if (isMoving && this.rb.isGrounded) {
+    //         this.audio.playLoop('run', { volume: 0.5 });
+    //     } else {
+    //         this.audio.stopLoop('run');
+    //     }
+    // }
+
     update(dt) {
         if (this.isLose) return;
 
         this.rb.velocity.x = 0;
 
-        if (Keyboard.isPressed(KeyCode.ArrowRight)) {
+        const stick = Gamepad.leftStick();
+
+        if (Keyboard.isPressed(KeyCode.ArrowRight) || Gamepad.isPressed(GamepadButton.DPadRight) || stick.x > 0.1) {
             this.rb.velocity.x = this.speed;
             this.sprite.flipX = false;
         }
-        if (Keyboard.isPressed(KeyCode.ArrowLeft)) {
+        if (Keyboard.isPressed(KeyCode.ArrowLeft) || Gamepad.isPressed(GamepadButton.DPadLeft) || stick.x < -0.1) {
             this.rb.velocity.x = -this.speed;
             this.sprite.flipX = true;
         }
@@ -224,14 +255,14 @@ class PlayerScript extends ScriptComponent {
         this.animator.setParameter("speed", isMoving ? 1 : 0);
         this.animator.setParameter("isGrounded", this.rb.isGrounded);
 
-        if (this.rb.isGrounded && Keyboard.wasPressed(KeyCode.Space)) {
+        if (this.rb.isGrounded && (Keyboard.wasPressed(KeyCode.Space) || Gamepad.wasPressed(GamepadButton.A))) {
             this.rb.addForce(0, -600, "impulse");
-            this.audio.stopLoop('run');          // cut run sound immediately
+            this.audio.stopLoop('run');
             this.audio.playOneShot('jump', { volume: 0.1 });
             this.animator.setTrigger("jump");
         }
 
-        this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710)
+        this.transform.position.x = Mathf.clamp(this.transform.position.x, -710, 710);
 
         if (isMoving && this.rb.isGrounded) {
             this.audio.playLoop('run', { volume: 0.5 });

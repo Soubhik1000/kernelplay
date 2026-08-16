@@ -2,6 +2,8 @@ import { Loop } from "./Loop.js";
 import { Time } from "./Time.js";
 import { Keyboard } from "../input/Keyboard.js";
 import { Mouse } from "../input/Mouse.js";
+import { Gamepad } from "../input/Gamepad.js";
+import { Touch } from "../input/Touch.js";
 import { Config } from "./Config.js";
 import { SceneManager } from "./SceneManager.js";
 import { Canvas } from "../graphics/Canvas.js";
@@ -23,6 +25,10 @@ export class Game {
     this.audio = new AudioManager();
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
 
+    Touch.init(this.canvas.canvas);
+    // console.log(this.canvas.canvas);
+    
+    Gamepad.init();
     
     // 🔥 default renderer
     this.renderer = options.renderer || new CanvasRenderer();
@@ -47,6 +53,8 @@ export class Game {
         
         Keyboard.update();
         Mouse.update();
+        Touch.update();
+        Gamepad.update();
       },
 
       fixedUpdate: (dt) =>{

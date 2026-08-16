@@ -1,7 +1,7 @@
 import { Entity, MouseButton, ScriptComponent } from "../../../src/index.js";
 import { BoxRenderComponent, ColliderComponent } from "../../../src/index.js";
 import { PlayerController } from "../scripts/PlayerController.js";
-import { Layers, KeyCode, Keyboard, Mouse } from "../../../src/index.js";
+import { Layers, KeyCode, Keyboard, Mouse, Touch } from "../../../src/index.js";
 
 // import { WebGLBoxRender2D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
@@ -46,6 +46,16 @@ class PlayerScript extends ScriptComponent {
 
         this.fireCooldown = new Cooldown(0.2); // 5 shots/sec
         this.timer = new Timer(3, true);
+
+    }
+
+    start() {
+        super.start();
+
+        // console.log(this.game.canvas.canvas);
+        // Touch.init(this.game.canvas.canvas);
+
+
     }
 
     update(dt) {
@@ -53,10 +63,36 @@ class PlayerScript extends ScriptComponent {
         this.fireCooldown.update(dt);
         this.timer.update(dt);
 
+        // if (Keyboard.isPressed(KeyCode.ArrowRight)) this.rb.addForce(800, 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowLeft)) this.rb.addForce(-800, 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowDown)) this.rb.addForce(0, 800);
+        // if (Keyboard.isPressed(KeyCode.ArrowUp)) this.rb.addForce(0, -800);
+
+        const touch = Touch.getAxis();
+        // console.log(touch);
+        // if (Keyboard.isPressed(KeyCode.ArrowRight) || touch.x > 0.1)  this.rb.addForce(800 * (touch.x > 0.1 ? touch.x : 1), 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowLeft)  || touch.x < -0.1) this.rb.addForce(-800 * (touch.x < -0.1 ? Math.abs(touch.x) : 1), 0);
+        // if (Keyboard.isPressed(KeyCode.ArrowDown)  || touch.y > 0.1)  this.rb.addForce(0, 800 * (touch.y > 0.1 ? touch.y : 1));
+        // if (Keyboard.isPressed(KeyCode.ArrowUp)    || touch.y < -0.1) this.rb.addForce(0, -800 * (touch.y < -0.1 ? Math.abs(touch.y) : 1));
+
+        // const touch = Touch.getAxis();
+        const TOUCH_SENSITIVITY = 0.5;
+
         if (Keyboard.isPressed(KeyCode.ArrowRight)) this.rb.addForce(800, 0);
         if (Keyboard.isPressed(KeyCode.ArrowLeft)) this.rb.addForce(-800, 0);
         if (Keyboard.isPressed(KeyCode.ArrowDown)) this.rb.addForce(0, 800);
         if (Keyboard.isPressed(KeyCode.ArrowUp)) this.rb.addForce(0, -800);
+
+        if (touch.x > 0.1) this.rb.addForce(800 * touch.x * TOUCH_SENSITIVITY, 0);
+        if (touch.x < -0.1) this.rb.addForce(800 * touch.x * TOUCH_SENSITIVITY, 0);
+        if (touch.y > 0.1) this.rb.addForce(0, 800 * touch.y * TOUCH_SENSITIVITY);
+        if (touch.y < -0.1) this.rb.addForce(0, 800 * touch.y * TOUCH_SENSITIVITY);
+
+        // let force = 20000;
+        // if (Touch.swipeRight()) this.rb.addForce(force, 0);
+        // if (Touch.swipeLeft())  this.rb.addForce(-force, 0);
+        // if (Touch.swipeDown())  this.rb.addForce(0, force);
+        // if (Touch.swipeUp())    this.rb.addForce(0, -force);
 
         if (Keyboard.isPressed(KeyCode.Shift)) {
             const movement = Vector2.scale(this.rb.velocity, dt);
@@ -107,8 +143,8 @@ class PlayerScript extends ScriptComponent {
             // this.transform.position.x += dir.x * 100 * dt;
             // this.transform.position.y += dir.y * 100 * dt;
 
-            console.log(Vector2.distanceSq(new Vector2(0,0), this.transform.position));
-            
+            console.log(Vector2.distanceSq(new Vector2(0, 0), this.transform.position));
+
 
         }
 
@@ -116,34 +152,34 @@ class PlayerScript extends ScriptComponent {
         this.transform.position.y = Mathf.clamp(this.transform.position.y, 20, 580)
 
 
-        if (Mouse.isPressed(MouseButton.Left)) {
-            // console.log('j');
-            // let pos = this.camera.screenToWorld(Mouse.x, Mouse.y);
-            this.transform.position.x = Mathf.lerp(this.transform.position.x, Mouse.x, 0.05)
-            this.transform.position.y = Mathf.lerp(this.transform.position.y, Mouse.y, 0.05)
-        }
+        // if (Mouse.isPressed(MouseButton.Left)) {
+        //     // console.log('j');
+        //     // let pos = this.camera.screenToWorld(Mouse.x, Mouse.y);
+        //     this.transform.position.x = Mathf.lerp(this.transform.position.x, Mouse.x, 0.05)
+        //     this.transform.position.y = Mathf.lerp(this.transform.position.y, Mouse.y, 0.05)
+        // }
 
-        if(Keyboard.wasPressed(KeyCode.W)){
+        if (Keyboard.wasPressed(KeyCode.W)) {
             const x = Random.range(0, 100);
             const n = Random.int(1, 6);
-            console.log(x, n);   
+            console.log(x, n);
         }
 
-        if(Keyboard.isPressed(KeyCode.F)){
+        if (Keyboard.isPressed(KeyCode.F)) {
             if (this.fireCooldown.trigger()) {
                 this.shoot();
             }
         }
 
-        if (this.timer.isFinished()) {
+        // if (this.timer.isFinished()) {
 
-            this.spawnEnemy();
+        //     this.spawnEnemy();
 
-            this.timer.start();
-        }
+        //     this.timer.start();
+        // }
 
         // console.log(this.timer.progress);
-        
+
 
 
     }
@@ -152,7 +188,7 @@ class PlayerScript extends ScriptComponent {
         console.log("Bang!");
     }
 
-    spawnEnemy(){
+    spawnEnemy() {
         console.log("Spawn!");
     }
 }
