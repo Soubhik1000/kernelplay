@@ -1,7 +1,7 @@
 import { Entity, MouseButton, ScriptComponent } from "../../../src/index.js";
 import { BoxRenderComponent, ColliderComponent } from "../../../src/index.js";
 import { PlayerController } from "../scripts/PlayerController.js";
-import { Layers, KeyCode, Keyboard, Mouse, Touch } from "../../../src/index.js";
+import { Layers, KeyCode, Keyboard, Mouse, Touch, Input } from "../../../src/index.js";
 
 // import { WebGLBoxRender2D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
@@ -47,6 +47,10 @@ class PlayerScript extends ScriptComponent {
         this.fireCooldown = new Cooldown(0.2); // 5 shots/sec
         this.timer = new Timer(3, true);
 
+        // Input.registerAction("go", {
+        //     keys: [KeyCode.Z, KeyCode.X],
+        //     buttons: [GamepadButton.X, GamepadButton.RB],
+        // });
     }
 
     start() {
@@ -62,6 +66,8 @@ class PlayerScript extends ScriptComponent {
 
         this.fireCooldown.update(dt);
         this.timer.update(dt);
+
+        Input.TOUCH_SENSITIVITY = 1;
 
         // if (Keyboard.isPressed(KeyCode.ArrowRight)) this.rb.addForce(800, 0);
         // if (Keyboard.isPressed(KeyCode.ArrowLeft)) this.rb.addForce(-800, 0);
@@ -96,17 +102,27 @@ class PlayerScript extends ScriptComponent {
 
 
         const FORCE = 800;
-const h = Input.getAxis("horizontal");
-const v = Input.getAxis("vertical");
+        const h = Input.getAxis("horizontal");
+        const v = Input.getAxis("vertical");
+        // console.log(h);
 
-if (Math.abs(h) > 0.1) this.rb.addForce(FORCE * h, 0);
-if (Math.abs(v) > 0.1) this.rb.addForce(0, FORCE * v);
+
+        if (Math.abs(h) > 0.1) this.rb.addForce(FORCE * h, 0);
+        if (Math.abs(v) > 0.1) this.rb.addForce(0, FORCE * v);
 
         if (Keyboard.isPressed(KeyCode.Shift)) {
             const movement = Vector2.scale(this.rb.velocity, dt);
             const newp = Vector2.add(this.transform.position, movement);
             this.transform.position.x = newp.x;
             this.transform.position.y = newp.y;
+        }
+
+        if (Input.isPressed('go')){
+            console.log("done go");
+        }
+
+        if (Input.isPressed('jump')){
+            console.log("jump done");
         }
 
         if (Keyboard.isPressed(KeyCode.Q)) {

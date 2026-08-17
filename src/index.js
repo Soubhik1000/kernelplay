@@ -19,7 +19,7 @@ export { AnimationClip } from "./graphics/AnimationClip.js";
 // Input
 export { Keyboard } from "./input/Keyboard.js";
 export { Mouse } from "./input/Mouse.js"
-export { Gamepad } from "./input/Gamepad.js"
+export { Gamepad, GamepadButton } from "./input/Gamepad.js"
 export { Input } from "./input/Input.js"
 
 // uitls

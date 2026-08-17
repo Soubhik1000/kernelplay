@@ -1,0 +1,6 @@
+{
+  "actions": {
+    "jump": { "keys": ["Space", "ArrowUp", "w"], "buttons": ["A", "B"] },
+    "go":   { "keys": ["x", "z"], "buttons": ["DPadRight"] }
+  }
+}

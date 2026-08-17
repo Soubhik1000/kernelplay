@@ -21,7 +21,7 @@ import {
     ColliderComponent,
     AudioListener,
     AudioSource,
-    Gamepad
+    Gamepad,
 } from "../../src/index.js";
 import { AnimatorComponent, AnimatorController, AnimationClip } from "../../src/index.js";
 import { Keyboard, KeyCode } from "../../src/index.js";

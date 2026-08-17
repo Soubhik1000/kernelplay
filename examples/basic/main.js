@@ -3,6 +3,10 @@ import { MenuScene } from "./scenes/MenuScene.js";
 import { Level1 } from "./scenes/Level1.js";
 import { Level2 } from "./scenes/Level2.js";
 import { BenchmarkScene } from "./scenes/BenchmarkScene.js";
+import { Input } from "../../src/index.js";
+import { KeyCode } from "../../src/index.js";
+import { GamepadButton } from "../../src/index.js";
+
 // import { WebGL2DRenderer } from "../../src/index.js";
 // import { ThreeRenderer } from "../../src/index.js";
 
@@ -24,6 +28,12 @@ class MyGame extends Game {
   }
 }
 
+// Input.registerAction("go", {
+//   keys: [KeyCode.Z, KeyCode.X],
+//   buttons: [GamepadButton.X, GamepadButton.RB],
+// });
+
+
 // ---------------------------
 // Start the game
 // ---------------------------
@@ -41,9 +51,11 @@ const game = new MyGame({
 });
 
 await game.audio.loadAll([
-    './assets/jump.mp3',
-    './assets/run.mp3',
-    // "music/theme.mp3",
+  './assets/jump.mp3',
+  './assets/run.mp3',
+  // "music/theme.mp3",
 ]);
+
+await Input.loadConfig("./input.config.json");
 
 game.start();
