@@ -1,8 +1,13 @@
 // ui/index.js  — single import for the whole UI system
-export { UICanvas }      from "./UICanvas.js";
-export { UITheme }       from "./UITheme.js";
-export { UIRaycast }     from "./UIRaycast.js";
-export { UIElement }     from "./UIElement.js";
+// ==========================================
+// PERCORSI CORRETTI (Coincidono con i file a sinistra)
+// ==========================================
+export { UICanvas } from "./Uicanvas.js";
+export { UITheme } from "./Uitheme.js";
+export { UIRaycast } from "./Uiraycast.js";
+export { UIElement } from "./Uielement.js";
+export { UIJoystick } from "./UiJoystick.js";
+
 export {
     UIPanel,
     UIText,
@@ -14,4 +19,4 @@ export {
     UIInputField,
     UIImageButton,
     UIBitmapText
-} from "./UIElements.js";
+} from "./Uielements.js";
