@@ -59,7 +59,7 @@ class MyScene extends Scene {
 
     if (this.uiCtx && this.joystick) {
       this.uiCtx.clearRect(0, 0, this.uiCanvas.width, this.uiCanvas.height);
-      this.joystick.render(this.uiCtx);
+      this.joystick.draw(this.uiCtx);
     }
   }
 }

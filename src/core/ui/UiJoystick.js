@@ -220,7 +220,7 @@ export class UIJoystick extends UIElement {
         }
     }
 
-    render(ctx) {
+    draw(ctx) {
         if (this.mode === "dynamic" && !this.active) return;
 
         const baseX = this.mode === "dynamic" ? this.originX : this.staticX;
