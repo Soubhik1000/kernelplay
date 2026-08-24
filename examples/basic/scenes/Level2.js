@@ -1,6 +1,6 @@
 import { Scene } from "../../../src/core/Scene.js";
 import { TestPlayer } from "../prefabs/TestPlayer.js"
-import { CameraComponent, Entity, TransformComponent, AudioListener } from "../../../src/index.js";
+import { CameraComponent, Entity, TransformComponent, AudioListener, UIJoystick, UIText } from "../../../src/index.js";
 
 export class Level2 extends Scene {
   init() {
@@ -19,5 +19,17 @@ export class Level2 extends Scene {
 
     this.addEntity(camera);
     this.addEntity(new TestPlayer());
+
+    const label = this.game.ui.add(new UIText({
+      text: "Score: 0", anchor: "topLeft", offset: { x: 20, y: 20 },
+      style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
+    }));
+
+    this.game.ui.add(new UIJoystick({
+      anchor: "center", 
+      // active: true,
+      // offset: { x: 100, y: 200 },
+      // style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
+    }));
   }
 }

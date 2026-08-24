@@ -8,7 +8,7 @@ import { TransformComponent } from "../../../src/index.js";
 import { Rigidbody2DComponent } from "../../../src/index.js";
 
 import { Vector2, Vector3, Mathf, Random } from "../../../src/index.js";
-import { Timer, Cooldown } from "../../../src/index.js";
+import { Timer, Cooldown, UIJoystick } from "../../../src/index.js";
 
 export function TestPlayer(x = 100, y = 100) {
     const player = new Entity("Player", "player");
@@ -59,6 +59,7 @@ class PlayerScript extends ScriptComponent {
         // console.log(this.game.canvas.canvas);
         // Touch.init(this.game.canvas.canvas);
 
+        
 
     }
 
