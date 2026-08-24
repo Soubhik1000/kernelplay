@@ -41,7 +41,7 @@ Built on an Entity–Component architecture, fast, flexible, and surprisingly fu
 ---
 
 ## 🔴 Live Demo
-👉 https://soubhik-rjs.github.io/kernelplay-js-demo/examples/Canvas2D/
+👉 https://soubhik-rjs.github.io/kernelplay-js-demo/examples/parkour-boy/
 
 🏁 **[Benchmark Demo](https://soubhik-rjs.github.io/kernelplay-js-demo/examples/BenchmarkCanvas2D/)** · 📚 **[Full Documentation](https://soubhik-rjs.github.io/kernelplay-js-demo/docs/)**
 
