@@ -1,4 +1,4 @@
-import { UIElement } from "./UIElement.js";
+import { UIElement } from "./Uielement.js";
 
 // ═══════════════════════════════════════════════════════════════════
 //  UIPanel  — container with background and optional border
@@ -10,9 +10,9 @@ export class UIPanel extends UIElement {
     }
 
     draw(ctx) {
-        const x  = this._x - this.width  * 0.5;
-        const y  = this._y - this.height * 0.5;
-        const r  = this._s("borderRadius");
+        const x = this._x - this.width * 0.5;
+        const y = this._y - this.height * 0.5;
+        const r = this._s("borderRadius");
         const bw = this._s("borderWidth");
 
         this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
@@ -21,7 +21,7 @@ export class UIPanel extends UIElement {
 
         if (bw > 0) {
             ctx.strokeStyle = this._s("borderColor");
-            ctx.lineWidth   = bw;
+            ctx.lineWidth = bw;
             ctx.stroke();
         }
     }
@@ -38,9 +38,9 @@ export class UIText extends UIElement {
     }
 
     draw(ctx) {
-        ctx.fillStyle    = this._s("textColor");
-        ctx.font         = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
-        ctx.textAlign    = this._s("textAlign");
+        ctx.fillStyle = this._s("textColor");
+        ctx.font = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
+        ctx.textAlign = this._s("textAlign");
         ctx.textBaseline = this._s("textBaseline");
         ctx.fillText(this.text, this._x, this._y);
     }
@@ -53,25 +53,25 @@ export class UIText extends UIElement {
 export class UIButton extends UIElement {
     constructor({ label = "Button", disabled = false, ...options } = {}) {
         super({ name: "UIButton", interactive: true, ...options });
-        this.label    = label;
+        this.label = label;
         this.disabled = disabled;
         this._pressed = false;
         this.onPointerDown = null;
-        this.onPointerUp   = null;
+        this.onPointerUp = null;
     }
 
     draw(ctx) {
-        const x  = this._x - this.width  * 0.5;
-        const y  = this._y - this.height * 0.5;
-        const r  = this._s("borderRadius");
+        const x = this._x - this.width * 0.5;
+        const y = this._y - this.height * 0.5;
+        const r = this._s("borderRadius");
         const bw = this._s("borderWidth");
 
         // background color — disabled / press / hover / normal
         let bg;
-        if (this.disabled)   bg = this._s("disabledColor");
+        if (this.disabled) bg = this._s("disabledColor");
         else if (this._pressed) bg = this._s("pressColor");
         else if (this._hovered) bg = this._s("hoverColor");
-        else                    bg = this._s("primaryColor");
+        else bg = this._s("primaryColor");
 
         this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
         ctx.fillStyle = bg;
@@ -79,15 +79,15 @@ export class UIButton extends UIElement {
 
         if (bw > 0) {
             ctx.strokeStyle = this._s("borderColor");
-            ctx.lineWidth   = bw;
+            ctx.lineWidth = bw;
             ctx.stroke();
         }
 
         // label
         const textColor = this.disabled ? this._s("disabledTextColor") : this._s("textColor");
-        ctx.fillStyle    = textColor;
-        ctx.font         = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
-        ctx.textAlign    = "center";
+        ctx.fillStyle = textColor;
+        ctx.font = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
+        ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(this.label, this._x, this._y);
     }
@@ -121,21 +121,21 @@ export class UIButton extends UIElement {
 export class UIImage extends UIElement {
     constructor({ src = null, ...options } = {}) {
         super({ name: "UIImage", interactive: false, ...options });
-        this.src   = src;
-        this._img  = null;
+        this.src = src;
+        this._img = null;
         this._loaded = false;
     }
 
     init() {
         if (!this.src) return;
         this._img = new Image();
-        this._img.onload  = () => { this._loaded = true; };
+        this._img.onload = () => { this._loaded = true; };
         this._img.onerror = () => { console.warn(`UIImage: failed to load ${this.src}`); };
         this._img.src = this.src;
     }
 
     draw(ctx) {
-        const x = this._x - this.width  * 0.5;
+        const x = this._x - this.width * 0.5;
         const y = this._y - this.height * 0.5;
 
         if (this._loaded && this._img) {
@@ -156,15 +156,15 @@ export class UIImage extends UIElement {
 
 export class UIProgressBar extends UIElement {
     constructor({
-        value     = 1,       // 0..1
+        value = 1,       // 0..1
         direction = "left",  // "left" | "right" | "up" | "down"
-        showText  = false,
+        showText = false,
         ...options
     } = {}) {
         super({ name: "UIProgressBar", interactive: false, ...options });
-        this.value     = Math.max(0, Math.min(1, value));
+        this.value = Math.max(0, Math.min(1, value));
         this.direction = direction;
-        this.showText  = showText;
+        this.showText = showText;
     }
 
     /** Set value — clamped to 0..1. */
@@ -173,9 +173,9 @@ export class UIProgressBar extends UIElement {
     }
 
     draw(ctx) {
-        const x  = this._x - this.width  * 0.5;
-        const y  = this._y - this.height * 0.5;
-        const r  = this._s("borderRadius");
+        const x = this._x - this.width * 0.5;
+        const y = this._y - this.height * 0.5;
+        const r = this._s("borderRadius");
 
         // track
         this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
@@ -190,7 +190,7 @@ export class UIProgressBar extends UIElement {
         ctx.clip();
 
         const fillColor = this._s("progressFillColor");
-        ctx.fillStyle   = fillColor;
+        ctx.fillStyle = fillColor;
 
         switch (this.direction) {
             case "left":
@@ -214,15 +214,15 @@ export class UIProgressBar extends UIElement {
         if (bw > 0) {
             this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
             ctx.strokeStyle = this._s("borderColor");
-            ctx.lineWidth   = bw;
+            ctx.lineWidth = bw;
             ctx.stroke();
         }
 
         // optional percentage text
         if (this.showText) {
-            ctx.fillStyle    = this._s("textColor");
-            ctx.font         = `${this._s("fontSize")}px ${this._s("fontFamily")}`;
-            ctx.textAlign    = "center";
+            ctx.fillStyle = this._s("textColor");
+            ctx.font = `${this._s("fontSize")}px ${this._s("fontFamily")}`;
+            ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(`${Math.round(this.value * 100)}%`, this._x, this._y);
         }
@@ -237,15 +237,15 @@ export class UICheckbox extends UIElement {
     constructor({ checked = false, label = "Option", ...options } = {}) {
         super({ name: "UICheckbox", interactive: true, ...options });
         this.checked = checked;
-        this.label   = label;
+        this.label = label;
         this.onChange = null;
     }
 
     draw(ctx) {
         const size = this._s("checkSize");
-        const bx   = this._x - this.width * 0.5;
-        const by   = this._y - size * 0.5;
-        const r    = 4;
+        const bx = this._x - this.width * 0.5;
+        const by = this._y - size * 0.5;
+        const r = 4;
 
         // box background
         this._drawRoundedRect(ctx, bx, by, size, size, r);
@@ -256,26 +256,26 @@ export class UICheckbox extends UIElement {
 
         // box border
         ctx.strokeStyle = this.checked ? this._s("checkColor") : this._s("borderColor");
-        ctx.lineWidth   = this._s("borderWidth") + 1;
+        ctx.lineWidth = this._s("borderWidth") + 1;
         ctx.stroke();
 
         // checkmark
         if (this.checked) {
             ctx.strokeStyle = this._s("checkColor");
-            ctx.lineWidth   = 2.5;
-            ctx.lineCap     = "round";
-            ctx.lineJoin    = "round";
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
             ctx.beginPath();
             ctx.moveTo(bx + size * 0.2, by + size * 0.5);
             ctx.lineTo(bx + size * 0.45, by + size * 0.75);
-            ctx.lineTo(bx + size * 0.8,  by + size * 0.25);
+            ctx.lineTo(bx + size * 0.8, by + size * 0.25);
             ctx.stroke();
         }
 
         // label
-        ctx.fillStyle    = this._s("textColor");
-        ctx.font         = `${this._s("fontSize")}px ${this._s("fontFamily")}`;
-        ctx.textAlign    = "left";
+        ctx.fillStyle = this._s("textColor");
+        ctx.font = `${this._s("fontSize")}px ${this._s("fontFamily")}`;
+        ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText(this.label, bx + size + 8, this._y);
     }
@@ -294,12 +294,12 @@ export class UICheckbox extends UIElement {
 export class UISlider extends UIElement {
     constructor({ value = 0.5, min = 0, max = 1, showValue = false, ...options } = {}) {
         super({ name: "UISlider", interactive: true, ...options });
-        this.value     = value;
-        this.min       = min;
-        this.max       = max;
+        this.value = value;
+        this.min = min;
+        this.max = max;
         this.showValue = showValue;
         this._dragging = false;
-        this.onChange  = null;
+        this.onChange = null;
     }
 
     /** Normalized 0..1 position of handle. */
@@ -308,10 +308,10 @@ export class UISlider extends UIElement {
     }
 
     draw(ctx) {
-        const trackH  = 6;
-        const x       = this._x - this.width * 0.5;
-        const trackY  = this._y - trackH * 0.5;
-        const hr      = this._s("sliderHandleRadius");
+        const trackH = 6;
+        const x = this._x - this.width * 0.5;
+        const trackY = this._y - trackH * 0.5;
+        const hr = this._s("sliderHandleRadius");
 
         // track background
         this._drawRoundedRect(ctx, x, trackY, this.width, trackH, trackH * 0.5);
@@ -331,30 +331,30 @@ export class UISlider extends UIElement {
         ctx.fillStyle = this._s("sliderHandleColor");
         ctx.fill();
         ctx.strokeStyle = this._s("borderColor");
-        ctx.lineWidth   = 1.5;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
         // optional value label
         if (this.showValue) {
-            ctx.fillStyle    = this._s("textSecondary");
-            ctx.font         = `${this._s("fontSize") - 2}px ${this._s("fontFamily")}`;
-            ctx.textAlign    = "center";
+            ctx.fillStyle = this._s("textSecondary");
+            ctx.font = `${this._s("fontSize") - 2}px ${this._s("fontFamily")}`;
+            ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillText(this.value.toFixed(2), hx, this._y + hr + 4);
         }
     }
 
     _setFromX(px) {
-        const x  = this._x - this.width * 0.5;
-        const t  = Math.max(0, Math.min(1, (px - x) / this.width));
+        const x = this._x - this.width * 0.5;
+        const t = Math.max(0, Math.min(1, (px - x) / this.width));
         this.value = this.min + t * (this.max - this.min);
         this.onChange?.(this.value);
     }
 
     _onPointerDown(px) { this._dragging = true; this._setFromX(px); }
     _onPointerMove(px) { if (this._dragging) this._setFromX(px); }
-    _onPointerUp()     { this._dragging = false; }
-    _onPointerExit()   { this._hovered = false; this._dragging = false; this.onHoverExit?.(); }
+    _onPointerUp() { this._dragging = false; }
+    _onPointerExit() { this._hovered = false; this._dragging = false; this.onHoverExit?.(); }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -364,26 +364,26 @@ export class UISlider extends UIElement {
 export class UIInputField extends UIElement {
     constructor({
         placeholder = "Type here...",
-        value       = "",
-        maxLength   = 100,
-        password    = false,
+        value = "",
+        maxLength = 100,
+        password = false,
         ...options
     } = {}) {
         super({ name: "UIInputField", interactive: true, ...options });
-        this.value       = value;
+        this.value = value;
         this.placeholder = placeholder;
-        this.maxLength   = maxLength;
-        this.password    = password;
+        this.maxLength = maxLength;
+        this.password = password;
 
-        this._focused    = false;
-        this._cursor     = value.length;
-        this._blink      = true;
+        this._focused = false;
+        this._cursor = value.length;
+        this._blink = true;
         this._blinkTimer = 0;
 
-        this.onSubmit    = null;   // called on Enter
-        this.onChange    = null;   // called on every keystroke
+        this.onSubmit = null;   // called on Enter
+        this.onChange = null;   // called on every keystroke
 
-        this._boundKey   = null;   // keyboard listener reference
+        this._boundKey = null;   // keyboard listener reference
     }
 
     init() {
@@ -394,16 +394,16 @@ export class UIInputField extends UIElement {
         if (!this._focused) return;
         this._blinkTimer += dt * 1000;
         if (this._blinkTimer >= this._s("cursorBlinkRate")) {
-            this._blink      = !this._blink;
+            this._blink = !this._blink;
             this._blinkTimer = 0;
         }
     }
 
     draw(ctx) {
-        const x  = this._x - this.width  * 0.5;
-        const y  = this._y - this.height * 0.5;
-        const r  = this._s("borderRadius");
-        const p  = this._s("padding");
+        const x = this._x - this.width * 0.5;
+        const y = this._y - this.height * 0.5;
+        const r = this._s("borderRadius");
+        const p = this._s("padding");
 
         // background
         this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
@@ -412,18 +412,18 @@ export class UIInputField extends UIElement {
 
         // border — focused = highlight color
         ctx.strokeStyle = this._focused ? this._s("inputFocusColor") : this._s("inputBorderColor");
-        ctx.lineWidth   = this._focused ? 2 : this._s("borderWidth");
+        ctx.lineWidth = this._focused ? 2 : this._s("borderWidth");
         ctx.stroke();
 
         // text / placeholder
-        const fs   = this._s("fontSize");
+        const fs = this._s("fontSize");
         const text = this.password
             ? "•".repeat(this.value.length)
             : this.value;
 
-        ctx.font         = `${fs}px ${this._s("fontFamily")}`;
+        ctx.font = `${fs}px ${this._s("fontFamily")}`;
         ctx.textBaseline = "middle";
-        ctx.textAlign    = "left";
+        ctx.textAlign = "left";
 
         // clip text inside field
         ctx.save();
@@ -474,10 +474,10 @@ export class UIInputField extends UIElement {
             this.onChange?.(this.value);
             return;
         }
-        if (e.key === "ArrowLeft")  { this._cursor = Math.max(0, this._cursor - 1); return; }
+        if (e.key === "ArrowLeft") { this._cursor = Math.max(0, this._cursor - 1); return; }
         if (e.key === "ArrowRight") { this._cursor = Math.min(this.value.length, this._cursor + 1); return; }
-        if (e.key === "Home")       { this._cursor = 0; return; }
-        if (e.key === "End")        { this._cursor = this.value.length; return; }
+        if (e.key === "Home") { this._cursor = 0; return; }
+        if (e.key === "End") { this._cursor = this.value.length; return; }
 
         // printable characters
         if (e.key.length === 1 && this.value.length < this.maxLength) {
@@ -489,10 +489,10 @@ export class UIInputField extends UIElement {
 
     _focus() {
         if (this._focused) return;
-        this._focused    = true;
-        this._blink      = true;
+        this._focused = true;
+        this._blink = true;
         this._blinkTimer = 0;
-        this._cursor     = this.value.length;
+        this._cursor = this.value.length;
         window.addEventListener("keydown", this._boundKey);
     }
 
@@ -511,62 +511,62 @@ export class UIInputField extends UIElement {
 
 export class UIImageButton extends UIElement {
     constructor({
-        src          = null,
-        label        = null,       // null = no text, icon-only mode
-        disabled     = false,
- 
+        src = null,
+        label = null,       // null = no text, icon-only mode
+        disabled = false,
+
         // hover/press tint  — rgba string or null to disable
-        hoverTint    = "rgba(255,255,255,0.15)",
-        pressTint    = "rgba(0,0,0,0.25)",
+        hoverTint = "rgba(255,255,255,0.15)",
+        pressTint = "rgba(0,0,0,0.25)",
         disabledTint = "rgba(0,0,0,0.5)",
- 
+
         // sprite sheet states (optional)
         // if provided, draws a different region per state
         // { normal, hover, press, disabled } — each { x, y, w, h }
-        states       = null,
- 
+        states = null,
+
         ...options
     } = {}) {
         super({ name: "UIImageButton", interactive: true, ...options });
- 
-        this.src          = src;
-        this.label        = label;
-        this.disabled     = disabled;
-        this.hoverTint    = hoverTint;
-        this.pressTint    = pressTint;
+
+        this.src = src;
+        this.label = label;
+        this.disabled = disabled;
+        this.hoverTint = hoverTint;
+        this.pressTint = pressTint;
         this.disabledTint = disabledTint;
-        this.states       = states;
- 
-        this._img         = null;
-        this._loaded      = false;
-        this._pressed     = false;
- 
+        this.states = states;
+
+        this._img = null;
+        this._loaded = false;
+        this._pressed = false;
+
         this.onPointerDown = null;
-        this.onPointerUp   = null;
+        this.onPointerUp = null;
     }
- 
+
     init() {
         if (!this.src) return;
-        this._img        = new Image();
+        this._img = new Image();
         this._img.onload = () => { this._loaded = true; };
-        this._img.src    = this.src;
+        this._img.src = this.src;
     }
- 
+
     draw(ctx) {
-        const x = this._x - this.width  * 0.5;
+        const x = this._x - this.width * 0.5;
         const y = this._y - this.height * 0.5;
- 
+
         ctx.save();
- 
+
         // ── draw image ───────────────────────────────────────────
         if (this._loaded && this._img) {
             if (this.states) {
                 // sprite sheet state regions
-                const region = this.disabled      ? this.states.disabled :
-                               this._pressed      ? this.states.press    :
-                               this._hovered      ? this.states.hover    :
-                                                    this.states.normal;
- 
+                const region = this.disabled ? this.states.disabled :
+                    this._pressed ? this.states.press :
+                        this._hovered ? this.states.hover :
+                            this.states.normal;
+
                 if (region) {
                     ctx.drawImage(
                         this._img,
@@ -579,11 +579,11 @@ export class UIImageButton extends UIElement {
             } else {
                 // single image — apply tint overlay for states
                 ctx.drawImage(this._img, x, y, this.width, this.height);
- 
+
                 const tint = this.disabled ? this.disabledTint :
-                             this._pressed ? this.pressTint     :
-                             this._hovered ? this.hoverTint     : null;
- 
+                    this._pressed ? this.pressTint :
+                        this._hovered ? this.hoverTint : null;
+
                 if (tint) {
                     ctx.fillStyle = tint;
                     ctx.fillRect(x, y, this.width, this.height);
@@ -591,32 +591,32 @@ export class UIImageButton extends UIElement {
             }
         } else {
             // placeholder while loading
-            const r  = this._s("borderRadius");
+            const r = this._s("borderRadius");
             this._drawRoundedRect(ctx, x, y, this.width, this.height, r);
             ctx.fillStyle = this._s("surfaceColor");
             ctx.fill();
         }
- 
+
         // ── optional label ───────────────────────────────────────
         if (this.label !== null && this.label !== undefined) {
-            ctx.fillStyle    = this.disabled
+            ctx.fillStyle = this.disabled
                 ? this._s("disabledTextColor")
                 : this._s("textColor");
-            ctx.font         = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
-            ctx.textAlign    = "center";
+            ctx.font = `${this._s("fontWeight")} ${this._s("fontSize")}px ${this._s("fontFamily")}`;
+            ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(this.label, this._x, this._y);
         }
- 
+
         ctx.restore();
     }
- 
+
     _onPointerDown(px, py) {
         if (this.disabled) return;
         this._pressed = true;
         this.onPointerDown?.();
     }
- 
+
     _onPointerUp(px, py) {
         if (this.disabled) return;
         if (this._pressed) {
@@ -625,15 +625,15 @@ export class UIImageButton extends UIElement {
             this.onPointerUp?.();
         }
     }
- 
+
     _onPointerExit() {
         this._hovered = false;
         this._pressed = false;
         this.onHoverExit?.();
     }
 }
- 
- 
+
+
 // ═══════════════════════════════════════════════════════════════════
 //  UIBitmapText
 //
@@ -658,132 +658,132 @@ export class UIImageButton extends UIElement {
 //        offset:     { x: 20, y: 20 },
 //    })
 // ═══════════════════════════════════════════════════════════════════
- 
+
 export class UIBitmapText extends UIElement {
     constructor({
-        src        = null,
-        text       = "",
-        charWidth  = 8,
+        src = null,
+        text = "",
+        charWidth = 8,
         charHeight = 8,
-        sheetCols  = 16,
+        sheetCols = 16,
         charOffset = 32,     // ASCII 32 = space — first char on sheet
-        scale      = 1,
-        spacing    = 0,      // extra px between chars
-        tint       = null,   // CSS color overlay (null = no tint)
+        scale = 1,
+        spacing = 0,      // extra px between chars
+        tint = null,   // CSS color overlay (null = no tint)
         ...options
     } = {}) {
         // auto-size width from text length if not provided
-        const w = options.width  ?? text.length * (charWidth  * scale + spacing);
+        const w = options.width ?? text.length * (charWidth * scale + spacing);
         const h = options.height ?? charHeight * scale;
- 
+
         super({
-            name:        "UIBitmapText",
+            name: "UIBitmapText",
             interactive: false,
-            width:       w,
-            height:      h,
+            width: w,
+            height: h,
             ...options,
         });
- 
-        this.src        = src;
-        this.text       = text;
-        this.charWidth  = charWidth;
+
+        this.src = src;
+        this.text = text;
+        this.charWidth = charWidth;
         this.charHeight = charHeight;
-        this.sheetCols  = sheetCols;
+        this.sheetCols = sheetCols;
         this.charOffset = charOffset;
-        this.scale      = scale;
-        this.spacing    = spacing;
-        this.tint       = tint;
- 
-        this._img    = null;
+        this.scale = scale;
+        this.spacing = spacing;
+        this.tint = tint;
+
+        this._img = null;
         this._loaded = false;
- 
+
         // offscreen canvas for tinting
         this._tintCanvas = null;
-        this._tintCtx    = null;
-        this._lastTint   = null;
-        this._lastSrc    = null;
+        this._tintCtx = null;
+        this._lastTint = null;
+        this._lastSrc = null;
     }
- 
+
     init() {
         if (!this.src) return;
-        this._img        = new Image();
+        this._img = new Image();
         this._img.onload = () => {
             this._loaded = true;
             if (this.tint) this._buildTintSheet();
         };
         this._img.src = this.src;
     }
- 
+
     // pre-bake a tinted version of the sheet onto an offscreen canvas
     _buildTintSheet() {
         if (!this._img) return;
- 
-        this._tintCanvas        = document.createElement("canvas");
-        this._tintCanvas.width  = this._img.width;
+
+        this._tintCanvas = document.createElement("canvas");
+        this._tintCanvas.width = this._img.width;
         this._tintCanvas.height = this._img.height;
-        this._tintCtx           = this._tintCanvas.getContext("2d");
- 
+        this._tintCtx = this._tintCanvas.getContext("2d");
+
         const c = this._tintCtx;
         c.drawImage(this._img, 0, 0);
         c.globalCompositeOperation = "source-atop";
         c.fillStyle = this.tint;
         c.fillRect(0, 0, this._tintCanvas.width, this._tintCanvas.height);
         c.globalCompositeOperation = "source-over";
- 
+
         this._lastTint = this.tint;
-        this._lastSrc  = this.src;
+        this._lastSrc = this.src;
     }
- 
+
     draw(ctx) {
         if (!this._loaded || !this._img) return;
- 
+
         // rebuild tint sheet if tint changed
         if (this.tint && this.tint !== this._lastTint) this._buildTintSheet();
- 
-        const sheet  = (this.tint && this._tintCanvas) ? this._tintCanvas : this._img;
-        const cw     = this.charWidth;
-        const ch     = this.charHeight;
-        const dw     = cw * this.scale;
-        const dh     = ch * this.scale;
-        const step   = dw + this.spacing;
- 
+
+        const sheet = (this.tint && this._tintCanvas) ? this._tintCanvas : this._img;
+        const cw = this.charWidth;
+        const ch = this.charHeight;
+        const dw = cw * this.scale;
+        const dh = ch * this.scale;
+        const step = dw + this.spacing;
+
         // start x so text is centered on this._x
         let drawX = this._x - (this.text.length * step) * 0.5;
         const drawY = this._y - dh * 0.5;
- 
+
         for (let i = 0; i < this.text.length; i++) {
             const code = this.text.charCodeAt(i) - this.charOffset;
             if (code < 0) { drawX += step; continue; }  // unknown char — skip
- 
+
             const col = code % this.sheetCols;
             const row = Math.floor(code / this.sheetCols);
- 
+
             const sx = col * cw;
             const sy = row * ch;
- 
+
             ctx.drawImage(sheet, sx, sy, cw, ch, drawX, drawY, dw, dh);
             drawX += step;
         }
     }
- 
+
     // ── helpers ───────────────────────────────────────────────────
- 
+
     /** Update text and auto-resize width. */
     setText(text) {
-        this.text  = text;
+        this.text = text;
         this.width = text.length * (this.charWidth * this.scale + this.spacing);
     }
- 
+
     /** Change tint color. */
     setTint(color) {
         this.tint = color;
         if (this._loaded) this._buildTintSheet();
     }
- 
+
     /** Remove tint. */
     clearTint() {
-        this.tint        = null;
+        this.tint = null;
         this._tintCanvas = null;
-        this._tintCtx    = null;
+        this._tintCtx = null;
     }
 }
