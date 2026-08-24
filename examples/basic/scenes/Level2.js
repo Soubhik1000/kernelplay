@@ -27,6 +27,7 @@ export class Level2 extends Scene {
 
     this.game.ui.add(new UIJoystick({
       anchor: "center", 
+      mode: "dynamic",
       // active: true,
       // offset: { x: 100, y: 200 },
       // style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
