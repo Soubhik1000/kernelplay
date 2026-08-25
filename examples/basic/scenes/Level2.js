@@ -4,6 +4,8 @@ import { CameraComponent, Entity, TransformComponent, AudioListener, UIJoystick,
 
 export class Level2 extends Scene {
   init() {
+    console.log("scn");
+    
     const camera = new Entity("MainCamera");
     camera.id = 100;
     camera.addComponent("transform", new TransformComponent({
@@ -25,6 +27,11 @@ export class Level2 extends Scene {
       style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
     }));
 
+    // this.game.ui.add(new UIText({
+    //   text: "Score: 0", anchor: "center", offset: { x: 0, y: 0 },
+    //   style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
+    // }));
+
     this.game.ui.add(new UIJoystick({
       anchor: "center", 
       mode: "dynamic",
@@ -32,5 +39,7 @@ export class Level2 extends Scene {
       // offset: { x: 100, y: 200 },
       // style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
     }));
+
+
   }
 }

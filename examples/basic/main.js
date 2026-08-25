@@ -48,6 +48,7 @@ const game = new MyGame({
   backgroundColor: "#eeeeee",
   // debugPhysics: true
   container: "#game-container",
+  debug: true,
 });
 
 await game.audio.loadAll([

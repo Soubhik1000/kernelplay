@@ -11,6 +11,7 @@ import { CanvasRenderer } from "../graphics/CanvasRenderer.js";
 import { Camera2D } from "./components/Camera2D.js";
 import { AudioManager } from "./AudioManager.js";
 import { UICanvas } from "./ui/Uicanvas.js";
+import {DebugOverlay} from "./DebugOverlay.js"
 
 export class Game {
   constructor(options = {}) {
@@ -27,17 +28,19 @@ export class Game {
 
     Touch.init(this.canvas.canvas);
     // console.log(this.canvas.canvas);
-    
+
     Gamepad.init();
-    
+
     // 🔥 default renderer
     this.renderer = options.renderer || new CanvasRenderer();
     this.renderer.init(this);
-    
+
     // create the UI layer
     this.ui = new UICanvas(this);
     this.ui.init();
+
     
+
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);
 
@@ -45,19 +48,21 @@ export class Game {
       update: (dt) => {
         Time.update(dt, performance.now());
         dt = Math.min(dt, 0.05);
-        
+
         this.update(dt);
         this.sceneManager.update(dt);
         this.audio.update();
         this.ui.update(dt);
-        
+
         Keyboard.update();
         Mouse.update();
         Touch.update();
         Gamepad.update();
+
+        if (this.config.debug) this.debug.update(dt);
       },
 
-      fixedUpdate: (dt) =>{
+      fixedUpdate: (dt) => {
         this.fixedUpdate(dt);
         this.sceneManager.fixedUpdate(dt);
       },
@@ -86,18 +91,28 @@ export class Game {
 
   init() {
     // console.log("init");
-    
+
     // this.renderer.init(this);
     // console.log("init");
     // await this.renderer.init(this);
+    // console.log("yeah");
   }
-  update(dt) {}
-  fixedUpdate(dt) {}
-  render() {}
+  update(dt) { }
+  fixedUpdate(dt) { }
+  render() { }
 
   start() {
     this.init();
     this.loop.start();
+    
+    // In Game constructor — after ui is ready:
+    if (this.config.debug) {
+      console.log("h");
+      
+      this.debug = new DebugOverlay(this);
+      this.debug.init();
+    }
+
   }
 
   stop() {
