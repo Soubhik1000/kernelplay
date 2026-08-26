@@ -59,7 +59,7 @@ class PlayerScript extends ScriptComponent {
         // console.log(this.game.canvas.canvas);
         // Touch.init(this.game.canvas.canvas);
 
-        
+
 
     }
 
@@ -101,6 +101,10 @@ class PlayerScript extends ScriptComponent {
         // if (Touch.swipeDown())  this.rb.addForce(0, force);
         // if (Touch.swipeUp())    this.rb.addForce(0, -force);
 
+        // if (Keyboard.wasPressed(KeyCode.N)) {
+        //     console.log('k');
+        // }
+
 
         const FORCE = 800;
         const h = Input.getAxis("horizontal");
@@ -118,11 +122,11 @@ class PlayerScript extends ScriptComponent {
             this.transform.position.y = newp.y;
         }
 
-        if (Input.isPressed('go')){
+        if (Input.isPressed('go')) {
             console.log("done go");
         }
 
-        if (Input.isPressed('jump')){
+        if (Input.isPressed('jump')) {
             console.log("jump done");
         }
 

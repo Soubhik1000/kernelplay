@@ -53,13 +53,13 @@ export class Game {
         this.sceneManager.update(dt);
         this.audio.update();
         this.ui.update(dt);
+        if (this.config.debug) this.debug.update(dt);
 
         Keyboard.update();
         Mouse.update();
         Touch.update();
         Gamepad.update();
 
-        if (this.config.debug) this.debug.update(dt);
       },
 
       fixedUpdate: (dt) => {

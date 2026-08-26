@@ -8,8 +8,8 @@ import { Input } from "../input/Input.js";
 export class DebugOverlay {
 
   // ─── Toggle keys — change these to remap ────────────────────────────────
-  static TOGGLE_KEYS = [KeyCode.F2];
-  // static TOGGLE_KEYS = [KeyCode.M];
+  // static TOGGLE_KEYS = [KeyCode.F2];
+  static TOGGLE_KEYS = [KeyCode.M];
   static TOGGLE_COMBO = { key: KeyCode.D, modifier: "ctrl" }; // Ctrl + D
 
   // ─── Styles ───────────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ export class DebugOverlay {
     width: 220,
     height: 148,
     style: {
-      surfaceColor: "rgba(10, 10, 18, 0.92)",
+      surfaceColor: "rgba(0, 0, 0, 0.79)",
       borderColor: "#1e1e2e",
       borderWidth: 1,
       borderRadius: 10,         // flat — no radius
@@ -26,9 +26,9 @@ export class DebugOverlay {
 
   static #TITLE = {
     style: {
-      fontSize: 9,
-      fontWeight: "bold",
-      textColor: "#3a3a52",
+      fontSize: 12,
+      fontWeight: "bolder",
+      textColor: "#ffffff",
       fontFamily: "JetBrains Mono, Fira Mono, monospace",
     },
   };
@@ -58,7 +58,6 @@ export class DebugOverlay {
 
   constructor(game) {
     this.#game = game;
-    this.game = game;
   }
 
   // ─── Init ─────────────────────────────────────────────────────────────────
@@ -68,29 +67,23 @@ export class DebugOverlay {
     const ui = this.#game.ui;
     console.log(this.#game);
 
-
     // Register a dedicated layer above Overlay so it's always on top
     ui.addLayer(this.#layer, 40);
-    ui.hideLayer(this.#layer);
-
-    const label = this.game.ui.add(new UIText({
-      text: "Score: 1", anchor: "center", offset: { x: 20, y: 20 },
-      style: { textColor: "#000000", fontSize: 18, fontWeight: "bold" },
-    }));
+    // ui.hideLayer(this.#layer);
 
     this.#buildPerformance(ui);
-    this.#buildScene(ui);
+    // this.#buildScene(ui);
     this.#buildInput(ui);
     this.#buildAudio(ui);
   }
 
   // ─── Build: Performance (top-left) ────────────────────────────────────────
   #buildPerformance(ui) {
-    const PAD_X = 12, PAD_Y = 12;
+    const PAD_X = 5, PAD_Y = 5;
     const ROW = 18;
 
     ui.add(new UIPanel({
-      anchor: "topLeft",
+      anchor: "topCenter",
       offset: { x: PAD_X, y: PAD_Y },
       ...DebugOverlay.#PANEL,
     }), this.#layer);
@@ -98,22 +91,19 @@ export class DebugOverlay {
     // Title
     ui.add(new UIText({
       text: "PERFORMANCE",
-      anchor: "topLeft",
-      offset: { x: PAD_X + 10, y: PAD_Y + 10 },
+      anchor: "topCenter",
+      offset: { x: 0, y: 0 },
       ...DebugOverlay.#TITLE,
     }), this.#layer);
 
-    // Rows
-    const rows = ["fps", "frameTime", "avgFrame", "cpu", "gc"];
-    const labels = ["FPS", "Frame", "Avg", "CPU", "GC Spikes"];
-    rows.forEach((key, i) => {
-      this.#labels[`perf_${key}`] = ui.add(new UIText({
-        text: `${labels[i]}: —`,
-        anchor: "topLeft",
-        offset: { x: PAD_X + 10, y: PAD_Y + 26 + i * ROW },
-        ...DebugOverlay.#ROW,
-      }), this.#layer);
-    });
+    // Row 1 — FPS | Avg | GC Spikes
+    this.#labels.perf_fps = ui.add(new UIText({ text: "FPS: —", anchor: "topCenter", offset: { x: PAD_X + 10, y: PAD_Y + 28 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "Avg: —", anchor: "topCenter", offset: { x: PAD_X + 90, y: PAD_Y + 28 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_gc = ui.add(new UIText({ text: "GC Spikes: —", anchor: "topCenter", offset: { x: PAD_X + 190, y: PAD_Y + 28 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Row 2 — Frame | CPU
+    this.#labels.perf_frameTime = ui.add(new UIText({ text: "Frame: —", anchor: "topCenter", offset: { x: PAD_X + 10, y: PAD_Y + 48 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_cpu = ui.add(new UIText({ text: "CPU: —", anchor: "topCenter", offset: { x: PAD_X + 90, y: PAD_Y + 48 }, ...DebugOverlay.#ROW }), this.#layer);
   }
 
   // ─── Build: Scene (top-right) ─────────────────────────────────────────────
@@ -211,7 +201,7 @@ export class DebugOverlay {
     const ui = this.#game.ui;
 
     // F2 or any key in TOGGLE_KEYS
-    const keyToggle = DebugOverlay.TOGGLE_KEYS.some(k => Keyboard.isPressed(k));
+    const keyToggle = DebugOverlay.TOGGLE_KEYS.some(k => Keyboard.wasPressed(k));
 
     // Ctrl + D
     const combo = DebugOverlay.TOGGLE_COMBO;
@@ -269,17 +259,17 @@ export class DebugOverlay {
     this.#labels.perf_gc.text = `GC Spikes: ${gc}/sec`;
 
     // ── Scene ─────────────────────────────────────────────────────────────────
-    if (scene) {
-      this.#labels.scene_entities.text = `Entities: ${scene.entities?.length ?? 0}`;
-      this.#labels.scene_visible.text = `Visible:  ${scene.visibleCount ?? 0}`;
-      this.#labels.scene_physics.text = `Physics:  ${scene._rigidbody2D?.length ?? 0}`;
-      this.#labels.scene_scene.text = `Scene:    ${scene.name ?? "—"}`;
+    // if (scene) {
+    //   this.#labels.scene_entities.text = `Entities: ${scene.entities?.length ?? 0}`;
+    //   this.#labels.scene_visible.text = `Visible:  ${scene.visibleCount ?? 0}`;
+    //   this.#labels.scene_physics.text = `Physics:  ${scene._rigidbody2D?.length ?? 0}`;
+    //   this.#labels.scene_scene.text = `Scene:    ${scene.name ?? "—"}`;
 
-      const cam = scene.camera;
-      this.#labels.scene_cam.text = cam
-        ? `Cam: (${Math.round(cam.position.x)}, ${Math.round(cam.position.y)})`
-        : `Cam: —`;
-    }
+    //   const cam = scene.camera;
+    //   this.#labels.scene_cam.text = cam
+    //     ? `Cam: (${Math.round(cam.position.x)}, ${Math.round(cam.position.y)})`
+    //     : `Cam: —`;
+    // }
 
     // ── Input ─────────────────────────────────────────────────────────────────
     const h = Input.getAxis("horizontal");
@@ -293,7 +283,7 @@ export class DebugOverlay {
     const touchActive = Touch.joystickActive();
     const device = gpActive ? "Gamepad" : touchActive ? "Touch" : "Keyboard";
 
-    this.#labels.input_device.text = `Device:      ${device}`;
+    this.#labels.input_device.text = `Device:   ${device}`;
     this.#labels.input_device.style.textColor =
       device === "Gamepad" ? DebugOverlay.#ACCENT_BLUE :
         device === "Touch" ? DebugOverlay.#ACCENT_PURPLE :

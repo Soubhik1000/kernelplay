@@ -883,6 +883,7 @@ const game = new MyGame({
     fps: 60,
     backgroundColor: "#eeeeee",
     // debugPhysics: true
+    debug: true,
 });
 
 await game.audio.loadAll([
