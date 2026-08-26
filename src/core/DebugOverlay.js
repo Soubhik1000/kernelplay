@@ -14,8 +14,8 @@ export class DebugOverlay {
 
   // ─── Styles ───────────────────────────────────────────────────────────────
   static #PANEL = {
-    width: 220,
-    height: 148,
+    width: 270,
+    height: 60,
     style: {
       surfaceColor: "rgba(0, 0, 0, 0.79)",
       borderColor: "#1e1e2e",
@@ -72,7 +72,7 @@ export class DebugOverlay {
     // ui.hideLayer(this.#layer);
 
     this.#buildPerformance(ui);
-    // this.#buildScene(ui);
+    this.#buildScene(ui);
     this.#buildInput(ui);
     this.#buildAudio(ui);
   }
@@ -83,7 +83,7 @@ export class DebugOverlay {
     const ROW = 18;
 
     ui.add(new UIPanel({
-      anchor: "topCenter",
+      anchor: "topLeft",
       offset: { x: PAD_X, y: PAD_Y },
       ...DebugOverlay.#PANEL,
     }), this.#layer);
@@ -91,25 +91,37 @@ export class DebugOverlay {
     // Title
     ui.add(new UIText({
       text: "PERFORMANCE",
-      anchor: "topCenter",
+      anchor: "topLeft",
       offset: { x: 0, y: 0 },
       ...DebugOverlay.#TITLE,
     }), this.#layer);
 
-    // Row 1 — FPS | Avg | GC Spikes
-    this.#labels.perf_fps = ui.add(new UIText({ text: "FPS: —", anchor: "topCenter", offset: { x: PAD_X + 10, y: PAD_Y + 28 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "Avg: —", anchor: "topCenter", offset: { x: PAD_X + 90, y: PAD_Y + 28 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_gc = ui.add(new UIText({ text: "GC Spikes: —", anchor: "topCenter", offset: { x: PAD_X + 190, y: PAD_Y + 28 }, ...DebugOverlay.#ROW }), this.#layer);
+    // FPS
+    ui.add(new UIText({ text: "FPS:", anchor: "topLeft", offset: { x: -25, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_fps = ui.add(new UIText({ text: "120", anchor: "topLeft", offset: { x: 0, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
 
-    // Row 2 — Frame | CPU
-    this.#labels.perf_frameTime = ui.add(new UIText({ text: "Frame: —", anchor: "topCenter", offset: { x: PAD_X + 10, y: PAD_Y + 48 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_cpu = ui.add(new UIText({ text: "CPU: —", anchor: "topCenter", offset: { x: PAD_X + 90, y: PAD_Y + 48 }, ...DebugOverlay.#ROW }), this.#layer);
+    // Avg
+    ui.add(new UIText({ text: "Avg:", anchor: "topLeft", offset: { x: 40, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "8.00ms", anchor: "topLeft", offset: { x: 75, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // GC Spikes
+    ui.add(new UIText({ text: "GC Spikes:", anchor: "topLeft", offset: { x: 145, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_gc = ui.add(new UIText({ text: "0/sec", anchor: "topLeft", offset: { x: 195, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Frame
+    ui.add(new UIText({ text: "Frame:", anchor: "topLeft", offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_frameTime = ui.add(new UIText({ text: "9.00ms", anchor: "topLeft", offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // CPU
+    ui.add(new UIText({ text: "CPU:", anchor: "topLeft", offset: { x: 70, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: "topLeft", offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
   }
 
   // ─── Build: Scene (top-right) ─────────────────────────────────────────────
   #buildScene(ui) {
-    const PAD_X = 12, PAD_Y = 12;
+    const PAD_X = 5, PAD_Y = 5;
     const ROW = 18;
+    const anchor = "topRight";
 
     ui.add(new UIPanel({
       anchor: "topRight",
@@ -120,20 +132,32 @@ export class DebugOverlay {
     ui.add(new UIText({
       text: "SCENE",
       anchor: "topRight",
-      offset: { x: PAD_X + 10, y: PAD_Y + 10 },
+      offset: { x: 200, y: 0 },
       ...DebugOverlay.#TITLE,
     }), this.#layer);
 
     const rows = ["entities", "visible", "physics", "scene", "cam"];
     const labels = ["Entities", "Visible", "Physics", "Scene", "Camera"];
-    rows.forEach((key, i) => {
-      this.#labels[`scene_${key}`] = ui.add(new UIText({
-        text: `${labels[i]}: —`,
-        anchor: "topRight",
-        offset: { x: PAD_X + 10, y: PAD_Y + 26 + i * ROW },
-        ...DebugOverlay.#ROW,
-      }), this.#layer);
-    });
+    // FPS
+    ui.add(new UIText({ text: "FPS:", anchor: anchor, offset: { x: -25, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_fps = ui.add(new UIText({ text: "120", anchor: anchor, offset: { x: 0, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Avg
+    ui.add(new UIText({ text: "Avg:", anchor: anchor, offset: { x: 40, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "8.00ms", anchor: anchor, offset: { x: 75, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // GC Spikes
+    ui.add(new UIText({ text: "GC Spikes:", anchor: anchor, offset: { x: 145, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_gc = ui.add(new UIText({ text: "0/sec", anchor: anchor, offset: { x: 195, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Frame
+    ui.add(new UIText({ text: "Frame:", anchor: anchor, offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_frameTime = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // CPU
+    ui.add(new UIText({ text: "CPU:", anchor: anchor, offset: { x: 70, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+
   }
 
   // ─── Build: Input (bottom-left) ───────────────────────────────────────────
