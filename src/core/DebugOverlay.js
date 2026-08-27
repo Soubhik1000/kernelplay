@@ -115,6 +115,7 @@ export class DebugOverlay {
     // CPU
     ui.add(new UIText({ text: "CPU:", anchor: "topLeft", offset: { x: 70, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
     this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: "topLeft", offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+
   }
 
   // ─── Build: Scene (top-right) ─────────────────────────────────────────────
@@ -138,25 +139,25 @@ export class DebugOverlay {
 
     const rows = ["entities", "visible", "physics", "scene", "cam"];
     const labels = ["Entities", "Visible", "Physics", "Scene", "Camera"];
-    // FPS
-    ui.add(new UIText({ text: "FPS:", anchor: anchor, offset: { x: -25, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_fps = ui.add(new UIText({ text: "120", anchor: anchor, offset: { x: 0, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    // Entities
+    ui.add(new UIText({ text: "Entities:", anchor: anchor, offset: { x: 189, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_fps = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 145, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
 
-    // Avg
-    ui.add(new UIText({ text: "Avg:", anchor: anchor, offset: { x: 40, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "8.00ms", anchor: anchor, offset: { x: 75, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    // Visible
+    ui.add(new UIText({ text: "Visible:", anchor: anchor, offset: { x: 100, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 58, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
 
-    // GC Spikes
-    ui.add(new UIText({ text: "GC Spikes:", anchor: anchor, offset: { x: 145, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_gc = ui.add(new UIText({ text: "0/sec", anchor: anchor, offset: { x: 195, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    // Physics
+    ui.add(new UIText({ text: "Physics:", anchor: anchor, offset: { x: 192, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_gc = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 150, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
 
-    // Frame
-    ui.add(new UIText({ text: "Frame:", anchor: anchor, offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_frameTime = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    // Scene
+    ui.add(new UIText({ text: "Scene:", anchor: anchor, offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_frameTime = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
 
-    // CPU
-    ui.add(new UIText({ text: "CPU:", anchor: anchor, offset: { x: 70, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    // Camera
+    ui.add(new UIText({ text: "Camera:", anchor: anchor, offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 65, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
 
   }
 
@@ -164,6 +165,7 @@ export class DebugOverlay {
   #buildInput(ui) {
     const PAD_X = 12, PAD_Y = 12;
     const ROW = 18;
+    const anchor = "bottomLeft"
 
     ui.add(new UIPanel({
       anchor: "bottomLeft",
@@ -174,20 +176,32 @@ export class DebugOverlay {
     ui.add(new UIText({
       text: "INPUT",
       anchor: "bottomLeft",
-      offset: { x: PAD_X + 10, y: PAD_Y + 10 },
+      offset: { x: -12, y: 37 },
       ...DebugOverlay.#TITLE,
     }), this.#layer);
 
     const rows = ["device", "axisH", "axisV", "lastAction", "gamepad"];
     const labels = ["Device", "Axis H", "Axis V", "Last Action", "Gamepad"];
-    rows.forEach((key, i) => {
-      this.#labels[`input_${key}`] = ui.add(new UIText({
-        text: `${labels[i]}: —`,
-        anchor: "bottomLeft",
-        offset: { x: PAD_X + 10, y: PAD_Y + 26 + i * ROW },
-        ...DebugOverlay.#ROW,
-      }), this.#layer);
-    });
+    // Device
+    ui.add(new UIText({ text: "Device:", anchor: anchor, offset: { x: -7, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_fps = ui.add(new UIText({ text: "Gamepad", anchor: anchor, offset: { x: 40, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Axis H
+    ui.add(new UIText({ text: "Axis H:", anchor: anchor, offset: { x: 90, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "8.00ms", anchor: anchor, offset: { x: 120, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Axis V
+    ui.add(new UIText({ text: "Axis V:", anchor: anchor, offset: { x: 1450, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_gc = ui.add(new UIText({ text: "0/sec", anchor: anchor, offset: { x: 1950, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Last Action
+    ui.add(new UIText({ text: "Last Action:", anchor: anchor, offset: { x: 8, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_frameTime = ui.add(new UIText({ text: "XXX", anchor: anchor, offset: { x: 55, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+
+    // Gamepad
+    ui.add(new UIText({ text: "Gamepad:", anchor: anchor, offset: { x: 100, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 143, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    
   }
 
   // ─── Build: Audio (bottom-right) ──────────────────────────────────────────
