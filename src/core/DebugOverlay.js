@@ -152,12 +152,12 @@ export class DebugOverlay {
     this.#labels.scene_physics = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 150, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
 
     // Scene
-    ui.add(new UIText({ text: "Scene:", anchor: anchor, offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_scene = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Scene:", anchor: anchor, offset: { x: 100, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.scene_scene = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: 60, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
 
     // Camera
-    ui.add(new UIText({ text: "Camera:", anchor: anchor, offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_cam = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 65, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Camera:", anchor: anchor, offset: { x: 103, y: 0 }, ...DebugOverlay.#ROW }), this.#layer);
+    this.#labels.scene_cam = ui.add(new UIText({ text: "(300, 400)", anchor: anchor, offset: { x: 50, y: 0 }, ...DebugOverlay.#ROW }), this.#layer);
 
   }
 
@@ -312,14 +312,17 @@ export class DebugOverlay {
     // ── Scene ─────────────────────────────────────────────────────────────────
     if (scene) {
       this.#labels.scene_entities.text = `${scene.entities?.length ?? 0}`;
-      this.#labels.scene_visible.text = `${scene.visibleCount ?? 0}`;
+      this.#labels.scene_visible.text = `${scene._visibleCount ?? 0}`;
       this.#labels.scene_physics.text = `${scene._rigidbody2D?.length ?? 0}`;
       this.#labels.scene_scene.text = `${scene.name ?? "—"}`;
 
-      const cam = scene.camera;
+      // const cam = scene.camera;
+      const cam = scene.primaryCamera;
+      // console.log(cam);
+      
       this.#labels.scene_cam.text = cam
-        ? `Cam: (${Math.round(cam.position.x)}, ${Math.round(cam.position.y)})`
-        : `Cam: —`;
+        ? `(${Math.round(cam.position.x)}, ${Math.round(cam.position.y)})`
+        : `—`;
     }
 
     // ── Input ─────────────────────────────────────────────────────────────────

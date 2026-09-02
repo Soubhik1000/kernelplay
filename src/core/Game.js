@@ -12,6 +12,7 @@ import { Camera2D } from "./components/Camera2D.js";
 import { AudioManager } from "./AudioManager.js";
 import { UICanvas } from "./ui/Uicanvas.js";
 import {DebugOverlay} from "./DebugOverlay.js"
+import { DebugStats } from "../utils/DebugStats.js";
 
 export class Game {
   constructor(options = {}) {
@@ -69,6 +70,7 @@ export class Game {
 
       render: () => {
         this.render();
+        this.debugStats?.beginFrame();
 
         // // 🔥 Centralized render
         // const { width, height } = this.config;
@@ -80,6 +82,7 @@ export class Game {
 
         this.sceneManager.render(this.renderer);
         this.ui.render();
+        this.debugStats?.endFrame();
       },
 
       fps: this.config.fps,
@@ -107,8 +110,7 @@ export class Game {
     
     // In Game constructor — after ui is ready:
     if (this.config.debug) {
-      console.log("h");
-      
+      this.debugStats = new DebugStats(this);
       this.debug = new DebugOverlay(this);
       this.debug.init();
     }
