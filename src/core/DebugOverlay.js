@@ -46,7 +46,12 @@ export class DebugOverlay {
   static #ACCENT_RED = "#e05555";
   static #ACCENT_BLUE = "#6c8fff";
   static #ACCENT_PURPLE = "#9898ff";
-  static #MUTED = "#3a3a52";
+  static #MUTED = "#7373af";
+
+  // Add this static method to DebugOverlay
+  static #rowStyle(overrides = {}) {
+    return { style: { ...DebugOverlay.#ROW.style, ...overrides } };
+  }
 
   // ─── State ────────────────────────────────────────────────────────────────
   #game = null;
@@ -97,24 +102,24 @@ export class DebugOverlay {
     }), this.#layer);
 
     // FPS
-    ui.add(new UIText({ text: "FPS:", anchor: "topLeft", offset: { x: -25, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_fps = ui.add(new UIText({ text: "120", anchor: "topLeft", offset: { x: 0, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "FPS:", anchor: "topLeft", offset: { x: -25, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.perf_fps = ui.add(new UIText({ text: "120", anchor: "topLeft", offset: { x: 0, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Avg
-    ui.add(new UIText({ text: "Avg:", anchor: "topLeft", offset: { x: 40, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "8.00ms", anchor: "topLeft", offset: { x: 75, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Avg:", anchor: "topLeft", offset: { x: 40, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.perf_avgFrame = ui.add(new UIText({ text: "8.00ms", anchor: "topLeft", offset: { x: 75, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // GC Spikes
-    ui.add(new UIText({ text: "GC Spikes:", anchor: "topLeft", offset: { x: 145, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_gc = ui.add(new UIText({ text: "0/sec", anchor: "topLeft", offset: { x: 195, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "GC Spikes:", anchor: "topLeft", offset: { x: 145, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.perf_gc = ui.add(new UIText({ text: "0/sec", anchor: "topLeft", offset: { x: 195, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Frame
-    ui.add(new UIText({ text: "Frame:", anchor: "topLeft", offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_frameTime = ui.add(new UIText({ text: "9.00ms", anchor: "topLeft", offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Frame:", anchor: "topLeft", offset: { x: -19, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.perf_frameTime = ui.add(new UIText({ text: "9.00ms", anchor: "topLeft", offset: { x: 20, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // CPU
-    ui.add(new UIText({ text: "CPU:", anchor: "topLeft", offset: { x: 70, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: "topLeft", offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "CPU:", anchor: "topLeft", offset: { x: 70, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.perf_cpu = ui.add(new UIText({ text: "55.5%", anchor: "topLeft", offset: { x: 102, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
   }
 
@@ -140,24 +145,24 @@ export class DebugOverlay {
     const rows = ["entities", "visible", "physics", "scene", "cam"];
     const labels = ["Entities", "Visible", "Physics", "Scene", "Camera"];
     // Entities
-    ui.add(new UIText({ text: "Entities:", anchor: anchor, offset: { x: 189, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_entities = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 145, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Entities:", anchor: anchor, offset: { x: 189, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.scene_entities = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 145, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Visible
-    ui.add(new UIText({ text: "Visible:", anchor: anchor, offset: { x: 100, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_visible = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 58, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Visible:", anchor: anchor, offset: { x: 100, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.scene_visible = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 58, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Physics
-    ui.add(new UIText({ text: "Physics:", anchor: anchor, offset: { x: 192, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_physics = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 150, y: PAD_Y + 12 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Physics:", anchor: anchor, offset: { x: 192, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.scene_physics = ui.add(new UIText({ text: "99999", anchor: anchor, offset: { x: 150, y: PAD_Y + 12 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Scene
-    ui.add(new UIText({ text: "Scene:", anchor: anchor, offset: { x: 100, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_scene = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: 60, y: PAD_Y + 25 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Scene:", anchor: anchor, offset: { x: 100, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.scene_scene = ui.add(new UIText({ text: "9.00ms", anchor: anchor, offset: { x: 60, y: PAD_Y + 25 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Camera
-    ui.add(new UIText({ text: "Camera:", anchor: anchor, offset: { x: 103, y: 0 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.scene_cam = ui.add(new UIText({ text: "(300, 400)", anchor: anchor, offset: { x: 50, y: 0 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Camera:", anchor: anchor, offset: { x: 103, y: 0 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.scene_cam = ui.add(new UIText({ text: "(300, 400)", anchor: anchor, offset: { x: 50, y: 0 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
   }
 
@@ -183,25 +188,25 @@ export class DebugOverlay {
     const rows = ["device", "axisH", "axisV", "lastAction", "gamepad"];
     const labels = ["Device", "Axis H", "Axis V", "Last Action", "Gamepad"];
     // Device
-    ui.add(new UIText({ text: "Device:", anchor: anchor, offset: { x: -7, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.input_device = ui.add(new UIText({ text: "Gamepad", anchor: anchor, offset: { x: 40, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Device:", anchor: anchor, offset: { x: -7, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.input_device = ui.add(new UIText({ text: "Gamepad", anchor: anchor, offset: { x: 40, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Axis H
-    ui.add(new UIText({ text: "Axis H:", anchor: anchor, offset: { x: -7, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.input_axisH = ui.add(new UIText({ text: "1.0000", anchor: anchor, offset: { x: 35, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Axis H:", anchor: anchor, offset: { x: -7, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.input_axisH = ui.add(new UIText({ text: "1.0000", anchor: anchor, offset: { x: 35, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Axis V
-    ui.add(new UIText({ text: "Axis V:", anchor: anchor, offset: { x: 85, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.input_axisV = ui.add(new UIText({ text: "1.0000", anchor: anchor, offset: { x: 133, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Axis V:", anchor: anchor, offset: { x: 85, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.input_axisV = ui.add(new UIText({ text: "1.0000", anchor: anchor, offset: { x: 133, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Last Action
-    ui.add(new UIText({ text: "Last Action:", anchor: anchor, offset: { x: 120, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.input_lastAction = ui.add(new UIText({ text: "XXX", anchor: anchor, offset: { x: 167, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Last Action:", anchor: anchor, offset: { x: 120, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.input_lastAction = ui.add(new UIText({ text: "XXX", anchor: anchor, offset: { x: 167, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Gamepad
-    ui.add(new UIText({ text: "Gamepad:", anchor: anchor, offset: { x: 185, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.input_gamepad = ui.add(new UIText({ text: "X", anchor: anchor, offset: { x: 215, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    
+    ui.add(new UIText({ text: "Gamepad:", anchor: anchor, offset: { x: 185, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.input_gamepad = ui.add(new UIText({ text: "X", anchor: anchor, offset: { x: 215, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+
   }
 
   // ─── Build: Audio (bottom-right) ──────────────────────────────────────────
@@ -226,24 +231,24 @@ export class DebugOverlay {
     const rows = ["bgm", "sfxCount", "masterVol", "sfxVol", "context"];
     const labels = ["BGM", "SFX Active", "Master Vol", "SFX Vol", "Context"];
     // BGM
-    ui.add(new UIText({ text: "BGM:", anchor: anchor, offset: { x: 211, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.audio_bgm = ui.add(new UIText({ text: "XXXXXX", anchor: anchor, offset: { x: 180, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "BGM:", anchor: anchor, offset: { x: 211, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.audio_bgm = ui.add(new UIText({ text: "stopped", anchor: anchor, offset: { x: 178, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // SFX Active
-    ui.add(new UIText({ text: "SFX Active:", anchor: anchor, offset: { x: 90, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.audio_sfxCount = ui.add(new UIText({ text: "XXXXXX", anchor: anchor, offset: { x: 35, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "SFX Active:", anchor: anchor, offset: { x: 80, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.audio_sfxCount = ui.add(new UIText({ text: "XXXXXX", anchor: anchor, offset: { x: 25, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Context
-    ui.add(new UIText({ text: "Context:", anchor: anchor, offset: { x: 200, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.audio_context = ui.add(new UIText({ text: "XXXXXX", anchor: anchor, offset: { x: 155, y: PAD_Y + 9 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Context:", anchor: anchor, offset: { x: 200, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.audio_context = ui.add(new UIText({ text: "suspended", anchor: anchor, offset: { x: 148, y: PAD_Y + 9 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // SFX Vol
-    ui.add(new UIText({ text: "SFX Vol:", anchor: anchor, offset: { x: 23, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.audio_sfxVol = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: -19, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "SFX Vol:", anchor: anchor, offset: { x: 23, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.audio_sfxVol = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: -19, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
     // Master Vol
-    ui.add(new UIText({ text: "Master Vol:", anchor: anchor, offset: { x: 120, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
-    this.#labels.audio_masterVol = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 70, y: PAD_Y + -5 }, ...DebugOverlay.#ROW }), this.#layer);
+    ui.add(new UIText({ text: "Master Vol:", anchor: anchor, offset: { x: 120, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
+    this.#labels.audio_masterVol = ui.add(new UIText({ text: "55.5%", anchor: anchor, offset: { x: 70, y: PAD_Y + -5 }, ...DebugOverlay.#rowStyle() }), this.#layer);
 
   }
 
@@ -288,6 +293,7 @@ export class DebugOverlay {
     const audio = game.audio;
     const perf = game.debugStats ?? {}; // expects your benchmark to expose these
 
+
     // ── Performance ──────────────────────────────────────────────────────────
     const fps = perf.fps ?? 0;
     this.#labels.perf_fps.text = `${fps}`;
@@ -319,7 +325,7 @@ export class DebugOverlay {
       // const cam = scene.camera;
       const cam = scene.primaryCamera;
       // console.log(cam);
-      
+
       this.#labels.scene_cam.text = cam
         ? `(${Math.round(cam.position.x)}, ${Math.round(cam.position.y)})`
         : `—`;
@@ -353,13 +359,28 @@ export class DebugOverlay {
 
     // ── Audio ─────────────────────────────────────────────────────────────────
     if (audio) {
-      this.#labels.audio_bgm.text = `${audio.bgmTrack ?? "—"}`;
-      this.#labels.audio_sfxCount.text = `${audio.activeSFX ?? 0}`;
+      // this.#labels.audio_bgm.text = `${audio.bgmTrack ?? "—"}`;
+      this.#labels.audio_bgm.text = `${audio._bgm ? "playing" : "stopped"}`;
+      this.#labels.audio_bgm.style.textColor = audio._bgm
+        ? DebugOverlay.#ACCENT_GREEN
+        : DebugOverlay.#MUTED;
+
+      // this.#labels.audio_sfxCount.text = `${audio.activeSFX ?? 0}`;
+      this.#labels.audio_sfxCount.text = `${audio._spatialSources?.length ?? 0}`
       this.#labels.audio_masterVol.text = `${((audio.masterVolume ?? 1) * 100).toFixed(0)}%`;
       this.#labels.audio_sfxVol.text = `${((audio.sfxVolume ?? 1) * 100).toFixed(0)}%`;
-      this.#labels.audio_context.text = `${audio.context?.state ?? "—"}`;
+
+      // this.#labels.audio_context.text = `${audio.context?.state ?? "—"}`;
+      // this.#labels.audio_context.style.textColor =
+      //   audio.context?.state === "running" ? DebugOverlay.#ACCENT_GREEN : DebugOverlay.#ACCENT_YELLOW;
+
+      const ctxState = audio._ctx?.state ?? "inactive";
+      this.#labels.audio_context.text = `${ctxState}`;
       this.#labels.audio_context.style.textColor =
-        audio.context?.state === "running" ? DebugOverlay.#ACCENT_GREEN : DebugOverlay.#ACCENT_YELLOW;
+        ctxState === "running" ? DebugOverlay.#ACCENT_GREEN :
+          ctxState === "suspended" ? DebugOverlay.#ACCENT_YELLOW :
+            DebugOverlay.#ACCENT_RED;
+
     }
   }
 
