@@ -240,23 +240,108 @@ export class CanvasRenderer extends Renderer {
     // }
 
     // 🔥 ADD THIS METHOD
-    
+
+    // drawColliders(ctx, scene) {
+    //     ctx.strokeStyle = "#00FF00"; // Green for normal colliders
+    //     ctx.lineWidth = 2;
+
+    //     for (const collider of scene._colliders) {
+    //         const bounds = collider.bounds;
+
+    //         // Draw rectangle
+    //         ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+
+    //         // Draw trigger colliders in different color
+    //         if (collider.isTrigger) {
+    //             ctx.strokeStyle = "#FFFF00"; // Yellow for triggers
+    //             ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    //             ctx.strokeStyle = "#00FF00";
+    //         }
+    //     }
+    // }
+
     drawColliders(ctx, scene) {
-        ctx.strokeStyle = "#00FF00"; // Green for normal colliders
-        ctx.lineWidth = 2;
+  for (const collider of scene._colliders) {
+    const bounds    = collider.bounds;
+    const cx        = bounds.x + bounds.width  / 2;
+    const cy        = bounds.y + bounds.height / 2;
+    const angle     = collider.transform?.rotation ?? 0;
+    const isTrigger = collider.isTrigger;
 
-        for (const collider of scene._colliders) {
-            const bounds = collider.bounds;
+    ctx.save();
 
-            // Draw rectangle
-            ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    // ── Collider rectangle ────────────────────────────────────────
+    ctx.strokeStyle = isTrigger ? "#FFD600" : "#00E676";
+    ctx.lineWidth   = isTrigger ? 1.5 : 2;
+    if (isTrigger) ctx.setLineDash([5, 4]);
+    else           ctx.setLineDash([]);
+    ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    ctx.setLineDash([]);
 
-            // Draw trigger colliders in different color
-            if (collider.isTrigger) {
-                ctx.strokeStyle = "#FFFF00"; // Yellow for triggers
-                ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-                ctx.strokeStyle = "#00FF00";
-            }
-        }
-    }
+    // ── Center dot — cyan ─────────────────────────────────────────
+    ctx.fillStyle = "#00E5FF";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── Anchor point — red crosshair ──────────────────────────────
+    const anchor  = collider.anchor ?? { x: 0.5, y: 0.5 };
+    const ax      = bounds.x + bounds.width  * anchor.x;
+    const ay      = bounds.y + bounds.height * anchor.y;
+    const cross   = 6;
+
+    ctx.strokeStyle = "#FF1744";
+    ctx.lineWidth   = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(ax - cross, ay); ctx.lineTo(ax + cross, ay);
+    ctx.moveTo(ax, ay - cross); ctx.lineTo(ax, ay + cross);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#FF1744";
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.arc(ax, ay, 4, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // ── Direction arrow — orange, longer ─────────────────────────
+    const shorter  = Math.min(bounds.width, bounds.height);
+    const arrowLen = shorter * 0.55 + 18; // longer than before
+    const headSize = 8;
+
+    const tipX   = cx + Math.sin(angle)  * arrowLen;
+    const tipY   = cy - Math.cos(angle)  * arrowLen;
+
+    // Arrowhead points
+    const lx = tipX - Math.cos(angle) * headSize - Math.sin(angle) * headSize;
+    const ly = tipY - Math.sin(angle) * headSize + Math.cos(angle) * headSize;
+    const rx = tipX + Math.cos(angle) * headSize - Math.sin(angle) * headSize;
+    const ry = tipY + Math.sin(angle) * headSize + Math.cos(angle) * headSize;
+
+    // Shaft — dashed orange
+    ctx.strokeStyle = "#FF6D00";
+    ctx.lineWidth   = 2;
+    ctx.setLineDash([6, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(tipX, tipY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Solid arrowhead — brighter orange
+    ctx.strokeStyle = "#FFAB40";
+    ctx.lineWidth   = 2;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY); ctx.lineTo(lx, ly);
+    ctx.moveTo(tipX, tipY); ctx.lineTo(rx, ry);
+    ctx.stroke();
+
+    // Tip dot
+    ctx.fillStyle = "#FFAB40";
+    ctx.beginPath();
+    ctx.arc(tipX, tipY, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
 }
