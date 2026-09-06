@@ -46,7 +46,9 @@ const game = new MyGame({
   calcRate: 60,
   // fixedRate: 60,
   backgroundColor: "#eeeeee",
-  debugPhysics: true,
+  debugPhysics: false,
+  debugCameras: false,
+  debugBounds: false,
   container: "#game-container",
   debug: true,
 });

@@ -8,8 +8,12 @@ import { Input } from "../input/Input.js";
 export class DebugOverlay {
 
   // ─── Toggle keys — change these to remap ────────────────────────────────
-  // static TOGGLE_KEYS = [KeyCode.F2];
-  static TOGGLE_KEYS = [KeyCode.M];
+  // F2, F4, F8, and F9
+  // static TOGGLE_KEYS = [KeyCode.M];
+  static TOGGLE_KEYS = [KeyCode.F2];
+  static PHYSICS_DEBUG_KEY = KeyCode.F4;
+  static BOUNDS_DEBUG_KEY = KeyCode.F8;                           // renderer bounds + colliders
+  static CAMERAS_DEBUG_KEY = KeyCode.F9;
   static TOGGLE_COMBO = { key: KeyCode.D, modifier: "ctrl" }; // Ctrl + D
 
   // ─── Styles ───────────────────────────────────────────────────────────────
@@ -271,7 +275,20 @@ export class DebugOverlay {
       this.#visible = !this.#visible;
       // this.#visible ? ui.showLayer(this.#layer) : ui.hideLayer(this.#layer);
       ui.toggleLayer(this.#layer);
+
+      // this.#game.renderer.debugPhysics = this.#visible;
     }
+
+    if (Keyboard.wasPressed(DebugOverlay.PHYSICS_DEBUG_KEY)) {
+      this.#game.renderer.debugPhysics = !this.#game.renderer.debugPhysics;
+    }
+    if (Keyboard.wasPressed(DebugOverlay.BOUNDS_DEBUG_KEY)) {
+      this.#game.renderer.debugBounds = !this.#game.renderer.debugBounds;
+    }
+    if (Keyboard.wasPressed(DebugOverlay.CAMERAS_DEBUG_KEY)) {
+      this.#game.renderer.debugCameras = !this.#game.renderer.debugCameras;
+    }
+
   }
 
   // ─── FPS color ────────────────────────────────────────────────────────────
