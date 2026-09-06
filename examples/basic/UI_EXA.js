@@ -27,7 +27,7 @@ import {
 } from "kernelplay-js";
 
 // function base
-const game = new Game({ width: 800, height: 600, fps: 60 });
+const game = new Game({ width: 800, height: 600, fps: 60, debug:true });
 
 const camera = new Entity("MainCamera");
 
