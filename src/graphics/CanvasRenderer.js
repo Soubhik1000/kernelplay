@@ -356,7 +356,8 @@ export class CanvasRenderer extends Renderer {
     }
 
     drawRigidbodies(ctx, scene) {
-        for (const rb of scene._rigidbody2D) {
+        // for (const rb of scene._rigidbody2D) {
+        for (const rb of scene._rigidbodies) {
             const t = rb.entity?.getComponent("transform");
             if (!t) continue;
 

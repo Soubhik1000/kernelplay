@@ -71,10 +71,7 @@ export class DebugOverlay {
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   init() {
-    console.log("in");
-
     const ui = this.#game.ui;
-    console.log(this.#game);
 
     // Register a dedicated layer above Overlay so it's always on top
     ui.addLayer(this.#layer, 40);
@@ -300,7 +297,6 @@ export class DebugOverlay {
 
   // ─── Update ───────────────────────────────────────────────────────────────
   update(dt) {
-    // console.log('u');
 
     this.#checkToggle();
     if (!this.#visible) return;

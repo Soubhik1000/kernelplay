@@ -13,6 +13,7 @@ import { AudioManager } from "./AudioManager.js";
 import { UICanvas } from "./ui/Uicanvas.js";
 import {DebugOverlay} from "./DebugOverlay.js"
 import { DebugStats } from "../utils/DebugStats.js";
+import { Physics2D } from "./physics/Physics2D.js";
 
 export class Game {
   constructor(options = {}) {
@@ -25,6 +26,14 @@ export class Game {
 
     // this.camera = new Camera2D(this.config.width, this.config.height);
     this.audio = new AudioManager();
+
+    // In constructor, after renderer init:
+    this.physics = options.physics || new Physics2D();
+
+    // In SceneManager.startScene (or wherever scene.game is injected):
+    // scene.physics = this.game.physics;
+    this.physics.init(this);
+
     Mouse.init(this.canvas.canvas); // 🔥 IMPORTANT
 
     Touch.init(this.canvas.canvas);

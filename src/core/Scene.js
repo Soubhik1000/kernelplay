@@ -27,6 +27,7 @@ export class Scene {
     this._grid3D = new Map();
     this._gridCellSize = 128; // adjust as needed
     this.primaryCamera = null;
+    this._rigidbodies = [];
   }
 
   addEntity(entity) {
@@ -211,7 +212,8 @@ export class Scene {
       entity.fixedUpdate(dt);
     }
 
-    this._physicsStep(dt);
+    // this._physicsStep(dt);
+    this.game.physics?.step(this, dt);
   }
 
   // render() {
@@ -444,11 +446,13 @@ export class Scene {
   _registerComponent(type, component) {
     switch (type) {
       case "rigidbody2d":
-        this._rigidbody2D.push(component);
+        // this._rigidbody2D.push(component);
+        this._rigidbodies.push(component);
         break;
 
       case "rigidbody":
-        this._rigidbody3D.push(component);
+        // this._rigidbody3D.push(component);
+        this._rigidbodies.push(component);
         break;
 
       case "collider":
