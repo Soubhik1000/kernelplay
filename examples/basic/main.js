@@ -6,6 +6,7 @@ import { BenchmarkScene } from "./scenes/BenchmarkScene.js";
 import { Input } from "../../src/index.js";
 import { KeyCode } from "../../src/index.js";
 import { GamepadButton } from "../../src/index.js";
+import { DebugOverlay } from "../../src/core/DebugOverlay.js";
 
 // import { WebGL2DRenderer } from "../../src/index.js";
 // import { ThreeRenderer } from "../../src/index.js";
@@ -49,6 +50,8 @@ const game = new MyGame({
   debugPhysics: false,
   debugCameras: false,
   debugBounds: false,
+  inputConfig: './input.config.json',
+  debugConfig: './debug.config.json',
   container: "#game-container",
   debug: true,
 });
@@ -59,6 +62,7 @@ await game.audio.loadAll([
   // "music/theme.mp3",
 ]);
 
-await Input.loadConfig("./input.config.json");
+// await Input.loadConfig("./input.config.json");
+// await DebugOverlay.loadConfig("./debug.config.json");
 
 game.start();

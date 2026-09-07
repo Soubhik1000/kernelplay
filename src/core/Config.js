@@ -6,6 +6,8 @@ export class Config {
     this.calcRate = options.calcRate || 60; // update rate
     this.fixedRate = options.fixedRate || 60; // fixed update rate
     this.backgroundColor = options.backgroundColor || "#ffffff";
+    this.inputConfig = options.inputConfig;
+    this.debugConfig = options.debugConfig;
 
     this.gravity = 980;
     this.debugPhysics = options.debugPhysics;

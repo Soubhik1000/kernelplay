@@ -407,4 +407,26 @@ export class DebugOverlay {
   hide() { this.#visible = false; this.#game.ui.hideLayer(this.#layer); }
   toggle() { this.#visible ? this.hide() : this.show(); }
   get isVisible() { return this.#visible; }
+
+  static async loadConfig(path) {
+    try {
+      const res = await fetch(path);
+      const json = await res.json();
+
+      const keys = json.keys ?? {};
+
+      if (keys.toggle) DebugOverlay.TOGGLE_KEYS = [KeyCode[keys.toggle] ?? keys.toggle];
+      if (keys.toggleCombo) DebugOverlay.TOGGLE_COMBO = {
+        key: KeyCode[keys.toggleCombo.key] ?? keys.toggleCombo.key,
+        modifier: keys.toggleCombo.modifier,
+      };
+      if (keys.physics) DebugOverlay.PHYSICS_DEBUG_KEY = KeyCode[keys.physics] ?? keys.physics;
+      if (keys.bounds) DebugOverlay.BOUNDS_DEBUG_KEY = KeyCode[keys.bounds] ?? keys.bounds;
+      if (keys.cameras) DebugOverlay.CAMERAS_DEBUG_KEY = KeyCode[keys.cameras] ?? keys.cameras;
+
+      console.log("DebugOverlay: config loaded from", path);
+    } catch (err) {
+      console.warn("DebugOverlay: failed to load config", err);
+    }
+  }
 }

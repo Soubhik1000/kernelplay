@@ -14,6 +14,7 @@ import { UICanvas } from "./ui/Uicanvas.js";
 import {DebugOverlay} from "./DebugOverlay.js"
 import { DebugStats } from "../utils/DebugStats.js";
 import { Physics2D } from "./physics/Physics2D.js";
+import { Input } from "../input/Input.js";
 
 export class Game {
   constructor(options = {}) {
@@ -94,6 +95,8 @@ export class Game {
         this.debugStats?.endFrame();
       },
 
+      inputConfig: this.config.inputConfig,
+      debugConfig: this.config.debugConfig,
       fps: this.config.fps,
       calcRate: this.config.calcRate,
       fixedRate: this.config.fixedRate,
@@ -113,7 +116,11 @@ export class Game {
   fixedUpdate(dt) { }
   render() { }
 
-  start() {
+  async start() {
+
+    if (this.config.inputConfig) await Input.loadConfig(this.config.inputConfig);
+    if (this.config.debugConfig) await DebugOverlay.loadConfig(this.config.debugConfig);
+
     this.init();
     this.loop.start();
     
@@ -123,7 +130,6 @@ export class Game {
       this.debug = new DebugOverlay(this);
       this.debug.init();
     }
-
   }
 
   stop() {

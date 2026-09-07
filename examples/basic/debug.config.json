@@ -1,0 +1,9 @@
+{
+  "keys": {
+    "toggle":        "F2",
+    "toggleCombo":   { "key": "D", "modifier": "ctrl" },
+    "physics":       "F4",
+    "bounds":        "F8",
+    "cameras":       "F9"
+  }
+}
