@@ -3,7 +3,7 @@ import { Component } from "../Component.js";
 export class SpriteComponent extends Component {
   constructor(props = {}) {
     super();
-    
+
     const {
       image = null,           // Image path or Image object
       width = 32,
@@ -19,7 +19,7 @@ export class SpriteComponent extends Component {
       alpha = 1.0,
       zIndex = 0
     } = props;
-    
+
     this.image = image;
     this.width = width;
     this.height = height;
@@ -35,33 +35,33 @@ export class SpriteComponent extends Component {
     this.tint = tint;
     this.alpha = alpha;
     this.zIndex = zIndex;
-    
+
     // Internal
     this._imageElement = null;
     this._loaded = false;
     this._dirty = true; // 🔥 renderer dirty
     this.batchable = false;
   }
-  
+
   init() {
     this.transform = this.entity.getComponent("transform");
     this.loadImage();
     this._cachedBounds = { x: 0, y: 0, width: 0, height: 0 };
   }
-  
+
   loadImage() {
     if (!this.image) return;
-    
+
     if (typeof this.image === 'string') {
       this._imageElement = new Image();
       this._imageElement.onload = () => {
         this._loaded = true;
 
         if (this.sourceWidth === null)
-            this.sourceWidth = this._imageElement.width;
+          this.sourceWidth = this._imageElement.width;
 
         if (this.sourceHeight === null)
-            this.sourceHeight = this._imageElement.height;
+          this.sourceHeight = this._imageElement.height;
       };
       this._imageElement.onerror = () => {
         console.error(`Failed to load image: ${this.image}`);
@@ -89,18 +89,22 @@ export class SpriteComponent extends Component {
 
     return this._cachedBounds; // 🔥 Reuse same object
   }
-  
+
+  getRenderData() {
+    return {};
+  }
+
   render(ctx) {
-    
+
     if (!this._loaded || !this._imageElement) return;
     if (!this.transform) return;
-    
+
     const pos = this.transform.position;
     const scale = this.transform.scale;
     const rotation = this.transform.rotation.z;
-    
+
     ctx.save();
-    
+
     // Transform
     ctx.translate(pos.x, pos.y);
     ctx.rotate(rotation);
@@ -108,15 +112,15 @@ export class SpriteComponent extends Component {
       scale.x * (this.flipX ? -1 : 1),
       scale.y * (this.flipY ? -1 : 1)
     );
-    
-    
+
+
     // Anchor offset
     const offsetX = -this.width * this.anchor.x;
     const offsetY = -this.height * this.anchor.y;
-    
+
     // Alpha
     ctx.globalAlpha = this.alpha;
-    
+
     // console.log("hi");
     // Draw sprite
     ctx.drawImage(
@@ -126,10 +130,10 @@ export class SpriteComponent extends Component {
       offsetX, offsetY,                     // Destination position
       this.width, this.height               // Destination size
     );
-    
+
     ctx.restore();
   }
-  
+
   // Helper to change sprite frame
   setFrame(x, y, width, height) {
     this.sourceX = x;
@@ -137,7 +141,7 @@ export class SpriteComponent extends Component {
     if (width !== undefined) this.sourceWidth = width;
     if (height !== undefined) this.sourceHeight = height;
   }
-  
+
   toJSON() {
     return {
       type: "SpriteComponent",
@@ -156,7 +160,7 @@ export class SpriteComponent extends Component {
       zIndex: this.zIndex
     };
   }
-  
+
   static fromJSON(data) {
     return new SpriteComponent(data);
   }

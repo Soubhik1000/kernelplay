@@ -192,7 +192,7 @@ class PlayerScript extends ScriptComponent {
     onStart() {
         this.animator = this.entity.getComponent("animator");
         this.sprite = this.entity.getComponent("renderer");
-        this.rb = this.entity.getComponent("rigidbody2d");
+        this.rb = this.entity.getComponent("rigidbody");
         this.transform = this.entity.getComponent("transform");
         this.audio = this.entity.getComponent("audio");
 
@@ -311,7 +311,7 @@ class Player extends Entity {
             scale: { x: 1.4, y: 1.4 }
         }));
 
-        this.addComponent("rigidbody2d", new Rigidbody2DComponent({
+        this.addComponent("rigidbody", new Rigidbody2DComponent({
             mass: 1,
             gravityScale: 1,
             drag: 1,
@@ -443,7 +443,7 @@ function Coin(entity, x, y) {
         scale: { x: 0.6, y: 0.6 }
     }));
 
-    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    entity.addComponent("rigidbody", new Rigidbody2DComponent({
         mass: 1,
         gravityScale: 1,
         drag: 1,
@@ -471,7 +471,7 @@ function Enemy(entity, x, y, skin) {
         // rotation: {z: animation === 1?degToRad(0):degToRad(180)}
     }));
 
-    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    entity.addComponent("rigidbody", new Rigidbody2DComponent({
         mass: 1,
         gravityScale: 1,
         drag: 1,
@@ -507,7 +507,7 @@ class EnemyScript extends ScriptComponent {
     onStart() {
         this.animator = this.entity.getComponent("animator");
         this.sprite = this.entity.getComponent("renderer");
-        this.rb = this.entity.getComponent("rigidbody2d");
+        this.rb = this.entity.getComponent("rigidbody");
         this.transform = this.entity.getComponent("transform");
 
         this.startX = this.transform.position.x;
@@ -631,7 +631,7 @@ class EnemyScript extends ScriptComponent {
 
     onCollision(other) {
         if (other.name === "Player") {
-            if (!other.getComponent("rigidbody2d").isGrounded) {
+            if (!other.getComponent("rigidbody").isGrounded) {
                 other.getComponent("script").getKill();
             }
         }
@@ -645,7 +645,7 @@ function PlayerCorpse(entity, x, y) {
         position: { x, y },
     }));
 
-    entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    entity.addComponent("rigidbody", new Rigidbody2DComponent({
         mass: 1,
         gravityScale: 1,
         drag: 1,

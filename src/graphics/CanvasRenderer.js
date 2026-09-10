@@ -1,5 +1,6 @@
 import { Renderer } from "./Renderer.js";
 import { AABB } from "../core/physics/Collision.js";
+import { BoxDrawer } from "./drawers/BoxDrawer.js";
 
 export class CanvasRenderer extends Renderer {
     init(game) {
@@ -142,22 +143,65 @@ export class CanvasRenderer extends Renderer {
 
 
         const groups = new Map();
+        const nonBatch = [];
 
         // 🔥 Now only loop through visible objects (maybe 50-200 instead of 20,000!)
-        for (const r of visibleRenderers) {
-            if (!groups.has(r.color)) {
-                groups.set(r.color, []);
-            }
+        // for (const r of visibleRenderers) {
+        //     if (!groups.has(r.color)) {
+        //         groups.set(r.color, []);
+        //     }
 
-            groups.get(r.color).push(r);
+        //     groups.get(r.color).push(r);
+        // }
+
+        // for (const [color, batch] of groups) {
+        //     ctx.fillStyle = color;
+
+        //     for (const r of batch) {
+        //         r.render(ctx);
+        //     }
+        // }
+
+        // for (const r of visibleRenderers) {
+        //     // batchable = has a solid color and hasn't opted out
+        //     if (r.color !== undefined && r.batchable !== false) {
+        //         if (!groups.has(r.color)) groups.set(r.color, []);
+        //         groups.get(r.color).push(r);
+        //     } else {
+        //         nonBatch.push(r);
+        //     }
+        // }
+
+        for (const r of visibleRenderers) {
+            const data = r.getRenderData(); // ← ask component to describe itself
+
+            if (data.color !== undefined && r.batchable !== false) {
+                if (!groups.has(data.color)) groups.set(data.color, []);
+                groups.get(data.color).push(data);
+            } else {
+                nonBatch.push({ renderer: r, data });
+            }
         }
 
+        // Draw batched — one fillStyle switch per color group
         for (const [color, batch] of groups) {
             ctx.fillStyle = color;
+            // for (const r of batch) {
+            for (const data of batch) {
+                // r.render(ctx);
+                // console.log(data.type);
 
-            for (const r of batch) {
-                r.render(ctx);
+                if (data.type === "box") BoxDrawer.draw(ctx, data);
             }
+        }
+
+        // ── PASS 2: Non-batchable — sprites, text, custom ─────────────────────────
+        // Each handles its own ctx state internally
+        // for (const r of nonBatch) {
+        //     r.render(ctx);
+        // }
+        for (const { renderer, data } of nonBatch) {
+            renderer.render(ctx); // works for both new and old components
         }
 
         // 🔥 ADD THIS: Debug draw colliders

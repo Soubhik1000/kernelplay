@@ -67,6 +67,10 @@ export class ShapeRenderer extends Component {
         return this._cachedBounds;
     }
 
+    getRenderData() {
+        return {};
+    }
+
     // ── Render ────────────────────────────────────────────────────────────
 
     render(ctx) {
