@@ -5,7 +5,7 @@ import { Layers, KeyCode, Keyboard, Mouse, Touch, Input } from "../../../src/ind
 
 // import { WebGLBoxRender2D } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
-import { Rigidbody2DComponent } from "../../../src/index.js";
+import { Rigidbody2DComponent, RigidbodyComponent } from "../../../src/index.js";
 
 import { Vector2, Vector3, Mathf, Random } from "../../../src/index.js";
 import { Timer, Cooldown, UIJoystick } from "../../../src/index.js";
@@ -21,7 +21,7 @@ export function TestPlayer(x = 100, y = 100) {
         scale: { x: 1, y: 1 }
     }));
 
-    player.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    player.addComponent("rigidbody", new RigidbodyComponent({
         mass: 1,
         gravityScale: 1,
         drag: 1,
@@ -41,7 +41,7 @@ export function TestPlayer(x = 100, y = 100) {
 
 class PlayerScript extends ScriptComponent {
     onStart() {
-        this.rb = this.entity.getComponent("rigidbody2d");
+        this.rb = this.entity.getComponent("rigidbody");
         this.transform = this.entity.getComponent("transform");
 
         this.fireCooldown = new Cooldown(0.2); // 5 shots/sec
@@ -177,8 +177,8 @@ class PlayerScript extends ScriptComponent {
 
         }
 
-        this.transform.position.x = Mathf.clamp(this.transform.position.x, 20, 780)
-        this.transform.position.y = Mathf.clamp(this.transform.position.y, 20, 580)
+        // this.transform.position.x = Mathf.clamp(this.transform.position.x, 20, 780)
+        // this.transform.position.y = Mathf.clamp(this.transform.position.y, 20, 580)
 
 
         // if (Mouse.isPressed(MouseButton.Left)) {
@@ -192,6 +192,10 @@ class PlayerScript extends ScriptComponent {
             const x = Random.range(0, 100);
             const n = Random.int(1, 6);
             console.log(x, n);
+        }
+
+        if (Keyboard.wasPressed(KeyCode.L)) {
+            this.camera.setTarget(this.entity);
         }
 
         if (Keyboard.isPressed(KeyCode.F)) {

@@ -10,6 +10,7 @@ import { TransformComponent } from "../../../src/index.js";
 export function Wall(x = 100, y = 100, isTrigger = false) {
     let size = { x: 40, y: 40 };
     const wall = new Entity("Wall", 'wall');
+    // wall.zIndex = 90;
 
     // wall.addComponent("position", new PositionComponent(x, y));
     wall.addComponent("transform", new TransformComponent({

@@ -84,8 +84,8 @@ export class Level1 extends Scene {
     this.spawn(Shape, 400, 100)
 
     this.addEntity(wall1);
-    this.addEntity(new Wall(200, 100));
     this.addEntity(new Wall(300, 100, true));
+    this.addEntity(new Wall(200, 100));
     this.addEntity(wall);
     // this.addEntity(new Grass(400, 400));
 

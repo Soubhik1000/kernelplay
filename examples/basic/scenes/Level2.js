@@ -1,5 +1,6 @@
 import { Scene } from "../../../src/core/Scene.js";
 import { TestPlayer } from "../prefabs/TestPlayer.js"
+import { Wall } from "../prefabs/Wall.js";
 import { CameraComponent, Entity, TransformComponent, AudioListener, UIJoystick, UIText } from "../../../src/index.js";
 
 export class Level2 extends Scene {
@@ -19,8 +20,13 @@ export class Level2 extends Scene {
       // target: player,
     }));
 
+    let t = false;
     this.addEntity(camera);
     this.addEntity(new TestPlayer());
+    this.addEntity(new Wall(100, 200, t));
+    this.addEntity(new Wall(400, 200, t));
+    this.addEntity(new Wall(300, 400, t));
+    this.addEntity(new Wall(200, 300, t));
 
     const label = this.game.ui.add(new UIText({
       text: "Score: 0", anchor: "topLeft", offset: { x: 20, y: 20 },

@@ -90,9 +90,9 @@ export class SpriteComponent extends Component {
     return this._cachedBounds; // 🔥 Reuse same object
   }
 
-  getRenderData() {
-    return {};
-  }
+  // getRenderData() {
+  //   return {};
+  // }
 
   render(ctx) {
 

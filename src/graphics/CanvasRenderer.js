@@ -19,90 +19,6 @@ export class CanvasRenderer extends Renderer {
         this.ctx.fillRect(0, 0, game.config.width, game.config.height);
     }
 
-    // render(scene) {
-    //     const { width, height } = scene.game.config;
-    //     // const ctx = scene.game.ctx;
-    //     const ctx = this.ctx;
-
-    //     ctx.clearRect(0, 0, width, height);
-
-    //     for (const entity of scene.entities) {
-    //         entity.render(ctx);
-    //     }
-    // }
-
-    // render(scene) {
-    //     const { width, height } = scene.game.config;
-    //     const ctx = this.ctx;
-
-    //     ctx.clearRect(0, 0, width, height);
-
-    //     const renderers = scene._renderers;
-
-    //     // 🔥 Group by color
-    //     const groups = new Map();
-
-    //     for (const r of renderers) {
-    //         if (!r.entity.active) continue;
-
-    //         if (!groups.has(r.color)) {
-    //             groups.set(r.color, []);
-    //         }
-
-    //         groups.get(r.color).push(r);
-    //     }
-
-    //     // 🔥 Draw grouped
-    //     for (const [color, batch] of groups) {
-
-    //         ctx.fillStyle = color;
-
-    //         for (const r of batch) {
-    //             r.render(ctx);
-    //         }
-    //     }
-    // }
-
-    // render(scene) {
-    //     const { width, height } = scene.game.config;
-    //     const ctx = this.ctx;
-
-    //     ctx.clearRect(0, 0, width, height);
-
-    //     const camera = this.camera;
-    //     const cameraBounds = camera.viewBounds;
-
-    //     ctx.save();
-    //     ctx.translate(-camera.x, -camera.y);
-
-    //     const renderers = scene._renderers;
-
-    //     const groups = new Map();
-
-    //     for (const r of renderers) {
-    //         if (!r.entity.active) continue;
-
-    //         // 🔥 FRUSTUM CULLING
-    //         if (!AABB(r.getBounds(), cameraBounds)) {
-    //             continue;
-    //         }
-
-    //         if (!groups.has(r.color)) {
-    //             groups.set(r.color, []);
-    //         }
-
-    //         groups.get(r.color).push(r);
-    //     }
-
-    //     for (const [color, batch] of groups) {
-    //         ctx.fillStyle = color;
-
-    //         for (const r of batch) {
-    //             r.render(ctx);
-    //         }
-    //     }
-    // }
-
     render(scene) {
         const { width, height } = scene.game.config;
         const ctx = this.ctx;
@@ -141,178 +57,37 @@ export class CanvasRenderer extends Renderer {
             });
         }
 
+        // const groups = new Map();
+        // const nonBatch = [];
 
-        const groups = new Map();
-        const nonBatch = [];
-
-        // 🔥 Now only loop through visible objects (maybe 50-200 instead of 20,000!)
-        // for (const r of visibleRenderers) {
-        //     if (!groups.has(r.color)) {
-        //         groups.set(r.color, []);
-        //     }
-
-        //     groups.get(r.color).push(r);
-        // }
-
-        // for (const [color, batch] of groups) {
-        //     ctx.fillStyle = color;
-
-        //     for (const r of batch) {
-        //         r.render(ctx);
-        //     }
-        // }
-
-        // for (const r of visibleRenderers) {
-        //     // batchable = has a solid color and hasn't opted out
-        //     if (r.color !== undefined && r.batchable !== false) {
-        //         if (!groups.has(r.color)) groups.set(r.color, []);
-        //         groups.get(r.color).push(r);
-        //     } else {
-        //         nonBatch.push(r);
-        //     }
-        // }
+        let currentColor = null;
 
         for (const r of visibleRenderers) {
-            const data = r.getRenderData(); // ← ask component to describe itself
+            if (typeof r.getRenderData === "function" && r.batchable !== false) {
+                const data = r.getRenderData();
 
-            if (data.color !== undefined && r.batchable !== false) {
-                if (!groups.has(data.color)) groups.set(data.color, []);
-                groups.get(data.color).push(data);
-            } else {
-                nonBatch.push({ renderer: r, data });
-            }
-        }
-
-        // Draw batched — one fillStyle switch per color group
-        for (const [color, batch] of groups) {
-            ctx.fillStyle = color;
-            // for (const r of batch) {
-            for (const data of batch) {
-                // r.render(ctx);
-                // console.log(data.type);
+                // Only switch fillStyle when color changes
+                if (data.color !== currentColor) {
+                    ctx.fillStyle = data.color;
+                    currentColor = data.color;
+                }
 
                 if (data.type === "box") BoxDrawer.draw(ctx, data);
+
+            } else {
+                // Non-batchable — just render directly
+                currentColor = null; // reset so next batchable sets fillStyle correctly
+                r.render(ctx);
             }
         }
-
-        // ── PASS 2: Non-batchable — sprites, text, custom ─────────────────────────
-        // Each handles its own ctx state internally
-        // for (const r of nonBatch) {
-        //     r.render(ctx);
-        // }
-        for (const { renderer, data } of nonBatch) {
-            renderer.render(ctx); // works for both new and old components
-        }
-
-        // 🔥 ADD THIS: Debug draw colliders
-        // if (this.debugPhysics) {
-        //     // this.drawColliders(ctx, scene);
-        //     // this.drawRendererBounds(ctx, scene);
-        //     // this.drawRigidbodies(ctx, scene);
-        //     this.drawCameras(ctx, scene);
-        // }
 
         if (this.debugPhysics) this.drawRigidbodies(ctx, scene);
         if (this.debugBounds) this.drawRendererBounds(ctx, scene);
         if (this.debugBounds) this.drawColliders(ctx, scene);
         if (this.debugCameras) this.drawCameras(ctx, scene);
 
-        ctx.restore(); // 🔥 Don't forget this!
+        ctx.restore();
     }
-
-    // render(scene) {
-    //     const { width, height } = scene.game.config;
-    //     const ctx = this.ctx;
-
-    //     ctx.clearRect(0, 0, width, height);
-
-    //     const camera = scene.getPrimaryCamera();
-    //     if (!camera) return;
-
-    //     const cameraBounds = camera.viewBounds;
-
-    //     ctx.save();
-
-    //     // 🔥 Camera transform
-    //     ctx.translate(-cameraBounds.x, -cameraBounds.y);
-    //     ctx.scale(camera.zoom, camera.zoom);
-
-    //     // 🔥 Get visible renderers (spatial optimized)
-    //     const visibleRenderers = scene._getVisibleRenderers(cameraBounds);
-
-    //     // 🔥 Z-SORT (VERY IMPORTANT)
-    //     if (visibleRenderers.length > 1) {
-    //         visibleRenderers.sort((a, b) => {
-    //             const aZ = a.entity?.zIndex ?? a.zIndex ?? 0;
-    //             const bZ = b.entity?.zIndex ?? b.zIndex ?? 0;
-    //             return aZ - bZ;
-    //         });
-    //     }
-
-    //     // 🔥 SPLIT PIPELINES
-    //     const groups = new Map();   // batchable (color)
-    //     const nonBatch = [];        // sprites, text, etc.
-
-    //     for (const r of visibleRenderers) {
-
-    //         // 🔥 Detect batchable
-    //         const isBatchable = r.color !== undefined && r.batchable !== false;
-
-    //         if (!isBatchable) {
-    //             nonBatch.push(r);
-    //             continue;
-    //         }
-
-    //         // 🔥 Group by color
-    //         if (!groups.has(r.color)) {
-    //             groups.set(r.color, []);
-    //         }
-
-    //         groups.get(r.color).push(r);
-    //     }
-
-    //     // 🔵 PASS 1: Batched shapes
-    //     for (const [color, batch] of groups) {
-    //         ctx.fillStyle = color;
-
-    //         for (const r of batch) {
-    //             r.render(ctx);
-    //         }
-    //     }
-
-    //     // 🟢 PASS 2: Non-batched (sprites, etc.)
-    //     for (const r of nonBatch) {
-    //         r.render(ctx);
-    //     }
-
-    //     // 🔥 Debug
-    //     if (this.debugPhysics) {
-    //         this.drawColliders(ctx, scene);
-    //     }
-
-    //     ctx.restore();
-    // }
-
-    // 🔥 ADD THIS METHOD
-
-    // drawColliders(ctx, scene) {
-    //     ctx.strokeStyle = "#00FF00"; // Green for normal colliders
-    //     ctx.lineWidth = 2;
-
-    //     for (const collider of scene._colliders) {
-    //         const bounds = collider.bounds;
-
-    //         // Draw rectangle
-    //         ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-
-    //         // Draw trigger colliders in different color
-    //         if (collider.isTrigger) {
-    //             ctx.strokeStyle = "#FFFF00"; // Yellow for triggers
-    //             ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-    //             ctx.strokeStyle = "#00FF00";
-    //         }
-    //     }
-    // }
 
     drawColliders(ctx, scene) {
         for (const collider of scene._colliders) {
@@ -593,6 +368,4 @@ export class CanvasRenderer extends Renderer {
             ctx.restore();
         }
     }
-
-
 }
