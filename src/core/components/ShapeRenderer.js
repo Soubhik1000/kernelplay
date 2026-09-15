@@ -1,4 +1,5 @@
 import { Component } from "../Component.js";
+import { RenderData } from "../../graphics/RenderData.js";
 
 export class ShapeRenderer extends Component {
     constructor(props = {}) {
@@ -45,6 +46,7 @@ export class ShapeRenderer extends Component {
 
     init() {
         this.transform = this.entity.getComponent("transform");
+        this._rd = new RenderData();
     }
 
     // ── Bounds — used by frustum culling ─────────────────────────────────
@@ -67,153 +69,185 @@ export class ShapeRenderer extends Component {
         return this._cachedBounds;
     }
 
-    // getRenderData() {
-    //     return {};
-    // }
+    getRenderData() {
+        const t = this.transform;
+        if (!t) return null;
+
+        if (t._dirty || this._dirty) {
+            this._rd.type = this.shape;   // "rect" | "circle" | "polygon" etc
+            this._rd.x = t.position.x;
+            this._rd.y = t.position.y;
+            this._rd.z = t.position.z ?? 0;
+            this._rd.rot = t.rotation.z;
+            this._rd.scaleX = t.scale.x;
+            this._rd.scaleY = t.scale.y;
+            this._rd.flipX = this.flipX;
+            this._rd.flipY = this.flipY;
+            this._rd.width = this.width;
+            this._rd.height = this.height;
+            this._rd.radius = this.radius;
+            this._rd.radiusX = this.radiusX;
+            this._rd.radiusY = this.radiusY;
+            this._rd.anchorX = this.anchor.x;
+            this._rd.anchorY = this.anchor.y;
+            this._rd.points = this.points;
+            this._rd.color = this.color;
+            this._rd.alpha = this.alpha;
+            this._rd.zIndex = this.zIndex;
+            this._rd.filled = this.filled;
+            this._rd.strokeColor = this.strokeColor;
+            this._rd.strokeWidth = this.strokeWidth;
+
+            t.clearDirty();
+            this._dirty = false;
+        }
+
+        return this._rd;
+    }
 
     // ── Render ────────────────────────────────────────────────────────────
 
-    render(ctx) {
-        if (!this.transform) return;
+    // render(ctx) {
+    //     if (!this.transform) return;
 
-        const t = this.transform;
-        const pos = t.position;
-        const scale = t.scale;
-        const rotation = t.rotation.z;
+    //     const t = this.transform;
+    //     const pos = t.position;
+    //     const scale = t.scale;
+    //     const rotation = t.rotation.z;
 
-        ctx.save();
+    //     ctx.save();
 
-        ctx.translate(pos.x, pos.y);
-        ctx.rotate(rotation);
-        ctx.scale(
-            scale.x * (this.flipX ? -1 : 1),
-            scale.y * (this.flipY ? -1 : 1)
-        );
+    //     ctx.translate(pos.x, pos.y);
+    //     ctx.rotate(rotation);
+    //     ctx.scale(
+    //         scale.x * (this.flipX ? -1 : 1),
+    //         scale.y * (this.flipY ? -1 : 1)
+    //     );
 
-        ctx.globalAlpha = this.alpha;
+    //     ctx.globalAlpha = this.alpha;
 
-        const ox = -this.width * this.anchor.x;
-        const oy = -this.height * this.anchor.y;
+    //     const ox = -this.width * this.anchor.x;
+    //     const oy = -this.height * this.anchor.y;
 
-        switch (this.shape) {
+    //     switch (this.shape) {
 
-            case "rect":
-                this._drawRect(ctx, ox, oy);
-                break;
+    //         case "rect":
+    //             this._drawRect(ctx, ox, oy);
+    //             break;
 
-            case "roundedrect":
-                this._drawRoundedRect(ctx, ox, oy);
-                break;
+    //         case "roundedrect":
+    //             this._drawRoundedRect(ctx, ox, oy);
+    //             break;
 
-            case "circle":
-                this._drawCircle(ctx);
-                break;
+    //         case "circle":
+    //             this._drawCircle(ctx);
+    //             break;
 
-            case "ellipse":
-                this._drawEllipse(ctx);
-                break;
+    //         case "ellipse":
+    //             this._drawEllipse(ctx);
+    //             break;
 
-            case "triangle":
-                this._drawTriangle(ctx);
-                break;
+    //         case "triangle":
+    //             this._drawTriangle(ctx);
+    //             break;
 
-            case "polygon":
-                this._drawPolygon(ctx, this.points);
-                break;
+    //         case "polygon":
+    //             this._drawPolygon(ctx, this.points);
+    //             break;
 
-            case "line":
-                this._drawLine(ctx);
-                break;
+    //         case "line":
+    //             this._drawLine(ctx);
+    //             break;
 
-            default:
-                console.warn(`ShapeRenderer: unknown shape "${this.shape}"`);
-        }
+    //         default:
+    //             console.warn(`ShapeRenderer: unknown shape "${this.shape}"`);
+    //     }
 
-        ctx.restore();
-    }
+    //     ctx.restore();
+    // }
 
     // ── Shape drawers ─────────────────────────────────────────────────────
 
-    _drawRect(ctx, ox, oy) {
-        ctx.beginPath();
-        ctx.rect(ox, oy, this.width, this.height);
-        this._applyFillStroke(ctx);
-    }
+    // _drawRect(ctx, ox, oy) {
+    //     ctx.beginPath();
+    //     ctx.rect(ox, oy, this.width, this.height);
+    //     this._applyFillStroke(ctx);
+    // }
 
-    _drawRoundedRect(ctx, ox, oy) {
-        const r = Math.min(this.radius, this.width / 2, this.height / 2);
-        ctx.beginPath();
-        ctx.moveTo(ox + r, oy);
-        ctx.lineTo(ox + this.width - r, oy);
-        ctx.arcTo(ox + this.width, oy, ox + this.width, oy + r, r);
-        ctx.lineTo(ox + this.width, oy + this.height - r);
-        ctx.arcTo(ox + this.width, oy + this.height, ox + this.width - r, oy + this.height, r);
-        ctx.lineTo(ox + r, oy + this.height);
-        ctx.arcTo(ox, oy + this.height, ox, oy + this.height - r, r);
-        ctx.lineTo(ox, oy + r);
-        ctx.arcTo(ox, oy, ox + r, oy, r);
-        ctx.closePath();
-        this._applyFillStroke(ctx);
-    }
+    // _drawRoundedRect(ctx, ox, oy) {
+    //     const r = Math.min(this.radius, this.width / 2, this.height / 2);
+    //     ctx.beginPath();
+    //     ctx.moveTo(ox + r, oy);
+    //     ctx.lineTo(ox + this.width - r, oy);
+    //     ctx.arcTo(ox + this.width, oy, ox + this.width, oy + r, r);
+    //     ctx.lineTo(ox + this.width, oy + this.height - r);
+    //     ctx.arcTo(ox + this.width, oy + this.height, ox + this.width - r, oy + this.height, r);
+    //     ctx.lineTo(ox + r, oy + this.height);
+    //     ctx.arcTo(ox, oy + this.height, ox, oy + this.height - r, r);
+    //     ctx.lineTo(ox, oy + r);
+    //     ctx.arcTo(ox, oy, ox + r, oy, r);
+    //     ctx.closePath();
+    //     this._applyFillStroke(ctx);
+    // }
 
-    _drawCircle(ctx) {
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        this._applyFillStroke(ctx);
-    }
+    // _drawCircle(ctx) {
+    //     ctx.beginPath();
+    //     ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+    //     this._applyFillStroke(ctx);
+    // }
 
-    _drawEllipse(ctx) {
-        ctx.beginPath();
-        ctx.ellipse(0, 0, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
-        this._applyFillStroke(ctx);
-    }
+    // _drawEllipse(ctx) {
+    //     ctx.beginPath();
+    //     ctx.ellipse(0, 0, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
+    //     this._applyFillStroke(ctx);
+    // }
 
-    _drawTriangle(ctx) {
-        const pts = [
-            { x: 0, y: -this.height / 2 },
-            { x: this.width / 2, y: this.height / 2 },
-            { x: -this.width / 2, y: this.height / 2 },
-        ];
-        this._drawPolygon(ctx, pts);
-    }
+    // _drawTriangle(ctx) {
+    //     const pts = [
+    //         { x: 0, y: -this.height / 2 },
+    //         { x: this.width / 2, y: this.height / 2 },
+    //         { x: -this.width / 2, y: this.height / 2 },
+    //     ];
+    //     this._drawPolygon(ctx, pts);
+    // }
 
-    _drawPolygon(ctx, pts) {
-        if (pts.length < 2) return;
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) {
-            ctx.lineTo(pts[i].x, pts[i].y);
-        }
-        ctx.closePath();
-        this._applyFillStroke(ctx);
-    }
+    // _drawPolygon(ctx, pts) {
+    //     if (pts.length < 2) return;
+    //     ctx.beginPath();
+    //     ctx.moveTo(pts[0].x, pts[0].y);
+    //     for (let i = 1; i < pts.length; i++) {
+    //         ctx.lineTo(pts[i].x, pts[i].y);
+    //     }
+    //     ctx.closePath();
+    //     this._applyFillStroke(ctx);
+    // }
 
-    _drawLine(ctx) {
-        if (this.points.length < 2) return;
-        ctx.beginPath();
-        ctx.moveTo(this.points[0].x, this.points[0].y);
-        for (let i = 1; i < this.points.length; i++) {
-            ctx.lineTo(this.points[i].x, this.points[i].y);
-        }
-        // Lines always stroke, never fill
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.strokeWidth || 2;
-        ctx.stroke();
-    }
+    // _drawLine(ctx) {
+    //     if (this.points.length < 2) return;
+    //     ctx.beginPath();
+    //     ctx.moveTo(this.points[0].x, this.points[0].y);
+    //     for (let i = 1; i < this.points.length; i++) {
+    //         ctx.lineTo(this.points[i].x, this.points[i].y);
+    //     }
+    //     // Lines always stroke, never fill
+    //     ctx.strokeStyle = this.color;
+    //     ctx.lineWidth = this.strokeWidth || 2;
+    //     ctx.stroke();
+    // }
 
-    // ── Fill / stroke helper ──────────────────────────────────────────────
+    // // ── Fill / stroke helper ──────────────────────────────────────────────
 
-    _applyFillStroke(ctx) {
-        if (this.filled) {
-            ctx.fillStyle = this.color;
-            ctx.fill();
-        }
-        if (this.strokeWidth > 0) {
-            ctx.strokeStyle = this.strokeColor;
-            ctx.lineWidth = this.strokeWidth;
-            ctx.stroke();
-        }
-    }
+    // _applyFillStroke(ctx) {
+    //     if (this.filled) {
+    //         ctx.fillStyle = this.color;
+    //         ctx.fill();
+    //     }
+    //     if (this.strokeWidth > 0) {
+    //         ctx.strokeStyle = this.strokeColor;
+    //         ctx.lineWidth = this.strokeWidth;
+    //         ctx.stroke();
+    //     }
+    // }
 
     // ── Public API ────────────────────────────────────────────────────────
 

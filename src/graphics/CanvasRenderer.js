@@ -1,6 +1,8 @@
 import { Renderer } from "./Renderer.js";
 import { AABB } from "../core/physics/Collision.js";
 import { BoxDrawer } from "./drawers/BoxDrawer.js";
+import { ShapeDrawer2D } from "./drawers/ShapeDrawer2D.js";
+import { SpriteDrawer2D } from "./drawers/SpriteDrawer2D.js";
 
 export class CanvasRenderer extends Renderer {
     init(game) {
@@ -62,21 +64,55 @@ export class CanvasRenderer extends Renderer {
 
         let currentColor = null;
 
-        for (const r of visibleRenderers) {
-            if (typeof r.getRenderData === "function" && r.batchable !== false) {
-                const data = r.getRenderData();
+        // for (const r of visibleRenderers) {
+        //     if (typeof r.getRenderData === "function" && r.batchable !== false) {
+        //         const data = r.getRenderData();
 
-                // Only switch fillStyle when color changes
-                if (data.color !== currentColor) {
-                    ctx.fillStyle = data.color;
-                    currentColor = data.color;
+        //         // Only switch fillStyle when color changes
+        //         if (data.color !== currentColor) {
+        //             ctx.fillStyle = data.color;
+        //             currentColor = data.color;
+        //         }
+
+        //         if (data.type === "box") BoxDrawer.draw(ctx, data);
+
+        //     } else {
+        //         // Non-batchable — just render directly
+        //         currentColor = null; // reset so next batchable sets fillStyle correctly
+        //         r.render(ctx);
+        //     }
+        // }
+
+        for (const r of visibleRenderers) {
+            if (typeof r.getRenderData === "function") {
+                const rd = r.getRenderData();
+                if (!rd) {
+                    // getRenderData exists but returned null — fall through
+                    currentColor = null;
+                    r.render(ctx);
+                    continue;
                 }
 
-                if (data.type === "box") BoxDrawer.draw(ctx, data);
+                if (r.batchable !== false) {
+                    // Switch fillStyle only when color changes
+                    if (rd.color !== currentColor) {
+                        ctx.fillStyle = rd.color;
+                        currentColor = rd.color;
+                    }
+                } else {
+                    currentColor = null;
+                }
+
+                // Dispatch by type
+                switch (rd.type) {
+                    case "box": BoxDrawer.draw(ctx, rd); break;
+                    case "sprite": SpriteDrawer2D.draw(ctx, rd); break;
+                    default: ShapeDrawer2D.draw(ctx, rd); break; // rect, circle, polygon etc
+                }
 
             } else {
-                // Non-batchable — just render directly
-                currentColor = null; // reset so next batchable sets fillStyle correctly
+                // Legacy — no getRenderData at all
+                currentColor = null;
                 r.render(ctx);
             }
         }

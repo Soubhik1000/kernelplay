@@ -13,7 +13,8 @@ export function Shape(entity, x = 100, y = 100) {
 
     entity.addComponent("transform", new TransformComponent({
         position: { x, y },
-        scale: { x: 1, y: 1 }
+        scale: { x: 1, y: 1 },
+        // rotation: {x: 0, y: 0, z: 0.1 },
     }));
 
     // entity.addComponent("renderer", new ShapeRenderer({

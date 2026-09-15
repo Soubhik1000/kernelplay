@@ -1,4 +1,5 @@
 import { Component } from "../Component.js";
+import { RenderData } from "../../graphics/RenderData.js";
 
 export class SpriteComponent extends Component {
   constructor(props = {}) {
@@ -47,6 +48,9 @@ export class SpriteComponent extends Component {
     this.transform = this.entity.getComponent("transform");
     this.loadImage();
     this._cachedBounds = { x: 0, y: 0, width: 0, height: 0 };
+    this._rd = new RenderData(); // cached — no allocation per frame
+    this._rd.type = "sprite";
+    this.batchable = false;      // sprites never batch
   }
 
   loadImage() {
@@ -90,56 +94,102 @@ export class SpriteComponent extends Component {
     return this._cachedBounds; // 🔥 Reuse same object
   }
 
-  // getRenderData() {
-  //   return {};
-  // }
+  getRenderData() {
+    if (!this._loaded || !this._imageElement) return null;
+    const t = this.transform;
+    if (!t) return null;
 
-  render(ctx) {
+    if (t._dirty || this._dirty) {
+      this._rd.x = t.position.x;
+      this._rd.y = t.position.y;
+      this._rd.z = t.position.z ?? 0;
+      this._rd.rot = t.rotation.z;
+      this._rd.scaleX = t.scale.x;
+      this._rd.scaleY = t.scale.y;
+      this._rd.flipX = this.flipX;
+      this._rd.flipY = this.flipY;
+      this._rd.width = this.width;
+      this._rd.height = this.height;
+      this._rd.anchorX = this.anchor.x;
+      this._rd.anchorY = this.anchor.y;
+      this._rd.alpha = this.alpha;
+      this._rd.zIndex = this.zIndex;
+      this._rd.tint = this.tint;
 
-    if (!this._loaded || !this._imageElement) return;
-    if (!this.transform) return;
+      // Texture data
+      this._rd.texture = this._imageElement;
+      this._rd.frameX = this.sourceX;
+      this._rd.frameY = this.sourceY;
+      this._rd.frameW = this.sourceWidth;
+      this._rd.frameH = this.sourceHeight;
 
-    const pos = this.transform.position;
-    const scale = this.transform.scale;
-    const rotation = this.transform.rotation.z;
+      t.clearDirty();
+      this._dirty = false;
+    }
 
-    ctx.save();
-
-    // Transform
-    ctx.translate(pos.x, pos.y);
-    ctx.rotate(rotation);
-    ctx.scale(
-      scale.x * (this.flipX ? -1 : 1),
-      scale.y * (this.flipY ? -1 : 1)
-    );
-
-
-    // Anchor offset
-    const offsetX = -this.width * this.anchor.x;
-    const offsetY = -this.height * this.anchor.y;
-
-    // Alpha
-    ctx.globalAlpha = this.alpha;
-
-    // console.log("hi");
-    // Draw sprite
-    ctx.drawImage(
-      this._imageElement,
-      this.sourceX, this.sourceY,           // Source position
-      this.sourceWidth, this.sourceHeight,  // Source size
-      offsetX, offsetY,                     // Destination position
-      this.width, this.height               // Destination size
-    );
-
-    ctx.restore();
+    return this._rd;
   }
 
+  // render(ctx) {
+
+  //   if (!this._loaded || !this._imageElement) return;
+  //   if (!this.transform) return;
+
+  //   const pos = this.transform.position;
+  //   const scale = this.transform.scale;
+  //   const rotation = this.transform.rotation.z;
+
+  //   ctx.save();
+
+  //   // Transform
+  //   ctx.translate(pos.x, pos.y);
+  //   ctx.rotate(rotation);
+  //   ctx.scale(
+  //     scale.x * (this.flipX ? -1 : 1),
+  //     scale.y * (this.flipY ? -1 : 1)
+  //   );
+
+
+  //   // Anchor offset
+  //   const offsetX = -this.width * this.anchor.x;
+  //   const offsetY = -this.height * this.anchor.y;
+
+  //   // Alpha
+  //   ctx.globalAlpha = this.alpha;
+
+  //   // console.log("hi");
+  //   // Draw sprite
+  //   ctx.drawImage(
+  //     this._imageElement,
+  //     this.sourceX, this.sourceY,           // Source position
+  //     this.sourceWidth, this.sourceHeight,  // Source size
+  //     offsetX, offsetY,                     // Destination position
+  //     this.width, this.height               // Destination size
+  //   );
+
+  //   ctx.restore();
+  // }
+
   // Helper to change sprite frame
+
   setFrame(x, y, width, height) {
     this.sourceX = x;
     this.sourceY = y;
     if (width !== undefined) this.sourceWidth = width;
     if (height !== undefined) this.sourceHeight = height;
+  }
+
+  setTint(tint) {
+    // Invalidate old tint from cache before changing
+    if (this._loaded && this.tint !== tint) {
+      SpriteDrawer2D.invalidateTint(
+        this._imageElement, this.tint,
+        this.sourceX, this.sourceY,
+        this.sourceWidth, this.sourceHeight
+      );
+    }
+    this.tint = tint;
+    this._dirty = true;
   }
 
   toJSON() {
