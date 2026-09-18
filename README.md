@@ -3,7 +3,7 @@
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
 Built on an Entity–Component architecture, fast, flexible, and surprisingly fun to use.
 
-> **v0.5.0-beta** · MIT License · Built by Soubhik Mukherjee
+> **v0.5.1-beta** · MIT License · Built by Soubhik Mukherjee
 
 ---
 

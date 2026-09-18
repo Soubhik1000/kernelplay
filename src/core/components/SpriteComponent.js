@@ -129,47 +129,7 @@ export class SpriteComponent extends Component {
 
     return this._rd;
   }
-
-  // render(ctx) {
-
-  //   if (!this._loaded || !this._imageElement) return;
-  //   if (!this.transform) return;
-
-  //   const pos = this.transform.position;
-  //   const scale = this.transform.scale;
-  //   const rotation = this.transform.rotation.z;
-
-  //   ctx.save();
-
-  //   // Transform
-  //   ctx.translate(pos.x, pos.y);
-  //   ctx.rotate(rotation);
-  //   ctx.scale(
-  //     scale.x * (this.flipX ? -1 : 1),
-  //     scale.y * (this.flipY ? -1 : 1)
-  //   );
-
-
-  //   // Anchor offset
-  //   const offsetX = -this.width * this.anchor.x;
-  //   const offsetY = -this.height * this.anchor.y;
-
-  //   // Alpha
-  //   ctx.globalAlpha = this.alpha;
-
-  //   // console.log("hi");
-  //   // Draw sprite
-  //   ctx.drawImage(
-  //     this._imageElement,
-  //     this.sourceX, this.sourceY,           // Source position
-  //     this.sourceWidth, this.sourceHeight,  // Source size
-  //     offsetX, offsetY,                     // Destination position
-  //     this.width, this.height               // Destination size
-  //   );
-
-  //   ctx.restore();
-  // }
-
+  
   // Helper to change sprite frame
 
   setFrame(x, y, width, height) {

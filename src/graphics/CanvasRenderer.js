@@ -64,25 +64,6 @@ export class CanvasRenderer extends Renderer {
 
         let currentColor = null;
 
-        // for (const r of visibleRenderers) {
-        //     if (typeof r.getRenderData === "function" && r.batchable !== false) {
-        //         const data = r.getRenderData();
-
-        //         // Only switch fillStyle when color changes
-        //         if (data.color !== currentColor) {
-        //             ctx.fillStyle = data.color;
-        //             currentColor = data.color;
-        //         }
-
-        //         if (data.type === "box") BoxDrawer.draw(ctx, data);
-
-        //     } else {
-        //         // Non-batchable — just render directly
-        //         currentColor = null; // reset so next batchable sets fillStyle correctly
-        //         r.render(ctx);
-        //     }
-        // }
-
         for (const r of visibleRenderers) {
             if (typeof r.getRenderData === "function") {
                 const rd = r.getRenderData();
