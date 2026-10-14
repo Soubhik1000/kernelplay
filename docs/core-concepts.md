@@ -4,11 +4,17 @@
 
 ---
 
-Everything in KernelPlayJS is built around three ideas:
+> **🎮 Game** — The main entry point. Manages the game loop, scenes, and rendering. Configure FPS, canvas size, and renderer type.
 
-- **Entities** — your game objects (player, bullet, enemy, tree)
-- **Components** — data attached to entities (position, physics, renderer)
-- **Scripts** — the brains; custom logic that runs every frame
+> **🎭 Scene** — Contains entities and manages updates, rendering, collisions, and raycasting. Think of it as a level or game state.
+
+> **📦 Entity** — A game object that holds components. Entities have tags and layers for organization and collision filtering.
+
+> **🔧 Component** — Behaviors attached to entities. Includes transform, renderer, collider, rigidbody, and custom script components.
+
+## The Entity-Component Pattern
+
+KernelPlay.js uses an Entity-Component architecture (ECS-inspired). Instead of deep inheritance trees, you compose behavior by attaching components.
 
 ```js
 export class Player extends Entity {
@@ -24,6 +30,8 @@ export class Player extends Entity {
     this.addComponent("controller",  new PlayerController());
   }
 }
+```
+
 ```
 
 **Script lifecycle:** `onAttach → onStart → update → lateUpdate → onDestroy`
