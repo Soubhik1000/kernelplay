@@ -181,19 +181,19 @@ new MyGame({ width: 800, height: 600, fps: 60 }).start();
 
 | Guide | What's inside |
 |---|---|
-| [🎮 Core Concepts](https://github.com/Soubhik1000/kernelplay/blob/main/docs/core-concepts.md) | Entities, components, scripts and the script lifecycle. |
-| [🎮 Input System *(New in v0.5.0)*](https://github.com/Soubhik1000/kernelplay/blob/main/docs/input.md) | Unified Keyboard, Gamepad and Touch input. |
-| [🖼️ UI System *(New in v0.4.0)*](https://github.com/Soubhik1000/kernelplay/blob/main/docs/ui.md) | Retained-mode UI: panels, text, buttons, bars, layers and world-space labels. |
-| [🎵 AudioSource *(New in v0.3.1)*](https://github.com/Soubhik1000/kernelplay/blob/main/docs/audio.md) | Spatial SFX, loops, background music and the AudioListener. |
-| [🎞️ Animation System *(New in v0.3.0)*](https://github.com/Soubhik1000/kernelplay/blob/main/docs/animation.md) | AnimationClip, AnimatorController state machine and AnimatorComponent. |
-| [🎥 Camera System *(New in v0.2.3)*](https://github.com/Soubhik1000/kernelplay/blob/main/docs/camera.md) | Camera entity, smooth follow, bounds, shake and coordinate conversion. |
-| [Physics System](https://github.com/Soubhik1000/kernelplay/blob/main/docs/physics.md) | Built-in 2D physics with collision detection, rigidbodies, and gravity. |
-| [🔫 Object Pooling](https://github.com/Soubhik1000/kernelplay/blob/main/docs/object-pooling.md) | Zero-config entity recycling for bullets and other short-lived objects. |
-| [🖥️ Renderers](https://github.com/Soubhik1000/kernelplay/blob/main/docs/renderers.md) | Canvas 2D, Pixi.js and Three.js backends. |
-| [⚡ Performance](https://github.com/Soubhik1000/kernelplay/blob/main/docs/performance.md) | Benchmarks and the techniques that keep the engine fast. |
-| [Game Configuration](https://github.com/Soubhik1000/kernelplay/blob/main/docs/config.md) | Container selector, frame rate and calculation rate settings. |
-| [🛠️ Helpers & Utilities](https://github.com/Soubhik1000/kernelplay/blob/main/docs/helpers.md) | Shorthand API, math, timers, prop injection and debug mode. |
-| [🗺️ Roadmap](https://github.com/Soubhik1000/kernelplay/blob/main/docs/roadmap.md) | Version history and planned features. |
+| [🎮 Core Concepts](https://github.com/Soubhik1000/kernelplay/blob/master/docs/core-concepts.md) | Entities, components, scripts and the script lifecycle. |
+| [🎮 Input System *(New in v0.5.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/input.md) | Unified Keyboard, Gamepad and Touch input. |
+| [🖼️ UI System *(New in v0.4.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/ui.md) | Retained-mode UI: panels, text, buttons, bars, layers and world-space labels. |
+| [🎵 AudioSource *(New in v0.3.1)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/audio.md) | Spatial SFX, loops, background music and the AudioListener. |
+| [🎞️ Animation System *(New in v0.3.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/animation.md) | AnimationClip, AnimatorController state machine and AnimatorComponent. |
+| [🎥 Camera System *(New in v0.2.3)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/camera.md) | Camera entity, smooth follow, bounds, shake and coordinate conversion. |
+| [Physics System](https://github.com/Soubhik1000/kernelplay/blob/master/docs/physics.md) | Built-in 2D physics with collision detection, rigidbodies, and gravity. |
+| [🔫 Object Pooling](https://github.com/Soubhik1000/kernelplay/blob/master/docs/object-pooling.md) | Zero-config entity recycling for bullets and other short-lived objects. |
+| [🖥️ Renderers](https://github.com/Soubhik1000/kernelplay/blob/master/docs/renderers.md) | Canvas 2D, Pixi.js and Three.js backends. |
+| [⚡ Performance](https://github.com/Soubhik1000/kernelplay/blob/master/docs/performance.md) | Benchmarks and the techniques that keep the engine fast. |
+| [Game Configuration](https://github.com/Soubhik1000/kernelplay/blob/master/docs/config.md) | Container selector, frame rate and calculation rate settings. |
+| [🛠️ Helpers & Utilities](https://github.com/Soubhik1000/kernelplay/blob/master/docs/helpers.md) | Shorthand API, math, timers, prop injection and debug mode. |
+| [🗺️ Roadmap](https://github.com/Soubhik1000/kernelplay/blob/master/docs/roadmap.md) | Version history and planned features. |
 
 ---
 
