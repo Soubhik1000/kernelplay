@@ -1,7 +1,7 @@
 {
   "name": "kernelplay-js",
   "version": "0.5.1",
-  "description": "A lightweight JavaScript 2D game engine inspired by Unity’s component system.",
+  "description": "A lightweight JavaScript 2D/3D game engine inspired by Unity's component system.",
   "type": "module",
 
   "main": "dist/kernelplay.umd.js",
@@ -14,19 +14,20 @@
     }
   },
 
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Soubhik1000/kernelplay.git"
+  },
+  "homepage": "https://soubhik-rjs.github.io/kernelplay-js-demo/docs/",
+  "bugs": {
+    "url": "https://github.com/Soubhik1000/kernelplay/issues"
+  },
 
   "keywords": [
-    "game-engine",
-    "2d",
-    "javascript",
-    "ecs",
-    "canvas",
-    "unity-like"
+    "game-engine", "2d", "3d", "javascript", "ecs",
+    "canvas", "pixi", "threejs", "unity-like"
   ],
   "author": "Soubhik Mukherjee",
   "license": "MIT",
