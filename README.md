@@ -29,9 +29,9 @@ Built on an Entity–Component architecture, fast, flexible, and surprisingly fu
 ---
 
 ## 🔴 Live Demo
-👉 https://soubhik-rjs.github.io/kernelplay-js-demo/examples/parkour-boy/
+⚡ **[kernelplay-js.vercel.app](https://kernelplay-js.vercel.app/)** · 📚 **[Full Documentation](https://kernelplay-js.vercel.app/docs/)**
 
-🏁 **[Benchmark Demo](https://soubhik-rjs.github.io/kernelplay-js-demo/examples/BenchmarkCanvas2D/)** · 📚 **[Full Documentation](https://soubhik-rjs.github.io/kernelplay-js-demo/docs/)**
+🏁 **[Benchmark Demo](https://soubhik-rjs.github.io/kernelplay-js-demo/examples/BenchmarkCanvas2D/)** · 👉 **[Parkour Boy Demo](https://kernelplay-js.vercel.app/examples/parkour-boy/)**
 
 ---
 
@@ -64,13 +64,13 @@ Or use a CDN:
 </script>
 ```
 
-### Optional Renderer Plugins
+### External Renderer Plugins
 
 ```bash
 npm install @kernelplay/pixi-renderer   # GPU-accelerated 2D sprites & effects
 npm install @kernelplay/three-renderer   # Full 3D — lights, meshes, shadows
 ```
-#### Optional Renderer Plugins Documentation
+#### External Renderer Plugins Documentation
 **[@kernelplay/pixi-renderer](https://www.npmjs.com/package/@kernelplay/pixi-renderer)** <br>
 **[@kernelplay/three-renderer](https://www.npmjs.com/package/@kernelplay/three-renderer)**
 
@@ -188,7 +188,7 @@ new MyGame({ width: 800, height: 600, fps: 60 }).start();
 | [⚙️ Physics System](https://github.com/Soubhik1000/kernelplay/blob/master/docs/physics.md) | Built-in 2D physics with collision detection, rigidbodies, and gravity. |
 | [🎮 Input System *(New in v0.5.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/input.md) | Unified Keyboard, Gamepad and Touch input. |
 | [🛠️ Helpers & Utilities](https://github.com/Soubhik1000/kernelplay/blob/master/docs/helpers.md) | Shorthand API, math, timers, prop injection and debug mode. |
-| [🔄 Script Lifecycle](https://github.com/Soubhik1000/kernelplay/blob/master/docs/core-concepts.md) | onAttach, onStart, update, lateUpdate, onDestroy. |
+| [🔄 Script Lifecycle](https://github.com/Soubhik1000/kernelplay/blob/master/docs/script-lifecycle.md) | onAttach, onStart, update, lateUpdate, onDestroy. |
 | [🔌 Prop Injection](https://github.com/Soubhik1000/kernelplay/blob/master/docs/helpers.md#prop-injection) | Configure entities and components dynamically with the property injection system. |
 | [🎥 Multiple Cameras *(New in v0.2.3)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/camera.md) | Camera entity, smooth follow, bounds, shake and switching cameras. |
 | [🎞️ Advanced Animation *(New in v0.3.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/animation.md) | AnimationClip, AnimatorController state machine and AnimatorComponent. |
@@ -216,7 +216,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
 
 - **GitHub:** https://github.com/Soubhik1000/kernelplay
 - **NPM:** https://www.npmjs.com/package/kernelplay-js
-- **Docs:** https://soubhik-rjs.github.io/kernelplay-js-demo/docs/
+- **Docs:** https://kernelplay-js.vercel.app/docs/
 - **Discord** https://discord.gg/bHfe96EnNR
 
 ---
