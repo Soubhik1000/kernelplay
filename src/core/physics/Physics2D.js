@@ -15,7 +15,7 @@ export class Physics2D extends PhysicsEngine {
     step(scene, dt) {
         // console.log(scene);
 
-        const gravity = scene.game?.config?.gravity ?? 980;
+        const gravity = scene.game?.config?.gravity2D ?? 980;
 
         // Integrate
         for (const rb of scene._rigidbodies) {

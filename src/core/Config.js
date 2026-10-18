@@ -9,7 +9,8 @@ export class Config {
     this.inputConfig = options.inputConfig;
     this.debugConfig = options.debugConfig;
 
-    this.gravity = 980;
+    this.gravity2D = options.gravity || 980;
+    this.gravity3D = options.gravity || 49;
     this.debugPhysics = options.debugPhysics;
     this.debugBounds = options.debugBounds;
     this.debugCameras = options.debugCameras;

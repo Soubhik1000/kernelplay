@@ -11,7 +11,8 @@ export class Physics3D extends PhysicsEngine {
   init(scene) {}
 
   step(scene, dt) {
-    const gravity = scene.game?.config?.gravity ?? 980;
+    const gravity = scene.game?.config?.gravity3D ?? 9.81;
+    // const gravity = 9.81;
 
     for (const rb of scene._rigidbodies) {
       if (rb.isKinematic || !rb.entity.active) continue;
@@ -19,7 +20,7 @@ export class Physics3D extends PhysicsEngine {
       rb.isGrounded = false;
 
       if (rb.useGravity) {
-        rb.force.y += gravity * rb.gravityScale * rb.mass;
+        rb.force.y -= gravity * rb.gravityScale * rb.mass;
       }
 
       const ax = rb.force.x / rb.mass;
