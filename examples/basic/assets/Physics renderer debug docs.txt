@@ -1,0 +1,514 @@
+# KernelPlayJS — Physics, Renderer & Debug Docs
+
+## Table of Contents
+
+- [Physics](#physics)
+  - [Rigidbody2DComponent](#rigidbody2dcomponent)
+  - [ColliderComponent](#collidercomponent)
+  - [Collision Callbacks](#collision-callbacks)
+  - [Forces and Jumping](#forces-and-jumping)
+  - [Physics API Reference](#physics-api-reference)
+- [Modular Renderer](#modular-renderer)
+  - [How It Works](#how-it-works)
+  - [RenderData](#renderdata)
+  - [Render Components](#render-components)
+  - [Drawers](#drawers)
+  - [Batching and Z-Order](#batching-and-z-order)
+  - [Pixi Compatibility](#pixi-compatibility)
+  - [Writing a Custom Renderer Component](#writing-a-custom-renderer-component)
+  - [Renderer API Reference](#renderer-api-reference)
+- [Debug System](#debug-system)
+  - [Enabling Debug](#enabling-debug)
+  - [Debug Overlay](#debug-overlay)
+  - [Debug Draw Layers](#debug-draw-layers)
+  - [Toggle Keys](#toggle-keys)
+  - [Remapping Keys with JSON](#remapping-keys-with-json)
+  - [DebugStats](#debugstats)
+  - [Debug API Reference](#debug-api-reference)
+
+---
+
+## Physics
+
+Physics is built from two components that you add to an entity: a rigidbody (motion) and a collider (shape). Entities with only a collider are static solids. Entities with both are dynamic.
+
+### Rigidbody2DComponent
+
+```js
+import { Rigidbody2DComponent } from "kernelplay-js";
+
+player.addComponent("rigidbody2d", new Rigidbody2DComponent({
+    useGravity: true,
+    mass: 1,
+    drag: 0.02,
+    restitution: 0.3,
+}));
+```
+
+| Option | Description |
+|---|---|
+| `useGravity` | Apply gravity every physics step |
+| `mass` | Body mass. Heavier bodies are pushed around less and need more impulse to jump |
+| `drag` | Linear damping applied to velocity |
+| `restitution` | Bounciness on impact (`0` = no bounce) |
+
+Useful runtime properties:
+
+```js
+this.rb.velocity.x   // current horizontal velocity
+this.rb.velocity.y   // current vertical velocity
+this.rb.isGrounded   // true while standing on a surface
+this.rb.mass
+```
+
+---
+
+### ColliderComponent
+
+Colliders are AABB (axis-aligned box) only. Pass the size of the box:
+
+```js
+import { ColliderComponent } from "kernelplay-js";
+
+player.addComponent("collider", new ColliderComponent({ width: 32, height: 32 }));
+```
+
+A collider without a rigidbody is static, which suits ground, walls, and platforms:
+
+```js
+ground.addComponent("collider", new ColliderComponent({ width: 800, height: 40 }));
+```
+
+Set `isTrigger` on a collider to detect overlap without physically blocking.
+
+---
+
+### Collision Callbacks
+
+Scripts can implement `onCollision` to react to contacts:
+
+```js
+class PlayerScript extends ScriptComponent {
+    onCollision(other) {
+        if (other.name === "Enemy") this.takeDamage();
+    }
+}
+```
+
+`other` is the entity that was hit.
+
+---
+
+### Forces and Jumping
+
+`addForce(x, y, mode)` applies force to the rigidbody. The `"impulse"` mode applies an instant change and respects mass:
+
+```js
+// Jump only when standing on something
+if (this.rb.isGrounded && Input.wasPressed("jump")) {
+    this.rb.addForce(0, -600, "impulse");
+}
+
+// Continuous movement force
+const h = Input.getAxis("horizontal");
+this.rb.addForce(800 * h, 0);
+```
+
+Because impulse respects mass, doubling `mass` halves the jump height for the same impulse. Raise the impulse or lower the mass to compensate.
+
+`isGrounded` works for any surface, so a player can jump from platforms and other bodies, not only the ground.
+
+---
+
+### Physics API Reference
+
+| Member | Type | Description |
+|---|---|---|
+| `rb.velocity` | `{ x, y }` | Current velocity |
+| `rb.isGrounded` | `boolean` | Standing on a surface |
+| `rb.mass` | `number` | Body mass |
+| `rb.addForce(x, y, mode?)` | `void` | Apply force. `mode` can be `"impulse"` |
+| `collider.bounds` | `{ x, y, width, height }` | World-space box |
+| `collider.isTrigger` | `boolean` | Overlap-only collider |
+| `onCollision(other)` | callback | Script hook fired on contact |
+
+---
+
+## Modular Renderer
+
+Render components no longer draw themselves directly. They describe what should be drawn, and a drawer for the active backend does the drawing. The same component can then work with Canvas2D, Pixi, or future backends.
+
+### How It Works
+
+```
+Component              RenderData              Drawer
+(what to draw)   →   (plain snapshot)   →   (how to draw it)
+BoxRenderComponent                          BoxDrawer
+ShapeRenderer         type, x, y, rot,      ShapeDrawer2D
+SpriteComponent       width, color, ...     SpriteDrawer2D
+```
+
+Each frame, `CanvasRenderer`:
+
+1. Gets visible renderers from the spatial grid (frustum culling).
+2. Sorts them by `zIndex`.
+3. Calls `getRenderData()` on each, then dispatches to the drawer matching `rd.type`.
+4. Falls back to the component's own `render(ctx)` if it has no `getRenderData()`.
+
+---
+
+### RenderData
+
+`RenderData` is a plain object that holds everything a drawer needs:
+
+```js
+import { RenderData } from "../rendering/RenderData.js";
+```
+
+| Group | Fields |
+|---|---|
+| Identity | `type`, `visible`, `zIndex`, `alpha`, `color` |
+| Transform | `x`, `y`, `z`, `rot`, `scaleX`, `scaleY`, `scaleZ`, `flipX`, `flipY` |
+| Geometry | `width`, `height`, `depth`, `radius`, `radiusX`, `radiusY`, `anchorX`, `anchorY`, `points` |
+| Material | `filled`, `strokeColor`, `strokeWidth` |
+| Texture | `texture`, `src`, `frameX`, `frameY`, `frameW`, `frameH`, `tint` |
+
+Each component creates one `RenderData` in `init()` and reuses it every frame, so nothing is allocated per frame.
+
+---
+
+### Render Components
+
+| Component | `rd.type` | Batchable | Purpose |
+|---|---|---|---|
+| `BoxRenderComponent` | `"box"` | Yes | Fast solid box for testing and prototyping |
+| `ShapeRenderer` | `"rect"`, `"roundedrect"`, `"circle"`, `"ellipse"`, `"triangle"`, `"polygon"`, `"line"` | No | Full-featured shapes with stroke, alpha, anchor |
+| `SpriteComponent` | `"sprite"` | No | Images and spritesheet frames with tint |
+
+`BoxRenderComponent` is intentionally simple. Use `ShapeRenderer` for production shapes.
+
+---
+
+### Drawers
+
+Drawers are static classes that read `RenderData` and draw with the backend.
+
+```
+rendering/
+  RenderData.js
+  drawers/
+    BoxDrawer.js
+    canvas2d/
+      ShapeDrawer2D.js
+      SpriteDrawer2D.js
+```
+
+Dispatch inside `CanvasRenderer`:
+
+```js
+switch (rd.type) {
+    case "box":    BoxDrawer.draw(ctx, rd);      break;
+    case "sprite": SpriteDrawer2D.draw(ctx, rd); break;
+    default:       ShapeDrawer2D.draw(ctx, rd);  break; // rect, circle, polygon...
+}
+```
+
+Sprite tinting uses a cached offscreen canvas per sprite, tint, and frame. Call `setTint()` on the sprite to change a tint so the old cache entry is invalidated.
+
+---
+
+### Batching and Z-Order
+
+The renderer draws everything in one pass, in z-order. It only switches `fillStyle` when the color actually changes between neighbouring batchable items:
+
+```js
+let currentColor = null;
+
+for (const r of visibleRenderers) {
+    if (typeof r.getRenderData === "function") {
+        const rd = r.getRenderData();
+        if (!rd) { currentColor = null; r.render(ctx); continue; }
+
+        if (r.batchable !== false) {
+            if (rd.color !== currentColor) {
+                ctx.fillStyle = rd.color;
+                currentColor = rd.color;
+            }
+        } else {
+            currentColor = null;
+        }
+        // dispatch to drawer by rd.type
+    } else {
+        currentColor = null;
+        r.render(ctx); // legacy component
+    }
+}
+```
+
+An earlier design drew all batched items first and all non-batched items second. That broke z-order between the two groups, so the renderer now keeps a single sorted list. Correct z-order takes priority over perfect color grouping.
+
+Z-index is read from `entity.zIndex` first, then `component.zIndex`.
+
+---
+
+### Pixi Compatibility
+
+The two backends read different things from a component:
+
+| Backend | Reads |
+|---|---|
+| `CanvasRenderer` | `getRenderData()` |
+| `PixiRenderer` | `renderer.object` (a PIXI display object) |
+
+Canvas2D components set `this.object = null` and Pixi components expose `this.object`. A component can have either or both:
+
+| Component | `object` | `getRenderData()` | Works with |
+|---|---|---|---|
+| `BoxRenderComponent` | `null` | Yes | Canvas2D |
+| `ShapeRenderer` | `null` | Yes | Canvas2D |
+| `SpriteComponent` | `null` | Yes | Canvas2D |
+| `PixiBoxRenderComponent` | PIXI.Graphics | Yes | Both |
+| `PixiShapeRenderer` | PIXI.Graphics | Yes | Both |
+| `PixiSpriteComponent` | PIXI.Sprite | Yes | Both |
+
+---
+
+### Writing a Custom Renderer Component
+
+```js
+import { Component } from "../Component.js";
+import { RenderData } from "../rendering/RenderData.js";
+
+export class MyRenderer extends Component {
+    constructor({ color = "#fff", zIndex = 0 } = {}) {
+        super();
+        this.color = color;
+        this.zIndex = zIndex;
+        this.batchable = false;
+        this._dirty = true;
+    }
+
+    init() {
+        this.transform = this.entity.getComponent("transform");
+        this._rd = new RenderData();      // allocate once
+        this._rd.type = "my-type";
+        this._cachedBounds = { x: 0, y: 0, width: 0, height: 0 };
+    }
+
+    getBounds() { /* update and return this._cachedBounds */ }
+
+    getRenderData() {
+        const t = this.transform;
+        if (!t) return null;
+        this._rd.x = t.position.x;
+        this._rd.y = t.position.y;
+        this._rd.rot = t.rotation.z;
+        this._rd.color = this.color;
+        this._rd.zIndex = this.zIndex;
+        return this._rd;                  // same object every frame
+    }
+}
+```
+
+Then add a drawer and a `case` in the renderer dispatch for the new `type`.
+
+Components that don't implement `getRenderData()` keep working through their own `render(ctx)`, so migration can happen one component at a time.
+
+---
+
+### Renderer API Reference
+
+| Member | Description |
+|---|---|
+| `component.getRenderData()` | Returns a cached `RenderData`, or `null` to fall back to `render(ctx)` |
+| `component.getBounds()` | Cached world bounds for culling |
+| `component.batchable` | `true` lets color batching apply. `false` resets the batch |
+| `component.render(ctx)` | Legacy direct-draw path |
+| `component.object` | PIXI display object for the Pixi backend |
+| `SpriteComponent.setTint(tint)` | Change tint and invalidate cached tinted frame |
+
+---
+
+## Debug System
+
+The debug system has two parts: a UI overlay with live stats, and in-world draw layers for physics, bounds, and cameras.
+
+### Enabling Debug
+
+Pass flags in the game config:
+
+```js
+new MyGame({
+    width: 800,
+    height: 600,
+    fps: 60,
+    debug: true,           // UI overlay + stats
+    debugPhysics: true,    // rigidbody visuals
+    debugBounds: true,     // renderer bounds + colliders
+    debugCameras: true,    // camera frustums
+    debugConfig: "./debug.config.json", // optional key remap
+}).start();
+```
+
+All draw flags can also be toggled at runtime with the keys below.
+
+---
+
+### Debug Overlay
+
+`DebugOverlay` builds four flat panels on a dedicated `"Debug"` UI layer (order 40, above `"Overlay"`), hidden until toggled.
+
+| Corner | Panel | Shows |
+|---|---|---|
+| Top-left | Performance | FPS, frame time, average frame, CPU, GC spikes |
+| Top-right | Scene | Entities, visible, physics, scene name, camera |
+| Bottom-left | Input | Active device, axis H/V, last action, gamepad status |
+| Bottom-right | Audio | BGM state, active SFX, master and SFX volume, context state |
+
+FPS and CPU are color coded green, yellow, red.
+
+Each label needs its own style object. If you spread a shared style constant into many labels, change colors through a copy:
+
+```js
+style: { ...DebugOverlay.#ROW.style }
+```
+
+Otherwise changing one label's color changes all of them, because they share one object.
+
+---
+
+### Debug Draw Layers
+
+Drawn in world space by the renderer on top of the scene.
+
+**Colliders** (`debugBounds`)
+
+| Visual | Color | Meaning |
+|---|---|---|
+| Solid rect | Green `#00E676` | Normal collider |
+| Dashed rect | Yellow `#FFD600` | Trigger collider |
+| Dot | Cyan `#00E5FF` | Collider center |
+| Crosshair + circle | Red `#FF1744` | Anchor point (`collider.anchor`, default center) |
+| Dashed arrow | Orange `#FF6D00` | Facing direction, `0°` = up, clockwise (`transform.rotation.z`) |
+
+**Renderer bounds** (`debugBounds`) — shown only for renderers with no collider. Blue dashed rect, center dot, and a facing arrow.
+
+**Rigidbodies** (`debugPhysics`)
+
+| Visual | Meaning |
+|---|---|
+| Bright purple dot | Moving |
+| Dim purple dot | Nearly still |
+| Dashed purple arrow | Velocity direction and magnitude |
+| Green dot + `G` | `isGrounded` is true |
+| Red dot + `A` | Airborne |
+| `px/s` label | Speed |
+| `m:` label | Mass |
+
+**Cameras** (`debugCameras`) — dashed view frustum with center crosshair. Primary camera in orange `#FF6E40`, others in light orange `#FFAB91`.
+
+---
+
+### Toggle Keys
+
+| Action | Default |
+|---|---|
+| Toggle overlay | `F2` or `Ctrl + D` |
+| Toggle rigidbody debug | `F4` |
+| Toggle bounds + colliders | `F5` |
+| Toggle cameras | `F6` |
+
+They are static properties, so you can change them in code:
+
+```js
+DebugOverlay.TOGGLE_KEYS       = [KeyCode.F3];
+DebugOverlay.TOGGLE_COMBO      = { key: KeyCode.G, modifier: "ctrl" };
+DebugOverlay.PHYSICS_DEBUG_KEY = KeyCode.F7;
+DebugOverlay.BOUNDS_DEBUG_KEY  = KeyCode.F8;
+DebugOverlay.CAMERAS_DEBUG_KEY = KeyCode.F9;
+```
+
+---
+
+### Remapping Keys with JSON
+
+Browsers use some function keys for their own shortcuts, so keys can be remapped from a JSON file without touching code.
+
+**`debug.config.json`:**
+
+```json
+{
+    "keys": {
+        "toggle":      "F2",
+        "toggleCombo": { "key": "D", "modifier": "ctrl" },
+        "physics":     "F4",
+        "bounds":      "F5",
+        "cameras":     "F6"
+    }
+}
+```
+
+Load it before the game starts:
+
+```js
+await DebugOverlay.loadConfig("./debug.config.json");
+```
+
+Or pass `debugConfig` in the game options and the engine loads it for you. Key names match `KeyCode` property names. A name not found in `KeyCode` is used as a raw key string. Only the keys listed in the JSON change.
+
+---
+
+### DebugStats
+
+`DebugStats` collects performance numbers independently of the overlay, so you can read them from anywhere.
+
+```js
+game.debugStats.fps
+game.debugStats.frameTime   // ms for the last frame
+game.debugStats.avgFrame    // average over the last 60 frames
+game.debugStats.cpuUsage    // frame time as % of the 16.67ms budget
+game.debugStats.gcSpikes    // long-gap frames in the current second
+```
+
+The game loop wraps each frame:
+
+```js
+update(dt) {
+    this.debugStats?.beginFrame();
+    // ... update logic ...
+    this.debugStats?.endFrame();
+}
+```
+
+GC spikes are a heuristic: a gap over 50ms between frames counts as a spike. CPU usage is an estimate from frame time, not a real CPU measurement.
+
+---
+
+### Debug API Reference
+
+**DebugOverlay**
+
+| Member | Description |
+|---|---|
+| `init()` | Build panels and the `"Debug"` layer |
+| `update(dt)` | Handle toggle keys and refresh labels |
+| `show()` / `hide()` / `toggle()` | Control visibility |
+| `isVisible` | Current visibility |
+| `trackAction(name)` | Record the last fired input action |
+| `DebugOverlay.loadConfig(path)` | Remap keys from JSON (async) |
+
+**Renderer flags**
+
+| Flag | Controls |
+|---|---|
+| `renderer.debugPhysics` | Rigidbody visuals |
+| `renderer.debugBounds` | Renderer bounds and colliders |
+| `renderer.debugCameras` | Camera frustums |
+
+**Game config**
+
+| Option | Description |
+|---|---|
+| `debug` | Create `DebugStats` and `DebugOverlay` |
+| `debugPhysics` / `debugBounds` / `debugCameras` | Initial state of each draw layer |
+| `debugConfig` | Path to the key remap JSON |

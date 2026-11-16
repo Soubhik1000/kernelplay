@@ -7,6 +7,7 @@ import { Input } from "../../src/index.js";
 import { KeyCode } from "../../src/index.js";
 import { GamepadButton } from "../../src/index.js";
 import { DebugOverlay } from "../../src/core/DebugOverlay.js";
+import { Physics3D } from "../../src/index.js";
 
 // import { WebGL2DRenderer } from "../../src/index.js";
 // import { ThreeRenderer } from "../../src/index.js";
@@ -41,6 +42,7 @@ class MyGame extends Game {
 const game = new MyGame({
   // renderer: new WebGL2DRenderer(),
   // renderer: new ThreeRenderer(),
+  // physics: new Physics3D,
   width: 800,
   height: 600,
   fps: 60,

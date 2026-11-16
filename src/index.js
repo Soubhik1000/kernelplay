@@ -57,3 +57,5 @@ export * from "./core/ui/index.js";
 // physics components
 export { RigidbodyComponent } from "./core/physics/RigidbodyComponent.js";
 export { Rigidbody2DComponent } from "./core/physics/Rigidbody2DComponent.js";
+export { Physics2D } from "./core/physics/Physics2D.js";
+export { Physics3D } from "./core/physics/Physics3D.js";

@@ -6,30 +6,56 @@
 
 ## Physics-Enabled Entity
 
-Combine a `Rigidbody2DComponent` and `ColliderComponent` to get full physics.
+KernelPlay-JS supports physics-enabled entities in both **2D and 3D environments**.
+
+Combine a `RigidbodyComponent` with a `ColliderComponent` to enable physics simulation, including gravity, mass, drag, and collision detection.
+
+### Example
 
 ```js
 const player = new Entity("Player");
 
 player.addComponent("transform", new TransformComponent({
-  position: { x: 400, y: 100 }
+    position: { x: 400, y: 100, z: 0 }
 }));
-player.addComponent("rigidbody2d", new Rigidbody2DComponent({
-  useGravity: true,
-  mass: 1,
-  drag: 0.02
+
+player.addComponent("rigidbody", new RigidbodyComponent({
+    useGravity: true,
+    mass: 1,
+    drag: 0.02
 }));
+
 player.addComponent("collider", new ColliderComponent());
 
 scene.addEntity(player);
 ```
+
+### Using the Physics3D
+
+To run your game with the 3D Physics, initialize `MyGame` with `Physics3D`.
+
+```js
+import { Physics3D } from "kernelplay-js";
+
+const game = new MyGame({
+    physics: new Physics3D,
+    container: `#${container.id}`,
+    width: 800,
+    height: 600,
+    fps: 90,
+});
+
+game.start();
+```
+
+**Note:** Choose the appropriate renderer for your game. The same Rigidbody-based physics workflow supports both 2D and 3D environments.
 
 ## Controlling Physics in Scripts
 
 ```js
 class PlayerController extends ScriptComponent {
   update(dt) {
-    const rb = this.entity.getComponent("rigidbody2d");
+    const rb = this.entity.getComponent("rigidbody");
     const speed = 200;
 
     // Horizontal movement
