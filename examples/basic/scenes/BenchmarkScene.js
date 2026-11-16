@@ -2,7 +2,7 @@
 import { Scene, Entity, Keyboard } from "../../../src/index.js";
 import { BoxRenderComponent, ColliderComponent } from "../../../src/index.js";
 import { TransformComponent } from "../../../src/index.js";
-import { Rigidbody2DComponent } from "../../../src/index.js";
+import { RigidbodyComponent } from "../../../src/index.js";
 import { CameraComponent } from "../../../src/index.js";
 
 export class BenchmarkScene extends Scene {
@@ -78,7 +78,7 @@ export class BenchmarkScene extends Scene {
             entity.destroy();
         }
         this.entities = [];
-        this._rigidbody2D = [];
+        this._rigidbodies = [];
         this._colliders = [];
         this._renderers = [];
 
@@ -118,13 +118,13 @@ export class BenchmarkScene extends Scene {
                     height: 50
                 }));
 
-                entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+                entity.addComponent("rigidbody", new RigidbodyComponent({
                     mass: 1,
                     gravityScale: 0,
                     drag: 0.1
                 }));
 
-                const rb = entity.getComponent("rigidbody2d");
+                const rb = entity.getComponent("rigidbody");
                 rb.velocity.x = (Math.random() - 0.5) * 200;
                 rb.velocity.y = (Math.random() - 0.5) * 200;
             }
@@ -254,7 +254,7 @@ export class BenchmarkScene extends Scene {
         this.ctx.fillStyle = "#FFFFFF";
         this.ctx.fillText(`Total Entities: ${this.entities.length}`, 20, 175);
         this.ctx.fillText(`Visible: ${this.visibleCount}`, 20, 195);
-        this.ctx.fillText(`Physics: ${this._rigidbody2D.length}`, 20, 215);
+        this.ctx.fillText(`Physics: ${this._rigidbodies.length}`, 20, 215);
 
         // Camera position
         this.ctx.fillStyle = "#888888";
