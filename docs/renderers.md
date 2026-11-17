@@ -48,10 +48,10 @@ npm install @kernelplay/pixi-renderer pixi.js kernelplay-js
 ### WebGL 2D Renderer
 
 ```js
-import { WebGL2DRenderer } from "@kernelplay/pixi-renderer";
+import { PixiRenderer } from "@kernelplay/pixi-renderer";
 
 new MyGame({
-  renderer: new WebGL2DRenderer(),
+  renderer: new PixiRenderer(),
   width: 800,
   height: 600,
   fps: 60,

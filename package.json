@@ -6,15 +6,21 @@
 
   "main": "dist/kernelplay.umd.js",
   "module": "dist/kernelplay.es.js",
+  "types": "dist/index.d.ts",
 
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/kernelplay.es.js",
       "require": "./dist/kernelplay.umd.js"
     }
   },
 
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
 
   "repository": {
     "type": "git",
