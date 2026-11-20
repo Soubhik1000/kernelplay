@@ -186,7 +186,7 @@ new MyGame({ width: 800, height: 600, fps: 60 }).start();
 | [🔧 Components](https://github.com/Soubhik1000/kernelplay/blob/master/docs/components.md) | Transform, Collider, Rigidbody2D, BoxRenderer, and ScriptComponent. |
 | [🖥️ Renderers](https://github.com/Soubhik1000/kernelplay/blob/master/docs/renderers.md) | Canvas 2D, Pixi.js and Three.js backends. |
 | [⚙️ Physics System](https://github.com/Soubhik1000/kernelplay/blob/master/docs/physics.md) | Built-in 2D physics with collision detection, rigidbodies, and gravity. |
-| [🔧 Debug System *(New in v0.6.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/modular-renderer.md) | UI overlay with live stats, and in-world draw layers for physics, bounds, and cameras. |
+| [🔧 Debug System *(New in v0.6.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/debug-system.md) | UI overlay with live stats, and in-world draw layers for physics, bounds, and cameras. |
 | [🎮 Input System *(New in v0.5.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/input.md) | Unified Keyboard, Gamepad and Touch input. |
 | [🛠️ Helpers & Utilities](https://github.com/Soubhik1000/kernelplay/blob/master/docs/helpers.md) | Shorthand API, math, timers, prop injection and debug mode. |
 | [🔄 Script Lifecycle](https://github.com/Soubhik1000/kernelplay/blob/master/docs/script-lifecycle.md) | onAttach, onStart, update, lateUpdate, onDestroy. |
@@ -196,7 +196,7 @@ new MyGame({ width: 800, height: 600, fps: 60 }).start();
 | [🖼️ Sprite Management](https://github.com/Soubhik1000/kernelplay/blob/master/docs/sprite-management.md) | Sprite sheets, atlases, and efficient sprite rendering techniques. |
 | [🎵 AudioSource *(New in v0.3.1)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/audio.md) | Spatial SFX, loops, background music and the AudioListener. |
 | [🖼️ UI System *(New in v0.4.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/ui.md) | Retained-mode UI: panels, text, buttons, bars, layers and world-space labels. |
-| [🖥️ Modular Renderer *(New in v0.6.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/debug-system.md) | The same component can then work with Canvas2D, Pixi, or future backends |
+| [🖥️ Modular Renderer *(New in v0.6.0)*](https://github.com/Soubhik1000/kernelplay/blob/master/docs/modular-renderer.md) | The same component can then work with Canvas2D, Pixi, or future backends |
 | [📖 API Reference](https://github.com/Soubhik1000/kernelplay/blob/master/docs/api-reference.md) | Complete method tables for Entity, Scene, SceneManager, and more. |
 | [▶️ Live Examples](https://soubhik-rjs.github.io/kernelplay-js-demo/examples/parkour-boy/) | Interactive canvas demos with full code: platformer, bouncing balls, triggers, and more. |
 | [🔫 Object Pooling](https://github.com/Soubhik1000/kernelplay/blob/master/docs/object-pooling.md) | Zero-config entity recycling for bullets and other short-lived objects. |
