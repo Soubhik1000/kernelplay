@@ -38,14 +38,14 @@ entity.addComponent("collider", new ColliderComponent({
 }));
 ```
 
-## Rigidbody2DComponent
+## RigidbodyComponent
 
-Adds 2D physics simulation — gravity, velocity, drag, and mass.
+Adds physics simulation — gravity, velocity, drag, and mass.
 
 ```js
-import { Rigidbody2DComponent } from "kernelplay-js";
+import { RigidbodyComponent } from "kernelplay-js";
 
-entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
+entity.addComponent("rigidbody", new RigidbodyComponent({
   mass: 1,
   gravityScale: 1,
   isKinematic: false,  // kinematic = not affected by gravity/forces
@@ -54,7 +54,7 @@ entity.addComponent("rigidbody2d", new Rigidbody2DComponent({
 }));
 
 // Manipulate at runtime
-const rb = entity.getComponent("rigidbody2d");
+const rb = entity.getComponent("rigidbody");
 rb.velocity.x = 200;
 rb.addForce({ x: 0, y: -500 });  // impulse upward
 ```
@@ -67,7 +67,7 @@ Renders a filled rectangle. Great for prototyping.
 import { BoxRenderComponent } from "kernelplay-js";
 
 entity.addComponent("renderer", new BoxRenderComponent(
-  { color: "red" }
+  { color: "red", zIndex: 99 }
 ));
 ```
 
@@ -81,9 +81,9 @@ import { ScriptComponent } from "kernelplay-js";
 class Spinner extends ScriptComponent {
   update(dt) {
     const t = this.entity.getComponent("transform");
-    t.rotation.z += 2 * dt; // 2 radians/sec
+    t.rotation.z += this.speed * dt; // 2 radians/sec
   }
 }
 
-entity.addComponent("script", new Spinner());
+entity.addComponent("script", new Spinner({speed: 2}));
 ```

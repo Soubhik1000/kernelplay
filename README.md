@@ -3,7 +3,7 @@
 A **2D/3D JavaScript game engine** that feels like Unity — but lives in your browser.
 Built on an Entity–Component architecture, fast, flexible, and surprisingly fun to use.
 
-> **v0.5.1-beta** · MIT License · Built by Soubhik Mukherjee
+> **v0.6.0-beta** · MIT License · Built by Soubhik Mukherjee
 
 ---
 
@@ -44,6 +44,10 @@ Most browser game engines either hold your hand too much or leave you drowning i
 - **10,000+ objects at 60 FPS** on a 7th gen i3
 - **Full animation state machine** — triggers, transitions, crossfades
 - **Zero config** object pooling, spatial grid, frustum culling
+
+### TypeScript Support
+
+`kernelplay-js` ships with TypeScript declarations (`index.d.ts`) out of the box—no `@types` package required. Import classes, components, and utilities directly in `.ts` or `.tsx` files with full editor autocomplete and type checking.
 
 ---
 ## 📦 Installation
