@@ -62,6 +62,7 @@ export class PlayerController extends ScriptComponent {
     // }
 
     update(dt) {
+        // if (!(dt > 0)) return;
         const rb = this.entity.getComponent("rigidbody");
         const transform = this.entity.getComponent("transform");
 
@@ -372,16 +373,21 @@ export class PlayerController extends ScriptComponent {
 
             // this.game.setTimeScale(0.25);
             // this.entity.scene.game.setTimeScale(0.25);
-            console.log(this.game.loop);
+            console.log(this.game.loop.timeScale);
             // this.game.setTimeScale(0.25);
-            // this.rb.ignoreTimeScale = true;
-            this.rb.setIgnoreTimeScale(true);
+            // rb.ignoreTimeScale = true;
+            // rb.setIgnoreTimeScale(true);
+            // console.log(rb.ignoreTimeScale);
 
             // this.entity.scene.game.physics.ignoreTimeScale = false;
 
-            this.game.setTimeScale(0);
-            // this.game.setTimeScale(10);
+            // this.game.setTimeScale(0);
+            this.game.setTimeScale(0.5);
             
+        }
+
+        if (Keyboard.wasPressed(KeyCode.J)) {
+            rb.setIgnoreTimeScale(true);
         }
 
         if (Keyboard.wasPressed(KeyCode.L)) {

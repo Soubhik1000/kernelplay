@@ -62,6 +62,7 @@ export class Physics2D extends PhysicsEngine {
 
             let bodyDt = dt;
             if (rb.ignoreTimeScale) {
+                // console.log(rb.ignoreTimeScale);
                 bodyDt = unscaledDt;
             } else if (typeof rb.timeScale === "number") {
                 bodyDt = unscaledDt * Math.max(0, rb.timeScale);

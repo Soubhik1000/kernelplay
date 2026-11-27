@@ -251,6 +251,16 @@ class PlayerScript extends ScriptComponent {
             this.sprite.flipX = true;
         }
 
+        // if (Keyboard.wasPressed(KeyCode.X)) {
+        //     // this.rb.setIgnoreTimeScale(true);
+        //     this.rb.ignoreTimeScale = true;
+        // }
+
+        // if (Keyboard.wasPressed(KeyCode.Z)) {
+        //     // rb.setIgnoreTimeScale(true);
+        //     this.game.setTimeScale(0.25);
+        // }
+
         const isMoving = this.rb.velocity.x !== 0;
         this.animator.setParameter("speed", isMoving ? 1 : 0);
         this.animator.setParameter("isGrounded", this.rb.isGrounded);

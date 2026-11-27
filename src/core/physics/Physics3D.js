@@ -8,38 +8,90 @@ export class Physics3D extends PhysicsEngine {
     this._gridCellSize = 128;
   }
 
-  init(scene) {}
+  init(scene) { }
+
+  // step(scene, dt) {
+  //   const gravity = scene.game?.config?.gravity3D ?? 9.81;
+  //   // const gravity = 9.81;
+
+  //   for (const rb of scene._rigidbodies) {
+  //     if (rb.isKinematic || !rb.entity.active) continue;
+
+  //     rb.isGrounded = false;
+
+  //     if (rb.useGravity) {
+  //       rb.force.y -= gravity * rb.gravityScale * rb.mass;
+  //     }
+
+  //     const ax = rb.force.x / rb.mass;
+  //     const ay = rb.force.y / rb.mass;
+  //     const az = rb.force.z / rb.mass;
+
+  //     rb.velocity.x += ax * dt;
+  //     rb.velocity.y += ay * dt;
+  //     rb.velocity.z += az * dt;
+
+  //     rb.velocity.x *= 1 - rb.drag * dt;
+  //     rb.velocity.y *= 1 - rb.drag * dt;
+  //     rb.velocity.z *= 1 - rb.drag * dt;
+
+  //     const t = rb.entity.getComponent("transform");
+  //     if (t) {
+  //       t.position.x += rb.velocity.x * dt;
+  //       t.position.y += rb.velocity.y * dt;
+  //       t.position.z += rb.velocity.z * dt;
+  //       t.markDirty();
+  //     }
+
+  //     rb.force.x = 0;
+  //     rb.force.y = 0;
+  //     rb.force.z = 0;
+  //   }
+
+  //   this._handleCollisions(scene);
+  // }
 
   step(scene, dt) {
-    const gravity = scene.game?.config?.gravity3D ?? 9.81;
-    // const gravity = 9.81;
+    const gravity = scene.game?.config?.gravity3D ?? -30;
+    const scale = scene.game?.loop?.timeScale ?? 1;
+    const unscaledDt = scale > 0 ? dt / scale : dt;
 
     for (const rb of scene._rigidbodies) {
-      if (rb.isKinematic || !rb.entity.active) continue;
+      if (rb.isKinematic || !rb.entity?.active) continue;
+
+      let bodyDt = dt;
+      if (rb.ignoreTimeScale) {
+        bodyDt = unscaledDt;
+      } else if (typeof rb.timeScale === "number") {
+        bodyDt = unscaledDt * Math.max(0, rb.timeScale);
+      }
+
+      if (bodyDt <= 0) continue;
 
       rb.isGrounded = false;
 
       if (rb.useGravity) {
-        rb.force.y -= gravity * rb.gravityScale * rb.mass;
+        rb.force.y += gravity * rb.gravityScale * rb.mass;
       }
 
       const ax = rb.force.x / rb.mass;
       const ay = rb.force.y / rb.mass;
       const az = rb.force.z / rb.mass;
 
-      rb.velocity.x += ax * dt;
-      rb.velocity.y += ay * dt;
-      rb.velocity.z += az * dt;
+      rb.velocity.x += ax * bodyDt;
+      rb.velocity.y += ay * bodyDt;
+      rb.velocity.z += az * bodyDt;
 
-      rb.velocity.x *= 1 - rb.drag * dt;
-      rb.velocity.y *= 1 - rb.drag * dt;
-      rb.velocity.z *= 1 - rb.drag * dt;
+      const dragFactor = Math.max(0, 1 - rb.drag * bodyDt);
+      rb.velocity.x *= dragFactor;
+      rb.velocity.y *= dragFactor;
+      rb.velocity.z *= dragFactor;
 
       const t = rb.entity.getComponent("transform");
       if (t) {
-        t.position.x += rb.velocity.x * dt;
-        t.position.y += rb.velocity.y * dt;
-        t.position.z += rb.velocity.z * dt;
+        t.position.x += rb.velocity.x * bodyDt;
+        t.position.y += rb.velocity.y * bodyDt;
+        t.position.z += rb.velocity.z * bodyDt;
         t.markDirty();
       }
 

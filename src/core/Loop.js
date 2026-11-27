@@ -65,40 +65,40 @@ export class Loop {
     this.timeScale = Math.max(0, scale);
   }
 
-  _tick(currentTime) {
-    if (!this.running) return;
+  // _tick(currentTime) {
+  //   if (!this.running) return;
 
-    const dt = (currentTime - this.lastTime) / 1000;
-    this.lastTime = currentTime;
+  //   const dt = (currentTime - this.lastTime) / 1000;
+  //   this.lastTime = currentTime;
 
-    const clampedDt = Math.min(dt, 0.1);
+  //   const clampedDt = Math.min(dt, 0.1);
 
-    // 🛡️ tab switch fix
-    if (currentTime - this.lastCalcTime > 1000) this.lastCalcTime = currentTime;
-    if (currentTime - this.lastFixedTime > 1000) this.lastFixedTime = currentTime;
-    if (currentTime - this.lastRenderTime > 1000) this.lastRenderTime = currentTime;
+  //   // 🛡️ tab switch fix
+  //   if (currentTime - this.lastCalcTime > 1000) this.lastCalcTime = currentTime;
+  //   if (currentTime - this.lastFixedTime > 1000) this.lastFixedTime = currentTime;
+  //   if (currentTime - this.lastRenderTime > 1000) this.lastRenderTime = currentTime;
 
-    // ⚙️ variable update, throttled to calcRate
-    if (currentTime - this.lastCalcTime >= this.calcInterval) {
-      this.lastCalcTime += this.calcInterval;
-      if (this.update) this.update(clampedDt);
-    }
+  //   // ⚙️ variable update, throttled to calcRate
+  //   if (currentTime - this.lastCalcTime >= this.calcInterval) {
+  //     this.lastCalcTime += this.calcInterval;
+  //     if (this.update) this.update(clampedDt);
+  //   }
 
-    // 🔧 fixed update, throttled to fixedRate
-    if (currentTime - this.lastFixedTime >= this.fixedInterval) {
-      this.lastFixedTime += this.fixedInterval;
-      if (this.fixedUpdate) this.fixedUpdate(this.fixedDeltaTime);
-    }
+  //   // 🔧 fixed update, throttled to fixedRate
+  //   if (currentTime - this.lastFixedTime >= this.fixedInterval) {
+  //     this.lastFixedTime += this.fixedInterval;
+  //     if (this.fixedUpdate) this.fixedUpdate(this.fixedDeltaTime);
+  //   }
 
-    // 🎨 render, throttled to frameRate
-    if (currentTime - this.lastRenderTime >= this.frameInterval) {
-      this.lastRenderTime += this.frameInterval;
-      const alpha = (currentTime - this.lastFixedTime) / this.fixedInterval;
-      if (this.render) this.render(alpha);
-    }
+  //   // 🎨 render, throttled to frameRate
+  //   if (currentTime - this.lastRenderTime >= this.frameInterval) {
+  //     this.lastRenderTime += this.frameInterval;
+  //     const alpha = (currentTime - this.lastFixedTime) / this.fixedInterval;
+  //     if (this.render) this.render(alpha);
+  //   }
 
-    requestAnimationFrame(this._tick);
-  }
+  //   requestAnimationFrame(this._tick);
+  // }
 
   _tick(currentTime) {
     if (!this.running) return;
