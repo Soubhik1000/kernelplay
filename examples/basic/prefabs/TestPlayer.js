@@ -51,6 +51,7 @@ class PlayerScript extends ScriptComponent {
         //     keys: [KeyCode.Z, KeyCode.X],
         //     buttons: [GamepadButton.X, GamepadButton.RB],
         // });
+        this.speed = 100;
     }
 
     start() {
@@ -69,6 +70,23 @@ class PlayerScript extends ScriptComponent {
         this.timer.update(dt);
 
         Input.TOUCH_SENSITIVITY = 1;
+
+        if (Keyboard.isPressed(KeyCode.W) || Keyboard.isPressed(KeyCode.ArrowUp)) {
+            // this.transform.position.y -= this.speed;
+            this.transform.position.y -= this.speed * dt;
+        }
+        if (Keyboard.isPressed(KeyCode.S) || Keyboard.isPressed(KeyCode.ArrowDown)) {
+            // this.transform.position.y += this.speed;
+            this.transform.position.y += this.speed * dt;
+        }
+        if (Keyboard.isPressed(KeyCode.A) || Keyboard.isPressed(KeyCode.ArrowLeft)) {
+            // this.transform.position.x -= this.speed;
+            this.transform.position.x -= this.speed * dt;
+        }
+        if (Keyboard.isPressed(KeyCode.D) || Keyboard.isPressed(KeyCode.ArrowRight)) {
+            // this.transform.position.x += this.speed;
+            this.transform.position.x += this.speed * dt;
+        }
 
         // if (Keyboard.isPressed(KeyCode.ArrowRight)) this.rb.addForce(800, 0);
         // if (Keyboard.isPressed(KeyCode.ArrowLeft)) this.rb.addForce(-800, 0);
@@ -106,14 +124,14 @@ class PlayerScript extends ScriptComponent {
         // }
 
 
-        const FORCE = 800;
-        const h = Input.getAxis("horizontal");
-        const v = Input.getAxis("vertical");
-        // console.log(h);
+        // const FORCE = 800;
+        // const h = Input.getAxis("horizontal");
+        // const v = Input.getAxis("vertical");
+        // // console.log(h);
 
 
-        if (Math.abs(h) > 0.1) this.rb.addForce(FORCE * h, 0);
-        if (Math.abs(v) > 0.1) this.rb.addForce(0, FORCE * v);
+        // if (Math.abs(h) > 0.1) this.rb.addForce(FORCE * h, 0);
+        // if (Math.abs(v) > 0.1) this.rb.addForce(0, FORCE * v);
 
         if (Keyboard.isPressed(KeyCode.Shift)) {
             const movement = Vector2.scale(this.rb.velocity, dt);
@@ -128,6 +146,44 @@ class PlayerScript extends ScriptComponent {
 
         if (Input.isPressed('jump')) {
             console.log("jump done");
+        }
+
+        if (Keyboard.wasPressed('c')) {
+            // this.wall.getComponent('position').x = 0;
+            // console.log(this.entity.hasTag("player"));
+
+            // console.log(this.hasTag("player"));
+
+            // const wall = this.entity.scene.findByTag("wall");
+
+            // const wall = this.findByTag("wall");
+            // wall.getComponent('transform').position.x = 0;
+
+            // const wall = this.entity.scene.findAllByTag("wall");
+
+            // const wall = this.findAllByTag("wall");
+            // wall[1].getComponent('transform').position.x = 0;
+
+            // this.enemy.destroy();
+            //         if (this.enemy) {
+            //             // console.log(this.enemy);
+            //   const enemyPos = this.enemy.getComponent("transform").position;
+            //   console.log("Enemy at:", enemyPos.x);
+            // }
+
+            // this.camera1.setTarget(this.entity);
+            // this.camera1.getComponent("camera").setTarget();
+            // console.log(this.camera1.getComponent("transform").getPosition());
+
+            // this.camera1.getComponent("transform").position.x = 0;
+
+            // this.game.setTimeScale(0.25);
+            // this.entity.scene.game.setTimeScale(0.25);
+            console.log(this.game.loop);
+            // this.game.setTimeScale(0.25);
+            this.game.setTimeScale(0);
+            // this.game.setTimeScale(10);
+
         }
 
         if (Keyboard.isPressed(KeyCode.Q)) {

@@ -6,7 +6,9 @@ export class RigidbodyComponent extends Component {
     gravityScale = 1,
     isKinematic = false,
     drag = 0.05,
-    useGravity = true
+    useGravity = true,
+    ignoreTimeScale = false,
+    timeScale = null // null = follow global/scene timeScale; number = custom scale
   } = {}) {
     super();
     this.mass = mass;
@@ -14,6 +16,8 @@ export class RigidbodyComponent extends Component {
     this.isKinematic = isKinematic;
     this.drag = drag;
     this.useGravity = useGravity;
+    this.ignoreTimeScale = ignoreTimeScale;
+    this.timeScale = timeScale;
 
     // Pure data — physics engine writes to these
     this.velocity = { x: 0, y: 0, z: 0 };
@@ -28,5 +32,13 @@ export class RigidbodyComponent extends Component {
 
   addImpulse(x, y, z = 0) {
     this.addForce(x, y, z, "impulse");
+  }
+
+  setIgnoreTimeScale(ignore) {
+    this.ignoreTimeScale = Boolean(ignore);
+  }
+
+  setTimeScale(scale) {
+    this.timeScale = scale === null ? null : Math.max(0, scale);
   }
 }

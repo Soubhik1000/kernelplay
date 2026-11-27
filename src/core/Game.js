@@ -55,22 +55,76 @@ export class Game {
     // 🔥 Inject Game into SceneManager
     this.sceneManager = new SceneManager(this);
 
-    this.loop = new Loop({
-      update: (dt) => {
-        Time.update(dt, performance.now());
-        dt = Math.min(dt, 0.05);
+    // this.loop = new Loop({
+    //   update: (dt) => {
+    //     Time.update(dt, performance.now());
+    //     dt = Math.min(dt, 0.05);
 
-        this.update(dt);
-        this.sceneManager.update(dt);
+    //     this.update(dt);
+    //     this.sceneManager.update(dt);
+    //     this.audio.update();
+    //     this.ui.update(dt);
+    //     if (this.config.debug) this.debug.update(dt);
+
+    //     Keyboard.update();
+    //     Mouse.update();
+    //     Touch.update();
+    //     Gamepad.update();
+
+    //   },
+
+    //   fixedUpdate: (dt) => {
+    //     this.fixedUpdate(dt);
+    //     this.sceneManager.fixedUpdate(dt);
+    //   },
+
+    //   render: () => {
+    //     this.render();
+    //     this.debugStats?.beginFrame();
+
+    //     // // 🔥 Centralized render
+    //     // const { width, height } = this.config;
+    //     // this.ctx.clearRect(0, 0, width, height);
+
+    //     // if (this.sceneManager.currentScene) {
+    //     //   this.sceneManager.currentScene.render();
+    //     // }
+
+    //     this.sceneManager.render(this.renderer);
+    //     this.ui.render();
+    //     this.debugStats?.endFrame();
+    //   },
+
+    //   inputConfig: this.config.inputConfig,
+    //   debugConfig: this.config.debugConfig,
+    //   fps: this.config.fps,
+    //   calcRate: this.config.calcRate,
+    //   fixedRate: this.config.fixedRate,
+    //   container: this.config.container,
+    // });
+
+    this.loop = new Loop({
+      update: (dt, unscaledDt) => {
+        Time.update(dt, performance.now());
+
+        // Gameplay uses scaled dt (skips when paused)
+        // if (dt > 0) {
+        //   this.update(dt);
+        //   this.sceneManager.update(dt);
+        // }
+
+        this.update(dt, unscaledDt);
+        this.sceneManager.update(dt, unscaledDt);
+
+        // Audio, UI, Debug, and Input always run on unscaledDt
         this.audio.update();
-        this.ui.update(dt);
-        if (this.config.debug) this.debug.update(dt);
+        this.ui.update(unscaledDt);
+        if (this.config.debug) this.debug.update(unscaledDt);
 
         Keyboard.update();
         Mouse.update();
         Touch.update();
         Gamepad.update();
-
       },
 
       fixedUpdate: (dt) => {
@@ -81,15 +135,6 @@ export class Game {
       render: () => {
         this.render();
         this.debugStats?.beginFrame();
-
-        // // 🔥 Centralized render
-        // const { width, height } = this.config;
-        // this.ctx.clearRect(0, 0, width, height);
-
-        // if (this.sceneManager.currentScene) {
-        //   this.sceneManager.currentScene.render();
-        // }
-
         this.sceneManager.render(this.renderer);
         this.ui.render();
         this.debugStats?.endFrame();
@@ -134,5 +179,9 @@ export class Game {
 
   stop() {
     this.loop.stop();
+  }
+
+  setTimeScale(scale) {
+    this.loop.setTimeScale(scale);
   }
 }

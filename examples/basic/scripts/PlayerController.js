@@ -370,6 +370,18 @@ export class PlayerController extends ScriptComponent {
 
             // this.camera1.getComponent("transform").position.x = 0;
 
+            // this.game.setTimeScale(0.25);
+            // this.entity.scene.game.setTimeScale(0.25);
+            console.log(this.game.loop);
+            // this.game.setTimeScale(0.25);
+            // this.rb.ignoreTimeScale = true;
+            this.rb.setIgnoreTimeScale(true);
+
+            // this.entity.scene.game.physics.ignoreTimeScale = false;
+
+            this.game.setTimeScale(0);
+            // this.game.setTimeScale(10);
+            
         }
 
         if (Keyboard.wasPressed(KeyCode.L)) {
